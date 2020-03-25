@@ -3,6 +3,8 @@ package ee.taltech.iti0213.sportsapp
 class C {
     companion object {
         const val NOTIFICATION_CHANNEL = "default_channel"
+        const val NOTIFICATION_CHANNEL_NAME = "Default channel"
+        const val NOTIFICATION_CHANNEL_DESCRIPTION = "Default channel description"
         const val NOTIFICATION_ACTION_WP = "ee.taltech.iti0213.sportsapp.wp"
         const val NOTIFICATION_ACTION_CP = "ee.taltech.iti0213.sportsapp.cp"
 

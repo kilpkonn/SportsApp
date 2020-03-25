@@ -34,9 +34,12 @@
 
 
 
-        <!-- This is critical: android:foregroundServiceType="location"  -->
+        <!--
+        This is critical: android:foregroundServiceType="location"
+        Requires buildTools SDK >= 29
+         -->
         <service android:name=".LocationService"
-
+            android:foregroundServiceType="location"
             android:enabled="true"
             android:exported="true"
             android:launchMode="singleTask" />

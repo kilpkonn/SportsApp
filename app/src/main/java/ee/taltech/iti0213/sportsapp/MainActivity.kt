@@ -1,8 +1,8 @@
 package ee.taltech.iti0213.sportsapp
 
-import android.Manifest
 // do not import this! never! If this get inserted automatically when pasting java code, remove it
 //import android.R
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -21,10 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
-import ee.taltech.iti0213.sportsapp.BuildConfig
-import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.LocationService
-import ee.taltech.iti0213.sportsapp.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -67,7 +64,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
     }
 
@@ -99,16 +97,15 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 C.NOTIFICATION_CHANNEL,
-                "Default channel",
+                C.NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_LOW
-            );
+            )
 
             //.setShowBadge(false).setSound(null, null);
 
-            channel.description = "Default channel"
+            channel.description = C.NOTIFICATION_CHANNEL_DESCRIPTION
 
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -202,7 +199,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     // ============================================== CLICK HANDLERS =============================================
     fun buttonStartStopOnClick(view: View) {
         Log.d(TAG, "buttonStartStopOnClick. locationServiceActive: $locationServiceActive")
@@ -238,13 +234,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ============================================== BROADCAST RECEIVER =============================================
-    private inner class InnerBroadcastReceiver: BroadcastReceiver() {
+    private inner class InnerBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, intent!!.action)
-            when (intent!!.action){
+            when (intent!!.action) {
                 C.LOCATION_UPDATE_ACTION -> {
-                    textViewLatitude.text = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0).toString()
-                    textViewLongitude.text = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, 0.0).toString()
+                    textViewLatitude.text =
+                        intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0).toString()
+                    textViewLongitude.text =
+                        intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, 0.0).toString()
                 }
             }
         }

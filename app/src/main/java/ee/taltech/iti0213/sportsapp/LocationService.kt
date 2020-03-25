@@ -255,8 +255,8 @@ class LocationService : Service() {
 
     private inner class InnerBroadcastReceiver: BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, intent!!.action)
-            when(intent!!.action){
+            Log.d(TAG, intent!!.action!!)
+            when(intent.action){
                 C.NOTIFICATION_ACTION_WP -> {
                     locationWP = currentLocation
                     distanceWPDirect = 0f
