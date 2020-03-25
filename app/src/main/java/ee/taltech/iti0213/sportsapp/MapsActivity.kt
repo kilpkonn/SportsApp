@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -236,7 +237,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // stopping the service
             stopService(Intent(this, LocationService::class.java))
 
-            buttonStartStop.text = "START"
+            //buttonStartStop.text = "START"
         } else {
             if (Build.VERSION.SDK_INT >= 26) {
                 // starting the FOREGROUND service
@@ -245,7 +246,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 startService(Intent(this, LocationService::class.java))
             }
-            buttonStartStop.text = "STOP"
+            //buttonStartStop.text = "STOP"
         }
 
         locationServiceActive = !locationServiceActive

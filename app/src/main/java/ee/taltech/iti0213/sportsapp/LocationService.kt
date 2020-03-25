@@ -220,20 +220,23 @@ class LocationService : Service() {
         val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
         val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, 0)
 
-        val notifyview = RemoteViews(packageName, R.layout.track_control)
+        val notifyView = RemoteViews(packageName, R.layout.track_control)
 
-        notifyview.setOnClickPendingIntent(R.id.imageButtonCP, pendingIntentCp)
-        notifyview.setOnClickPendingIntent(R.id.imageButtonWP, pendingIntentWp)
+        notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
+        notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
+        // TODO: Incorrect data!!!!
+        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(distanceOverallDirect))
+        notifyView.setTextViewText(R.id.duration, "%.2f".format(distanceOverallTotal))
+        notifyView.setTextViewText(R.id.avg_speed, "%.2f".format(distanceOverallTotal))
 
-        notifyview.setTextViewText(R.id.textViewOverallDirect, "%.2f".format(distanceOverallDirect))
-        notifyview.setTextViewText(R.id.textViewOverallTotal, "%.2f".format(distanceOverallTotal))
+        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(distanceWPDirect))
+        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(distanceWPTotal))
+        notifyView.setTextViewText(R.id.avg_speed_cp, "%.2f".format(distanceWPTotal))
 
-        notifyview.setTextViewText(R.id.textViewWPDirect, "%.2f".format(distanceWPDirect))
-        notifyview.setTextViewText(R.id.textViewWPTotal, "%.2f".format(distanceWPTotal))
-
-        notifyview.setTextViewText(R.id.textViewCPDirect, "%.2f".format(distanceCPDirect))
-        notifyview.setTextViewText(R.id.textViewCPTotal, "%.2f".format(distanceCPTotal))
+        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(distanceCPDirect))
+        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(distanceCPTotal))
+        notifyView.setTextViewText(R.id.avg_speed_wp, "%.2f".format(distanceWPTotal))
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
@@ -242,7 +245,7 @@ class LocationService : Service() {
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        builder.setContent(notifyview)
+        builder.setContent(notifyView)
 
         // Super important, start as foreground service - ie android considers this as an active app.
         // Need visual reminder - notification.

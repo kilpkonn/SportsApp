@@ -12,7 +12,6 @@
         layout="@layout/activity_maps"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,36 +58,13 @@
         app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textViewLatitude" />
 
-    <Button
-        android:id="@+id/buttonStartStop"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/track_control_bar"
+        layout="@layout/track_control"
         android:layout_height="wrap_content"
-        android:onClick="buttonStartStopOnClick"
-        android:text="START"
+        android:layout_width="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/include" />
 
-    <Button
-        android:id="@+id/buttonWP"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:onClick="buttonWPOnClick"
-        android:text="WP"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonStartStop" />
-
-    <Button
-        android:id="@+id/buttonCP"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:onClick="buttonCPOnClick"
-        android:text="CP"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWP" />
 </androidx.constraintlayout.widget.ConstraintLayout>
