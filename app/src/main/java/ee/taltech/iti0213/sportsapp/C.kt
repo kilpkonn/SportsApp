@@ -17,5 +17,12 @@ class C {
         const val REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
 
+        const val SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT = "Hey, i really need to access GPS!"
+        const val SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT = "OK"
+        const val SNAKBAR_REQUEST_DENIED_TEXT = "You denied GPS! What can I do?"
+        const val SNAKBAR_OPEN_SETTINGS_TEXT = "Settings"
+
+        const val TOAST_USER_INTERACTION_CANCELLED_TEXT = "User interaction was cancelled."
+        const val TOAST_PERMISSION_GRANTED_TEXT = "Permission was granted"
     }
 }

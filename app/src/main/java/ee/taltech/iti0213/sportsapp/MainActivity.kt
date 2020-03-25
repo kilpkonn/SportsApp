@@ -1,7 +1,5 @@
 package ee.taltech.iti0213.sportsapp
 
-// do not import this! never! If this get inserted automatically when pasting java code, remove it
-//import android.R
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
-import ee.taltech.iti0213.sportsapp.LocationService
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -37,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private var locationServiceActive = false
 
-    // ============================================== MAIN ENTRY - ONCREATE =============================================
+    // ============================================== MAIN ENTRY - ON CREATE =============================================
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
@@ -129,23 +126,20 @@ class MainActivity : AppCompatActivity() {
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
-            Log.i(
-                TAG,
-                "Displaying permission rationale to provide additional context."
-            )
+            Log.i(TAG, "Displaying permission rationale to provide additional context.")
             Snackbar.make(
                 findViewById(R.id.activity_main),
-                "Hey, i really need to access GPS!",
+                C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT,
                 Snackbar.LENGTH_INDEFINITE
             )
-                .setAction("OK", View.OnClickListener {
+                .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
                     // Request permission
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                         C.REQUEST_PERMISSIONS_REQUEST_CODE
                     )
-                })
+                }
                 .show()
         } else {
             Log.i(TAG, "Requesting permission")
@@ -166,33 +160,44 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         Log.i(TAG, "onRequestPermissionResult")
-        if (requestCode === C.REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.count() <= 0) { // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
-                Log.i(TAG, "User interaction was cancelled.")
-                Toast.makeText(this, "User interaction was cancelled.", Toast.LENGTH_SHORT).show()
-            } else if (grantResults[0] === PackageManager.PERMISSION_GRANTED) {// Permission was granted.
-                Log.i(TAG, "Permission was granted")
-                Toast.makeText(this, "Permission was granted", Toast.LENGTH_SHORT).show()
-            } else { // Permission denied.
-                Snackbar.make(
-                    findViewById(R.id.activity_main),
-                    "You denied GPS! What can I do?",
-                    Snackbar.LENGTH_INDEFINITE
-                )
-                    .setAction("Settings", View.OnClickListener {
-                        // Build intent that displays the App settings screen.
-                        val intent = Intent()
-                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        val uri: Uri = Uri.fromParts(
-                            "package",
-                            BuildConfig.APPLICATION_ID, null
-                        )
-                        intent.data = uri
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(intent)
-                    })
-                    .show()
+        if (requestCode == C.REQUEST_PERMISSIONS_REQUEST_CODE) {
+            when {
+                grantResults.count() <= 0 -> {
+                    // If user interaction was interrupted, the permission request is cancelled and
+                    // you receive empty arrays.
+                    Log.i(TAG, "User interaction was cancelled.")
+                    Toast.makeText(
+                        this,
+                        C.TOAST_USER_INTERACTION_CANCELLED_TEXT,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission was granted.
+                    Log.i(TAG, "Permission was granted")
+                    Toast.makeText(this, C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    // Permission denied.
+                    Snackbar.make(
+                        findViewById(R.id.activity_main),
+                        C.SNAKBAR_REQUEST_DENIED_TEXT,
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
+                            // Build intent that displays the App settings screen.
+                            val intent = Intent()
+                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            val uri: Uri = Uri.fromParts(
+                                "package",
+                                BuildConfig.APPLICATION_ID, null
+                            )
+                            intent.data = uri
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
+                        }
+                        .show()
+                }
             }
         }
 
