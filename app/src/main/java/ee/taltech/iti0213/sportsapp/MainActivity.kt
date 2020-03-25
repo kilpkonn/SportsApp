@@ -241,8 +241,8 @@ class MainActivity : AppCompatActivity() {
     // ============================================== BROADCAST RECEIVER =============================================
     private inner class InnerBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d(TAG, intent!!.action)
-            when (intent!!.action) {
+            Log.d(TAG, intent!!.action!!)
+            when (intent.action) {
                 C.LOCATION_UPDATE_ACTION -> {
                     textViewLatitude.text =
                         intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0).toString()

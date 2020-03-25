@@ -20,12 +20,12 @@ import com.google.android.gms.location.*
 class LocationService : Service() {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
+
+        // The desired intervals for location updates. Inexact. Updates may be more or less frequent.
+        private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000
+        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
-
-
-    // The desired intervals for location updates. Inexact. Updates may be more or less frequent.
-    private val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000
-    private val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -50,7 +50,6 @@ class LocationService : Service() {
     private var locationWP: Location? = null
 
 
-
     override fun onCreate() {
         Log.d(TAG, "onCreate")
         super.onCreate()
@@ -59,9 +58,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_WP)
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
 
-
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
-
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -79,25 +76,24 @@ class LocationService : Service() {
 
     }
 
-    fun requestLocationUpdates() {
+    private fun requestLocationUpdates() {
         Log.i(TAG, "Requesting location updates")
 
         try {
             mFusedLocationClient.requestLocationUpdates(
                 mLocationRequest,
-                mLocationCallback, Looper.myLooper()
+                mLocationCallback,
+                Looper.myLooper()
             )
         } catch (unlikely: SecurityException) {
-            Log.e(
-                TAG,
-                "Lost location permission. Could not request updates. $unlikely"
-            )
+            Log.e(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
     }
 
     private fun onNewLocation(location: Location) {
         Log.i(TAG, "New location: $location")
-        if (currentLocation == null){
+        // First location
+        if (currentLocation == null) {
             locationStart = location
             locationCP = location
             locationWP = location
@@ -125,27 +121,29 @@ class LocationService : Service() {
     }
 
     private fun createLocationRequest() {
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS)
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS)
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        mLocationRequest.setMaxWaitTime(UPDATE_INTERVAL_IN_MILLISECONDS)
+        mLocationRequest.interval = UPDATE_INTERVAL_IN_MILLISECONDS
+        mLocationRequest.fastestInterval = FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.maxWaitTime = UPDATE_INTERVAL_IN_MILLISECONDS
     }
 
 
     private fun getLastLocation() {
         try {
             mFusedLocationClient.lastLocation
-                .addOnCompleteListener { task -> if (task.isSuccessful) {
-                    Log.w(TAG, "task successfull");
-                    if (task.result != null){
-                        onNewLocation(task.result!!)
-                    }
-                } else {
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.w(TAG, "Get location task successful");
+                        if (task.result != null) {
+                            onNewLocation(task.result!!)
+                        }
+                    } else {
 
-                    Log.w(TAG, "Failed to get location." + task.exception)
-                }}
+                        Log.w(TAG, "Failed to get location." + task.exception)
+                    }
+                }
         } catch (unlikely: SecurityException) {
-            Log.e(TAG, "Lost location permission.$unlikely")
+            Log.e(TAG, "Lost location permission. $unlikely")
         }
     }
 
@@ -161,7 +159,7 @@ class LocationService : Service() {
         NotificationManagerCompat.from(this).cancelAll()
 
 
-        // don't forget to unregister brodcast receiver!!!!
+        // don't forget to unregister broadcast receiver!!!!
         unregisterReceiver(broadcastReceiver)
 
 
@@ -215,7 +213,7 @@ class LocationService : Service() {
 
     }
 
-    fun showNotification(){
+    fun showNotification() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_WP)
 
@@ -238,7 +236,7 @@ class LocationService : Service() {
         notifyview.setTextViewText(R.id.textViewCPTotal, "%.2f".format(distanceCPTotal))
 
         // construct and show notification
-        var builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
+        val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.baseline_gps_fixed_24)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
@@ -246,17 +244,17 @@ class LocationService : Service() {
 
         builder.setContent(notifyview)
 
-        // Super important, start as foreground service - ie android considers this as an active app. Need visual reminder - notification.
+        // Super important, start as foreground service - ie android considers this as an active app.
+        // Need visual reminder - notification.
         // must be called within 5 secs after service starts.
         startForeground(C.NOTIFICATION_ID, builder.build())
-
     }
 
 
-    private inner class InnerBroadcastReceiver: BroadcastReceiver() {
+    private inner class InnerBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, intent!!.action!!)
-            when(intent.action){
+            when (intent.action) {
                 C.NOTIFICATION_ACTION_WP -> {
                     locationWP = currentLocation
                     distanceWPDirect = 0f
