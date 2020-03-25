@@ -18,21 +18,27 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
-
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
-
     private var locationServiceActive = false
+
+    private lateinit var mMap: GoogleMap
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +55,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
+
+        // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
     }
+    // ================================================ MAPS CALLBACKS ===============================================
+
+    override fun onMapReady(map: GoogleMap?) {
+        mMap = map?: return
+
+        // Add a marker in Sydney and move the camera
+        val location = LatLng(54.0, 54.0)
+        mMap.addMarker(MarkerOptions().position(location).title("Marker in Sydney"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+
+    }
+
 
     // ============================================== LIFECYCLE CALLBACKS =============================================
     override fun onStart() {
