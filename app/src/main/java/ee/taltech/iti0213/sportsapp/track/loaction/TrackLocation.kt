@@ -29,6 +29,6 @@ class TrackLocation(
         }
     }
 
-    var currentCP: WayPoint? = null
+    var currentCP: Waypoint? = null
 
 }
