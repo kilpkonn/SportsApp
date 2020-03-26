@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
-import ee.taltech.iti0213.sportsapp.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 
 
 class LocationService : Service() {

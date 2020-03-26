@@ -29,7 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
-import ee.taltech.iti0213.sportsapp.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {

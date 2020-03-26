@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.loaction
+package ee.taltech.iti0213.sportsapp.track.loaction
 
 import android.location.Location
 import android.os.Build
@@ -28,5 +28,7 @@ class TrackLocation(
             )
         }
     }
+
+    var currentCP: Checkpoint? = null
 
 }
