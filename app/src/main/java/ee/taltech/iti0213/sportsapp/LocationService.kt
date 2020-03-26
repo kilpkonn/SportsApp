@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
+import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 
 
@@ -27,6 +28,7 @@ class LocationService : Service() {
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
+    private val track = Track()
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -94,22 +96,8 @@ class LocationService : Service() {
     private fun onNewLocation(location: Location) {
         Log.i(TAG, "New location: $location")
         // First location
-        if (currentLocation == null) {
-            locationStart = location
-            locationCP = location
-            locationWP = location
-        } else {
-            distanceOverallDirect = location.distanceTo(locationStart)
-            distanceOverallTotal += location.distanceTo(currentLocation)
 
-            distanceCPDirect = location.distanceTo(locationCP)
-            distanceCPTotal += location.distanceTo(currentLocation)
-
-            distanceWPDirect = location.distanceTo(locationWP)
-            distanceWPTotal += location.distanceTo(currentLocation)
-        }
-        // save the location for calculations
-        currentLocation = location
+        track.update(TrackLocation.fromLocation(location))
 
         showNotification()
 
