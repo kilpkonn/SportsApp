@@ -16,7 +16,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -28,12 +27,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -45,6 +45,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
+
+    private val wpMarkers = mutableListOf<Marker>()
+    private val cpMarkers = mutableListOf<Marker>()
 
 
     private var locationServiceActive = false
@@ -71,6 +74,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var textViewDistanceLastWP: TextView
     private lateinit var textViewDriftLastWP: TextView
     private lateinit var textViewAverageSpeedLastWP: TextView
+
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -354,19 +358,46 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private fun onTrackDataUpdate(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 
-            val trackData = intent.getSerializableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+            val trackData =
+                intent.getSerializableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
 
             textViewTotalDistance.text = "%.2f".format(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
-            textViewAverageSpeed.text = "%.1f km/h".format( trackData.getAverageSpeedFromStart())
+            textViewAverageSpeed.text = "%.1f km/h".format(trackData.getAverageSpeedFromStart())
 
             textViewDistanceLastCP.text = "%.2f".format(trackData.distanceFromLastCP)
             textViewDriftLastCP.text = "%.2f".format(trackData.driftLastCP)
-            textViewAverageSpeedLastCP.text = "%.1f km/h".format(trackData.getAverageSpeedFromLastCP())
+            textViewAverageSpeedLastCP.text =
+                "%.1f km/h".format(trackData.getAverageSpeedFromLastCP())
 
             textViewDistanceLastWP.text = "%.2f".format(trackData.distanceFromLastWP)
             textViewDriftLastWP.text = "%.2f".format(trackData.driftLastWP)
-            textViewAverageSpeedLastWP.text = "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
+            textViewAverageSpeedLastWP.text =
+                "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
+
+
+            wpMarkers.forEach { m -> m.remove() }
+            cpMarkers.forEach { m -> m.remove() }
+            for (wp in trackData.waypoints) {
+                val wpLatLng = LatLng(wp.latitude, wp.longitude)
+                wpMarkers.add(
+                    mMap.addMarker(
+                        MarkerOptions()
+                            .position(wpLatLng)
+                            .title(wp.driftToWP.toString())
+                    )
+                )
+            }
+
+            for (cp in trackData.checkpoints) {
+                val wpLatLng = LatLng(cp.latitude, cp.longitude)
+                cpMarkers.add(
+                    mMap.addMarker(
+                        MarkerOptions()
+                            .position(wpLatLng)
+                    )
+                )
+            }
         }
     }
 }
