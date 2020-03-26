@@ -234,9 +234,9 @@ class LocationService : Service() {
         notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(distanceCPDirect))
         notifyView.setTextViewText(R.id.avg_speed_cp, "%.2f".format(distanceWPDirect))
 
-        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(distanceWPDirect))
-        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(distanceWPTotal))
-        notifyView.setTextViewText(R.id.avg_speed_wp, "%.2f".format(distanceCPDirect))
+        notifyView.setTextViewText(R.id.drift_wp, "C %.2f".format(distanceWPDirect))
+        notifyView.setTextViewText(R.id.distance_wp, "B %.2f".format(distanceWPTotal))
+        notifyView.setTextViewText(R.id.avg_speed_wp, "A %.2f".format(distanceCPDirect))
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
@@ -244,8 +244,10 @@ class LocationService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContent(notifyView)
 
-        builder.setContent(notifyView)
+
+        //builder.setContent(notifyView)
 
         // Super important, start as foreground service - ie android considers this as an active app.
         // Need visual reminder - notification.
