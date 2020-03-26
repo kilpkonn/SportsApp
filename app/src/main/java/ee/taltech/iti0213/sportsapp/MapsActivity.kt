@@ -275,7 +275,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun btnWPOnClick() {
         Log.d(TAG, "buttonWPOnClick")
-        sendBroadcast(Intent(C.NOTIFICATION_ACTION_WP))
+        val intent = Intent(C.NOTIFICATION_ACTION_WP)
+        // TODO: wp from map
+        intent.putExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG, LatLng(59.43, 24.75))
+        sendBroadcast(intent)
     }
 
     private fun btnCPOnClick() {
@@ -297,6 +300,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
 
         private fun onLocationUpdate(intent: Intent) {
+            if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
+
             val trackLocation = intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             textViewLatitude.text = trackLocation.latitude.toString()
             textViewLongitude.text = trackLocation.longitude.toString()

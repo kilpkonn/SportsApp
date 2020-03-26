@@ -28,7 +28,6 @@ class LocationService : Service() {
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
-    private val track = Track()
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -37,21 +36,7 @@ class LocationService : Service() {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var mLocationCallback: LocationCallback? = null
 
-    // last received location
-    private var currentLocation: Location? = null
-
-    private var distanceOverallDirect = 0f
-    private var distanceOverallTotal = 0f
-    private var locationStart: Location? = null
-
-    private var distanceCPDirect = 0f
-    private var distanceCPTotal = 0f
-    private var locationCP: Location? = null
-
-    private var distanceWPDirect = 0f
-    private var distanceWPTotal = 0f
-    private var locationWP: Location? = null
-
+    private var track: Track? = null
 
     override fun onCreate() {
         Log.d(TAG, "onCreate")
@@ -97,13 +82,16 @@ class LocationService : Service() {
         Log.i(TAG, "New location: $location")
         // First location
 
-        track.update(TrackLocation.fromLocation(location))
+        track?.update(TrackLocation.fromLocation(location))
 
         showNotification()
 
         // broadcast new location to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)
-        intent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location))
+        intent.putExtra(
+            C.LOCATION_UPDATE_ACTION_TRACK_LOCATION,
+            TrackLocation.fromLocation(location)
+        )
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 
     }
@@ -166,18 +154,7 @@ class LocationService : Service() {
         Log.d(TAG, "onStartCommand")
 
         // set counters and locations to 0/null
-        currentLocation = null
-        locationStart = null
-        locationCP = null
-        locationWP = null
-
-        distanceOverallDirect = 0f
-        distanceOverallTotal = 0f
-        distanceCPDirect = 0f
-        distanceCPTotal = 0f
-        distanceWPDirect = 0f
-        distanceWPTotal = 0f
-
+        track = Track()
 
         showNotification()
 
@@ -214,17 +191,20 @@ class LocationService : Service() {
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
         // TODO: Incorrect data!!!!
-        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(distanceOverallTotal))
-        notifyView.setTextViewText(R.id.duration, "%.2f".format(distanceOverallTotal))
-        notifyView.setTextViewText(R.id.avg_speed, "%.2f".format(distanceOverallDirect))
+        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(track?.runningDistance ?: 0f))
+        notifyView.setTextViewText(R.id.duration, "%d".format(track?.getTimeSinceStart() ?: 0))
+        notifyView.setTextViewText(R.id.avg_speed, "%.2f".format(0f))
 
-        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(distanceCPTotal))
-        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(distanceCPDirect))
-        notifyView.setTextViewText(R.id.avg_speed_cp, "%.2f".format(distanceWPDirect))
+        notifyView.setTextViewText(
+            R.id.distance_cp,
+            "%.2f".format(track?.runningDistanceFromLastCP ?: 0f)
+        )
+        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(track?.getDriftLastCP() ?: 0f))
+        notifyView.setTextViewText(R.id.avg_speed_cp, "%.2f".format(0f))
 
-        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(distanceWPDirect))
-        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(distanceWPTotal))
-        notifyView.setTextViewText(R.id.avg_speed_wp, "%.2f".format(distanceCPDirect))
+        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(track?.getDriftToLastWP() ?: 0f))
+        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(0f)) // Distance?
+        notifyView.setTextViewText(R.id.avg_speed_wp, "%.2f".format(0f))  // Avg speed ?
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
@@ -249,15 +229,11 @@ class LocationService : Service() {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
                 C.NOTIFICATION_ACTION_WP -> {
-                    locationWP = currentLocation
-                    distanceWPDirect = 0f
-                    distanceWPTotal = 0f
+                    track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)!!)
                     showNotification()
                 }
                 C.NOTIFICATION_ACTION_CP -> {
-                    locationCP = currentLocation
-                    distanceCPDirect = 0f
-                    distanceCPTotal = 0f
+                    track?.addCheckpoint()
                     showNotification()
                 }
             }

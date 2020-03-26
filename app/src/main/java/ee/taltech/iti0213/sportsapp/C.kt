@@ -6,6 +6,7 @@ class C {
         const val NOTIFICATION_CHANNEL_NAME = "Default channel"
         const val NOTIFICATION_CHANNEL_DESCRIPTION = "Default channel description"
         const val NOTIFICATION_ACTION_WP = "ee.taltech.iti0213.sportsapp.wp"
+        const val NOTIFICATION_ACTION_WP_LAT_LNG = "ee.taltech.iti0213.sportsapp.wp.lat_lng"
         const val NOTIFICATION_ACTION_CP = "ee.taltech.iti0213.sportsapp.cp"
 
         const val LOCATION_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.location_update"

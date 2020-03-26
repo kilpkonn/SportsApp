@@ -34,21 +34,21 @@ class Track {
             runningDistanceFromLastCP += distance
         }
         currentTime = location.timestamp
-
+        lastLocation = location
         track.add(location)
         waypoints.forEach { checkpoint -> checkpoint.update(location) }
     }
 
-    fun addCheckpoint(location: TrackLocation) {
+    fun addCheckpoint() {
         checkpoints.add(
             Checkpoint.fromLocation(
-                location,
+                track.last(),
                 runningDistance,
                 checkpoints.lastOrNull()
             )
         )
         runningDistanceFromLastCP = 0.0
-        lastCPTime = location.timestamp
+        lastCPTime = track.last().timestamp
     }
 
     fun addWayPoint(latLng: LatLng) {
@@ -65,5 +65,27 @@ class Track {
 
     fun getTimeSinceLastCP(): Long {
         return currentTime - lastCPTime
+    }
+
+    fun getDriftLastCP(): Float {
+        if (lastLocation == null) return 0f
+        val cp = checkpoints.lastOrNull() ?: return 0f
+        return TrackLocation.calcDistanceBetween(
+            lastLocation!!.latitude,
+            lastLocation!!.longitude,
+            cp.latitude,
+            cp.longitude
+        )
+    }
+
+    fun getDriftToLastWP(): Float {
+        if (lastLocation == null) return 0f
+        val wp = waypoints.lastOrNull() ?: return 0f
+        return TrackLocation.calcDistanceBetween(
+            lastLocation!!.latitude,
+            lastLocation!!.longitude,
+            wp.latitude,
+            wp.longitude
+        )
     }
 }
