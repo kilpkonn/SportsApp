@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -27,18 +29,24 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
+
+        private const val DEFAULT_ZOOM_LEVEL = 13f
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
+
     private var locationServiceActive = false
+    private var lastLocation: LatLng? = null
+
 
     private lateinit var mMap: GoogleMap
 
@@ -85,6 +93,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
         mMap = map ?: return
+
+        mMap.isMyLocationEnabled = true
     }
 
 
@@ -294,8 +304,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             textViewLongitude.text = longitude.toString()
             val location = LatLng(latitude, longitude)
 
-            mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+            //mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
+            if (lastLocation == null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
+            } else {
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+                mMap.addPolyline(
+                    PolylineOptions()
+                        .add(lastLocation, location)
+                        .width(5f)
+                        .color(Color.RED)
+                )
+            }
+
+            lastLocation = location
         }
     }
 }
