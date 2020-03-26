@@ -244,7 +244,7 @@ class LocationService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContent(notifyView)
+            .setCustomBigContentView(notifyView)
 
 
         //builder.setContent(notifyView)
