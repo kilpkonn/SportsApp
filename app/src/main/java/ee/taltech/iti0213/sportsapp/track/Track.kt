@@ -13,11 +13,13 @@ class Track {
 
     var runningDistance = 0.0
     var runningDistanceFromLastCP = 0.0
+    var runningDistanceFromLastWP = 0.0
 
     var lastLocation: TrackLocation? = null
 
     var startTime = 0L
     var lastCPTime = 0L
+    var lastWPTime = 0L
     var currentTime = 0L
 
     fun update(location: TrackLocation) {
@@ -32,6 +34,7 @@ class Track {
             )
             runningDistance += distance
             runningDistanceFromLastCP += distance
+            runningDistanceFromLastWP += distance
         }
         currentTime = location.timestamp
         lastLocation = location
@@ -53,6 +56,8 @@ class Track {
 
     fun addWayPoint(latLng: LatLng) {
         waypoints.add(WayPoint(latLng.latitude, latLng.longitude))
+        runningDistanceFromLastWP = 0.0
+        lastWPTime = track.last().timestamp
     }
 
     fun removeWayPoint(wayPoint: WayPoint) {
@@ -65,6 +70,10 @@ class Track {
 
     fun getTimeSinceLastCP(): Long {
         return currentTime - lastCPTime
+    }
+
+    fun getTimeSinceLastWP(): Long {
+        return currentTime - lastWPTime
     }
 
     fun getDriftLastCP(): Float {
@@ -87,5 +96,17 @@ class Track {
             wp.latitude,
             wp.longitude
         )
+    }
+
+    fun getAverageSpeedFromStart(): Double {
+        return (runningDistance / getTimeSinceStart()) * 1000 / 3.6
+    }
+
+    fun getAverageSpeedFromLastCP(): Double {
+        return (runningDistanceFromLastCP / getTimeSinceLastCP()) * 1000 / 3.6
+    }
+
+    fun getAverageSpeedFromLastWP(): Double {
+        return (runningDistanceFromLastWP / getTimeSinceLastWP()) * 1000 / 3.6
     }
 }

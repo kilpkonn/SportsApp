@@ -16,6 +16,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import ee.taltech.iti0213.sportsapp.track.Track
+import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 
 
@@ -180,7 +181,7 @@ class LocationService : Service() {
 
     fun showNotification() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
-        val intentWp = Intent(C.NOTIFICATION_ACTION_WP)
+        val intentWp = Intent(C.NOTIFICATION_ACTION_WP) // TODO: add loc
 
         val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
         val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, 0)
@@ -192,19 +193,16 @@ class LocationService : Service() {
 
         // TODO: Incorrect data!!!!
         notifyView.setTextViewText(R.id.total_distance, "%.2f".format(track?.runningDistance ?: 0f))
-        notifyView.setTextViewText(R.id.duration, "%d".format(track?.getTimeSinceStart() ?: 0))
-        notifyView.setTextViewText(R.id.avg_speed, "%.2f".format(0f))
+        notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(track?.getTimeSinceStart() ?: 0))
+        notifyView.setTextViewText(R.id.avg_speed, "%.1f km/h".format(track?.getAverageSpeedFromStart() ?: 0f))
 
-        notifyView.setTextViewText(
-            R.id.distance_cp,
-            "%.2f".format(track?.runningDistanceFromLastCP ?: 0f)
-        )
+        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(track?.runningDistanceFromLastCP ?: 0f))
         notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(track?.getDriftLastCP() ?: 0f))
-        notifyView.setTextViewText(R.id.avg_speed_cp, "%.2f".format(0f))
+        notifyView.setTextViewText(R.id.avg_speed_cp, "%.1f km/h".format(track?.getAverageSpeedFromLastCP() ?: 0f))
 
         notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(track?.getDriftToLastWP() ?: 0f))
-        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(0f)) // Distance?
-        notifyView.setTextViewText(R.id.avg_speed_wp, "%.2f".format(0f))  // Avg speed ?
+        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(track?.runningDistanceFromLastWP ?: 0f)) // Distance?
+        notifyView.setTextViewText(R.id.avg_speed_wp, "%.1f km/h".format(track?.getAverageSpeedFromLastWP()))  // Avg speed ?
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
