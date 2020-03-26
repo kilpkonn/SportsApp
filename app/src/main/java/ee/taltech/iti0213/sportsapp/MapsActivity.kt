@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -29,7 +30,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
+import ee.taltech.iti0213.sportsapp.track.TrackData
+import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -56,6 +60,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var textViewLatitude: TextView
     private lateinit var textViewLongitude: TextView
 
+    private lateinit var textViewTotalDistance: TextView
+    private lateinit var textViewTotalTime: TextView
+    private lateinit var textViewAverageSpeed: TextView
+
+    private lateinit var textViewDistanceLastCP: TextView
+    private lateinit var textViewDriftLastCP: TextView
+    private lateinit var textViewAverageSpeedLastCP: TextView
+
+    private lateinit var textViewDistanceLastWP: TextView
+    private lateinit var textViewDriftLastWP: TextView
+    private lateinit var textViewAverageSpeedLastWP: TextView
+
     // ============================================== MAIN ENTRY - ON CREATE =============================================
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
@@ -71,6 +87,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_STATS_UPDATE_ACTION)
 
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -86,6 +103,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         btnAddCP.setOnClickListener { btnCPOnClick() }
         btnStartStop.setImageResource(if (locationServiceActive) R.drawable.ic_pause_circle_outline_24px else R.drawable.ic_play_circle_outline_24px)
 
+        textViewTotalDistance = findViewById(R.id.total_distance)
+        textViewTotalTime = findViewById(R.id.duration)
+        textViewAverageSpeed = findViewById(R.id.avg_speed)
+
+        textViewDistanceLastCP = findViewById(R.id.distance_cp)
+        textViewDriftLastCP = findViewById(R.id.drift_cp)
+        textViewAverageSpeedLastCP = findViewById(R.id.avg_speed_cp)
+
+        textViewDistanceLastWP = findViewById(R.id.distance_wp)
+        textViewDriftLastWP = findViewById(R.id.drift_wp)
+        textViewAverageSpeedLastWP = findViewById(R.id.avg_speed_wp)
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -290,9 +318,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
-                C.LOCATION_UPDATE_ACTION -> {
-                    onLocationUpdate(intent)
-                }
+                C.LOCATION_UPDATE_ACTION -> onLocationUpdate(intent)
+                C.TRACK_STATS_UPDATE_ACTION -> onTrackDataUpdate(intent)
             }
         }
 
@@ -301,7 +328,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private fun onLocationUpdate(intent: Intent) {
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
 
-            val trackLocation = intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            val trackLocation =
+                intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             textViewLatitude.text = trackLocation.latitude.toString()
             textViewLongitude.text = trackLocation.longitude.toString()
             val location = LatLng(trackLocation.latitude, trackLocation.longitude)
@@ -320,6 +348,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             lastLocation = location
+        }
+
+        @SuppressLint("SetTextI18n") // Just to format numbers...
+        private fun onTrackDataUpdate(intent: Intent) {
+            if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
+
+            val trackData = intent.getSerializableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+
+            textViewTotalDistance.text = "%.2f".format(trackData.totalDistance)
+            textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
+            textViewAverageSpeed.text = "%.1f km/h".format( trackData.getAverageSpeedFromStart())
+
+            textViewDistanceLastCP.text = "%.2f".format(trackData.distanceFromLastCP)
+            textViewDriftLastCP.text = "%.2f".format(trackData.driftLastCP)
+            textViewAverageSpeedLastCP.text = "%.1f km/h".format(trackData.getAverageSpeedFromLastCP())
+
+            textViewDistanceLastWP.text = "%.2f".format(trackData.distanceFromLastWP)
+            textViewDriftLastWP.text = "%.2f".format(trackData.driftLastWP)
+            textViewAverageSpeedLastWP.text = "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
         }
     }
 }

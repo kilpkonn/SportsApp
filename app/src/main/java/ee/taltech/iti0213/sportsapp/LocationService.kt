@@ -47,7 +47,7 @@ class LocationService : Service() {
 
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_CP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_WP)
-        broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
+        //broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -87,16 +87,20 @@ class LocationService : Service() {
 
         track?.update(TrackLocation.fromLocation(location))
 
+        // broadcast trackData
         val trackData = track?.getTrackData()
         showNotification(trackData)
+        val trackDataIntent = Intent(C.TRACK_STATS_UPDATE_ACTION)
+        trackDataIntent.putExtra(C.TRACK_STATS_UPDATE_ACTION_DATA, trackData)
 
         // broadcast new location to UI
-        val intent = Intent(C.LOCATION_UPDATE_ACTION)
-        intent.putExtra(
+        val locationIntent = Intent(C.LOCATION_UPDATE_ACTION)
+        locationIntent.putExtra(
             C.LOCATION_UPDATE_ACTION_TRACK_LOCATION,
             TrackLocation.fromLocation(location)
         )
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(trackDataIntent)
 
     }
 
@@ -118,7 +122,6 @@ class LocationService : Service() {
                             onNewLocation(task.result!!)
                         }
                     } else {
-
                         Log.w(TAG, "Failed to get location." + task.exception)
                     }
                 }

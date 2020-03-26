@@ -14,7 +14,6 @@ class C {
 
         const val TRACK_STATS_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.track_stats_update"
         const val TRACK_STATS_UPDATE_ACTION_DATA = "ee.taltech.iti0213.sportsapp.track_stats_update.stats_data"
-        //const val LOCATION_UPDATE_ACTION_LONGITUDE = "ee.taltech.iti0213.sportsapp.location_update.longitude"
 
         const val NOTIFICATION_ID = 4321
         const val REQUEST_PERMISSIONS_REQUEST_CODE = 34;
