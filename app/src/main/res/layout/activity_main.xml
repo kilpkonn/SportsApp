@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -62,9 +62,19 @@
         android:id="@+id/track_control_bar"
         layout="@layout/track_control"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/include" />
+        app:layout_constraintStart_toEndOf="@+id/btn_startStop" />
+
+    <Button
+        android:id="@+id/btn_startStop"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:onClick="buttonStartStopOnClick"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/track_control_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/track_control_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

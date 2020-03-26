@@ -24,5 +24,8 @@ class C {
 
         const val TOAST_USER_INTERACTION_CANCELLED_TEXT = "User interaction was cancelled."
         const val TOAST_PERMISSION_GRANTED_TEXT = "Permission was granted"
+
+        const val BUTTON_START_STOP_START_TEXT = "START"
+        const val BUTTON_START_STOP_STOP_TEXT = "STOP"
     }
 }

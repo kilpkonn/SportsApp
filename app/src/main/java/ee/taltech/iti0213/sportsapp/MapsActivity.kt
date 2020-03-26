@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.RemoteViews
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -26,7 +28,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -40,6 +41,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var locationServiceActive = false
 
     private lateinit var mMap: GoogleMap
+
+    private lateinit var btnStartStop: Button
+    private lateinit var btnAddWP: ImageButton
+    private lateinit var btnAddCP: ImageButton
+
+    private lateinit var textViewLatitude: TextView
+    private lateinit var textViewLongitude: TextView
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,17 +69,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        btnStartStop = findViewById(R.id.btn_startStop)
+        btnAddWP = findViewById(R.id.btn_add_wp)
+        btnAddCP = findViewById(R.id.btn_add_cp)
+        textViewLatitude = findViewById(R.id.textViewLatitude)
+        textViewLongitude = findViewById(R.id.textViewLongitude)
+
+        btnAddWP.setOnClickListener { btnWPOnClick() }
+        btnAddCP.setOnClickListener { btnCPOnClick() }
+        btnStartStop.text =
+            if (locationServiceActive) C.BUTTON_START_STOP_STOP_TEXT else C.BUTTON_START_STOP_START_TEXT
+
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
     override fun onMapReady(map: GoogleMap?) {
-        mMap = map?: return
-
-        // Add a marker in Sydney and move the camera
-        val location = LatLng(54.0, 54.0)
-        mMap.addMarker(MarkerOptions().position(location).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
-
+        mMap = map ?: return
     }
 
 
@@ -236,8 +249,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (locationServiceActive) {
             // stopping the service
             stopService(Intent(this, LocationService::class.java))
-
-            //buttonStartStop.text = "START"
+            btnStartStop.text = C.BUTTON_START_STOP_START_TEXT
         } else {
             if (Build.VERSION.SDK_INT >= 26) {
                 // starting the FOREGROUND service
@@ -246,18 +258,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 startService(Intent(this, LocationService::class.java))
             }
-            //buttonStartStop.text = "STOP"
+            btnStartStop.text = C.BUTTON_START_STOP_STOP_TEXT
         }
 
         locationServiceActive = !locationServiceActive
     }
 
-    fun buttonWPOnClick(view: View) {
+    private fun btnWPOnClick() {
         Log.d(TAG, "buttonWPOnClick")
         sendBroadcast(Intent(C.NOTIFICATION_ACTION_WP))
     }
 
-    fun buttonCPOnClick(view: View) {
+    private fun btnCPOnClick() {
         Log.d(TAG, "buttonCPOnClick")
         sendBroadcast(Intent(C.NOTIFICATION_ACTION_CP))
     }
@@ -268,13 +280,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
                 C.LOCATION_UPDATE_ACTION -> {
-                    textViewLatitude.text =
-                        intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0).toString()
-                    textViewLongitude.text =
-                        intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, 0.0).toString()
+                    onLocationUpdate(intent)
                 }
             }
         }
 
+        // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
+
+        private fun onLocationUpdate(intent: Intent) {
+            val latitude = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0)
+            val longitude = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, 0.0)
+            textViewLatitude.text = latitude.toString()
+            textViewLongitude.text = longitude.toString()
+            val location = LatLng(latitude, longitude)
+
+            mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+        }
     }
 }
