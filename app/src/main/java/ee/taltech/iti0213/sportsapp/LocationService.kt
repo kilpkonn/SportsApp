@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
+import ee.taltech.iti0213.sportsapp.loaction.TrackLocation
 
 
 class LocationService : Service() {
@@ -114,8 +115,7 @@ class LocationService : Service() {
 
         // broadcast new location to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)
-        intent.putExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, location.latitude)
-        intent.putExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, location.longitude)
+        intent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location))
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 
     }

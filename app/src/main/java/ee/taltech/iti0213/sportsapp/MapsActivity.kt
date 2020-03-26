@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -28,9 +27,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
+import ee.taltech.iti0213.sportsapp.loaction.TrackLocation
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -298,17 +297,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
 
         private fun onLocationUpdate(intent: Intent) {
-            val latitude = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LATITUDE, 0.0)
-            val longitude = intent.getDoubleExtra(C.LOCATION_UPDATE_ACTION_LONGITUDE, 0.0)
-            textViewLatitude.text = latitude.toString()
-            textViewLongitude.text = longitude.toString()
-            val location = LatLng(latitude, longitude)
+            val trackLocation = intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            textViewLatitude.text = trackLocation.latitude.toString()
+            textViewLongitude.text = trackLocation.longitude.toString()
+            val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
-            //mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
+            // mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
             if (lastLocation == null) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
             } else {
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+                // mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
                 mMap.addPolyline(
                     PolylineOptions()
                         .add(lastLocation, location)
