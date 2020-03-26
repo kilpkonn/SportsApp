@@ -51,6 +51,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
+        android:padding="@dimen/padding_track_controls"
         android:background="@color/track_control_button_background_color"
         android:src="@drawable/ic_flag_24px"
         android:contentDescription="@string/add_cp" />
@@ -98,6 +99,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
+        android:padding="@dimen/padding_track_controls"
         android:background="@color/track_control_button_background_color"
         android:src="@drawable/ic_add_location_24px"
         android:contentDescription="@string/add_wp" />

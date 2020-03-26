@@ -49,7 +49,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
 
-    private lateinit var btnStartStop: Button
+    private lateinit var btnStartStop: ImageButton
     private lateinit var btnAddWP: ImageButton
     private lateinit var btnAddCP: ImageButton
 
@@ -84,8 +84,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
-        btnStartStop.text =
-            if (locationServiceActive) C.BUTTON_START_STOP_STOP_TEXT else C.BUTTON_START_STOP_START_TEXT
+        btnStartStop.setImageResource(if (locationServiceActive) R.drawable.ic_pause_circle_outline_24px else R.drawable.ic_play_circle_outline_24px)
 
     }
     // ================================================ MAPS CALLBACKS ===============================================
@@ -258,7 +257,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (locationServiceActive) {
             // stopping the service
             stopService(Intent(this, LocationService::class.java))
-            btnStartStop.text = C.BUTTON_START_STOP_START_TEXT
+            btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
         } else {
             if (Build.VERSION.SDK_INT >= 26) {
                 // starting the FOREGROUND service
@@ -267,7 +266,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 startService(Intent(this, LocationService::class.java))
             }
-            btnStartStop.text = C.BUTTON_START_STOP_STOP_TEXT
+            btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
         }
 
         locationServiceActive = !locationServiceActive

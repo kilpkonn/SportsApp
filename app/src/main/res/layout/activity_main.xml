@@ -67,14 +67,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn_startStop" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_startStop"
-        android:layout_width="wrap_content"
+        android:layout_width="48dp"
         android:layout_height="0dp"
+        android:paddingStart="@dimen/padding_small"
+        android:paddingEnd="@dimen/padding_small"
+        android:src="@drawable/ic_play_circle_outline_24px"
+        android:background="@color/track_control_button_background_color"
         android:onClick="buttonStartStopOnClick"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/track_control_bar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/track_control_bar" />
+        app:layout_constraintTop_toTopOf="@+id/track_control_bar"
+        android:contentDescription="@string/start_stop_track" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

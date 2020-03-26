@@ -6,4 +6,5 @@
     <color name="track_control_text_color">#FF9800</color>
     <color name="track_control_button_background_color">#232323</color>
     <color name="color_very_dark">#0C0C0C</color>
+    <color name="track_control_flag_color">#FF5722</color>
 </resources>
