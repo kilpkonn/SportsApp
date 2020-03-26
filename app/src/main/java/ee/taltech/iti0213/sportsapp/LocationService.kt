@@ -1,5 +1,7 @@
 package ee.taltech.iti0213.sportsapp
 
+import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -9,6 +11,7 @@ import android.content.IntentFilter
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -37,6 +40,7 @@ class LocationService : Service() {
 
     private val mLocationRequest: LocationRequest = LocationRequest()
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private lateinit var notificationManager: NotificationManager
     private var mLocationCallback: LocationCallback? = null
 
     private var track: Track? = null
@@ -50,6 +54,8 @@ class LocationService : Service() {
         //broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+
+        notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -211,13 +217,17 @@ class LocationService : Service() {
         notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(trackData?.distanceFromLastWP ?: 0f))
         notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(trackData?.driftLastWP ?: 0f))
         notifyView.setTextViewText(R.id.avg_speed_wp, "%.1f km/h".format(trackData?.getAverageSpeedFromLastWP()))
+        notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.baseline_gps_fixed_24)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContent(notifyView)
+            .setCustomContentView(notifyView)
             .setCustomBigContentView(notifyView)
 
 

@@ -2,8 +2,8 @@ package ee.taltech.iti0213.sportsapp
 
 class C {
     companion object {
-        const val NOTIFICATION_CHANNEL = "default_channel"
-        const val NOTIFICATION_CHANNEL_NAME = "Default channel"
+        const val NOTIFICATION_CHANNEL = "ee.taltech.iti0213.sportsapp.default_channel"
+        const val NOTIFICATION_CHANNEL_NAME = "Default channel2"
         const val NOTIFICATION_CHANNEL_DESCRIPTION = "Default channel description"
         const val NOTIFICATION_ACTION_WP = "ee.taltech.iti0213.sportsapp.wp"
         const val NOTIFICATION_ACTION_WP_LAT_LNG = "ee.taltech.iti0213.sportsapp.wp.lat_lng"
@@ -15,7 +15,7 @@ class C {
         const val TRACK_STATS_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.track_stats_update"
         const val TRACK_STATS_UPDATE_ACTION_DATA = "ee.taltech.iti0213.sportsapp.track_stats_update.stats_data"
 
-        const val NOTIFICATION_ID = 4321
+        const val NOTIFICATION_ID = 43210
         const val REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="padding_medium">16dp</dimen>
-    <dimen name="stats_text_size">16sp</dimen>
+    <dimen name="stats_text_size">14sp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_track_controls">4dp</dimen>
 </resources>

@@ -2,6 +2,7 @@ package ee.taltech.iti0213.sportsapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -177,6 +178,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 NotificationManager.IMPORTANCE_LOW
             )
 
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             //.setShowBadge(false).setSound(null, null);
 
             channel.description = C.NOTIFICATION_CHANNEL_DESCRIPTION
