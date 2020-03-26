@@ -2,12 +2,11 @@ package ee.taltech.iti0213.sportsapp.track.loaction
 
 import android.location.Location
 
-class Checkpoint(location: TrackLocation, distance: Double, lastCP: Checkpoint?) {
+class Checkpoint(location: TrackLocation, val distanceFromLastCP: Double, lastCP: Checkpoint?) {
     val latitude: Double
     val longitude: Double
     val timestamp: Long
-    val distanceSinceLastCP: Double = distance
-    val driftFromLastCP: Double
+    val driftFromLastCP: Float
     val timeSinceLastCP: Long
 
     init {
@@ -15,10 +14,10 @@ class Checkpoint(location: TrackLocation, distance: Double, lastCP: Checkpoint?)
         this.longitude = location.longitude
         this.timestamp = location.timestamp
         if (lastCP != null) {
-            driftFromLastCP = calcDistanceBetween(latitude, longitude, lastCP.latitude, lastCP.longitude)
+            driftFromLastCP = TrackLocation.calcDistanceBetween(latitude, longitude, lastCP.latitude, lastCP.longitude)
             timeSinceLastCP = lastCP.timestamp - location.timestamp
         } else {
-            driftFromLastCP = 0.0
+            driftFromLastCP = 0f
             timeSinceLastCP = 0
         }
     }
@@ -28,14 +27,4 @@ class Checkpoint(location: TrackLocation, distance: Double, lastCP: Checkpoint?)
         }
     }
 
-    private fun calcDistanceBetween(
-        lat: Double,
-        lng: Double,
-        endLat: Double,
-        endLng: Double
-    ): Double {
-        val distance = floatArrayOf(0f, 0f, 0f)
-        Location.distanceBetween(lat, lng, endLat, endLng, distance)
-        return distance[0].toDouble()
-    }
 }

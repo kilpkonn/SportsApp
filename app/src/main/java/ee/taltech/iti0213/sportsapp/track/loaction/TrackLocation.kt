@@ -27,8 +27,20 @@ class TrackLocation(
                 verticalAccuracy
             )
         }
+
+        fun calcDistanceBetween(
+            lat: Double,
+            lng: Double,
+            endLat: Double,
+            endLng: Double
+        ): Float {
+            // distance, initial bearing, end bearing
+            val distance = floatArrayOf(0f, 0f, 0f)
+            Location.distanceBetween(lat, lng, endLat, endLng, distance)
+            return distance[0]
+        }
     }
 
-    var currentCP: Waypoint? = null
+    var currentCP: WayPoint? = null
 
 }
