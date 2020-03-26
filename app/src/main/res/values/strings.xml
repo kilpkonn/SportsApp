@@ -2,4 +2,6 @@
     <string name="app_name">SportsApp</string>
     <string name="title_activity_maps">Map</string>
     <string name="stats_default_text">0</string>
+    <string name="add_wp">Add WP</string>
+    <string name="add_cp">Add CP</string>
 </resources>

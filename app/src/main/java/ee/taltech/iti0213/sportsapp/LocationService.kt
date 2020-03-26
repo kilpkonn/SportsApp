@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.LatLng
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
@@ -176,12 +177,15 @@ class LocationService : Service() {
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d(TAG, "onUnbind")
         return super.onUnbind(intent)
-
     }
 
     fun showNotification() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
-        val intentWp = Intent(C.NOTIFICATION_ACTION_WP) // TODO: add loc
+        val intentWp = Intent(C.NOTIFICATION_ACTION_WP)
+        if (track!= null && track!!.lastLocation != null) {
+            val loc = LatLng(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude)
+            intentWp.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, loc)
+        }
 
         val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
         val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, 0)
@@ -191,7 +195,6 @@ class LocationService : Service() {
         notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
-        // TODO: Incorrect data!!!!
         notifyView.setTextViewText(R.id.total_distance, "%.2f".format(track?.runningDistance ?: 0f))
         notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(track?.getTimeSinceStart() ?: 0))
         notifyView.setTextViewText(R.id.avg_speed, "%.1f km/h".format(track?.getAverageSpeedFromStart() ?: 0f))
@@ -227,6 +230,7 @@ class LocationService : Service() {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
                 C.NOTIFICATION_ACTION_WP -> {
+                    if (!intent.hasExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)) return
                     track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)!!)
                     showNotification()
                 }
