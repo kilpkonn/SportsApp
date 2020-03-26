@@ -1,8 +1,8 @@
 package ee.taltech.iti0213.sportsapp.track.loaction
 
-import android.location.Location
+import java.io.Serializable
 
-class Checkpoint(location: TrackLocation, val distanceFromLastCP: Double, lastCP: Checkpoint?) {
+class Checkpoint(location: TrackLocation, val distanceFromLastCP: Double, lastCP: Checkpoint?): Serializable {
     val latitude: Double
     val longitude: Double
     val timestamp: Long

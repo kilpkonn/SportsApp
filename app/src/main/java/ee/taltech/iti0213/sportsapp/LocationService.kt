@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import ee.taltech.iti0213.sportsapp.track.Track
+import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 
@@ -86,7 +87,8 @@ class LocationService : Service() {
 
         track?.update(TrackLocation.fromLocation(location))
 
-        showNotification()
+        val trackData = track?.getTrackData()
+        showNotification(trackData)
 
         // broadcast new location to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)
@@ -158,7 +160,7 @@ class LocationService : Service() {
         // set counters and locations to 0/null
         track = Track()
 
-        showNotification()
+        showNotification(track?.getTrackData())
 
         return START_STICKY
         //return super.onStartCommand(intent, flags, startId)
@@ -179,12 +181,12 @@ class LocationService : Service() {
         return super.onUnbind(intent)
     }
 
-    fun showNotification() {
+    fun showNotification(trackData: TrackData?) {
         val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_WP)
         if (track!= null && track!!.lastLocation != null) {
             val loc = LatLng(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude)
-            intentWp.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, loc)
+            intentWp.putExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG, loc)
         }
 
         val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
@@ -195,17 +197,17 @@ class LocationService : Service() {
         notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
-        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(track?.runningDistance ?: 0f))
-        notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(track?.getTimeSinceStart() ?: 0))
-        notifyView.setTextViewText(R.id.avg_speed, "%.1f km/h".format(track?.getAverageSpeedFromStart() ?: 0f))
+        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(trackData?.totalDistance ?: 0f))
+        notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(trackData?.totalTime ?: 0))
+        notifyView.setTextViewText(R.id.avg_speed, "%.1f km/h".format( trackData?.getAverageSpeedFromStart() ?: 0f))
 
-        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(track?.runningDistanceFromLastCP ?: 0f))
-        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(track?.getDriftLastCP() ?: 0f))
-        notifyView.setTextViewText(R.id.avg_speed_cp, "%.1f km/h".format(track?.getAverageSpeedFromLastCP() ?: 0f))
+        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(trackData?.distanceFromLastCP ?: 0f))
+        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(trackData?.driftLastCP ?: 0f))
+        notifyView.setTextViewText(R.id.avg_speed_cp, "%.1f km/h".format(trackData?.getAverageSpeedFromLastCP() ?: 0f))
 
-        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(track?.getDriftToLastWP() ?: 0f))
-        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(track?.runningDistanceFromLastWP ?: 0f)) // Distance?
-        notifyView.setTextViewText(R.id.avg_speed_wp, "%.1f km/h".format(track?.getAverageSpeedFromLastWP()))  // Avg speed ?
+        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(trackData?.distanceFromLastWP ?: 0f))
+        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(trackData?.driftLastWP ?: 0f))
+        notifyView.setTextViewText(R.id.avg_speed_wp, "%.1f km/h".format(trackData?.getAverageSpeedFromLastWP()))
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
@@ -232,11 +234,11 @@ class LocationService : Service() {
                 C.NOTIFICATION_ACTION_WP -> {
                     if (!intent.hasExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)) return
                     track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)!!)
-                    showNotification()
+                    showNotification(track?.getTrackData())
                 }
                 C.NOTIFICATION_ACTION_CP -> {
                     track?.addCheckpoint()
-                    showNotification()
+                    showNotification(track?.getTrackData())
                 }
             }
         }

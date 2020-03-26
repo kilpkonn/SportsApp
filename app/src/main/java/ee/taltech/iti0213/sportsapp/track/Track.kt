@@ -98,18 +98,18 @@ class Track {
         )
     }
 
-    fun getAverageSpeedFromStart(): Double {
-        val speed = (runningDistance / getTimeSinceStart()) * 1000 * 3.6
-        return if (!speed.isNaN()) speed  else 0.0
-    }
-
-    fun getAverageSpeedFromLastCP(): Double {
-        val speed = (runningDistanceFromLastCP / getTimeSinceLastCP()) * 1000 * 3.6
-        return if (!speed.isNaN()) speed  else 0.0
-    }
-
-    fun getAverageSpeedFromLastWP(): Double {
-        val speed = (runningDistanceFromLastWP / getTimeSinceLastWP()) * 1000 * 3.6
-        return if (!speed.isNaN()) speed  else 0.0
+    fun getTrackData(): TrackData {
+        return TrackData(
+            runningDistance,
+            getTimeSinceStart(),
+            runningDistanceFromLastCP,
+            getTimeSinceLastCP(),
+            runningDistanceFromLastWP,
+            getTimeSinceLastWP(),
+            getDriftToLastWP(),
+            getDriftLastCP(),
+            waypoints,
+            checkpoints
+        )
     }
 }
