@@ -147,10 +147,8 @@ class LocationService : Service() {
         // remove notifications
         NotificationManagerCompat.from(this).cancelAll()
 
-
         // don't forget to unregister broadcast receiver!!!!
         unregisterReceiver(broadcastReceiver)
-
 
         // broadcast stop to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)
@@ -230,13 +228,13 @@ class LocationService : Service() {
             .setCustomContentView(notifyView)
             .setCustomBigContentView(notifyView)
 
-
-        //builder.setContent(notifyView)
+        // TODO: Why is this not being displayed on my phone???
 
         // Super important, start as foreground service - ie android considers this as an active app.
         // Need visual reminder - notification.
         // must be called within 5 secs after service starts.
         startForeground(C.NOTIFICATION_ID, builder.build())
+
     }
 
 

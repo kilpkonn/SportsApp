@@ -98,6 +98,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.retainInstance = true
         mapFragment.getMapAsync(this)
 
         btnStartStop = findViewById(R.id.btn_startStop)
