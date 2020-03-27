@@ -245,17 +245,17 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         } else {
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
             mMap.addPolyline(
-                PolylineOptions()
-                    .add(lastLoc, location)
-                    .width(5f)
-                    .color(Color.RED)
+                    PolylineOptions()
+                            .add(lastLoc, location)
+                            .width(5f)
+                            .color(Color.RED)
             )
             if (displayMode == DisplayMode.CENTERED)
                 mMap.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        location,
-                        FOCUSED_ZOOM_LEVEL
-                    )
+                        CameraUpdateFactory.newLatLngZoom(
+                                location,
+                                FOCUSED_ZOOM_LEVEL
+                        )
                 ) // TODO: smoother
         }
 
@@ -281,7 +281,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onResume")
         super.onResume()
         LocalBroadcastManager.getInstance(this)
-            .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+                .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
@@ -355,10 +355,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 val degree = (toDegrees(orientation[0].toDouble()) + 360).toFloat() % 360
 
                 val rotateAnimation = RotateAnimation(
-                    currentDegree,
-                    -degree,
-                    RELATIVE_TO_SELF, 0.5f,
-                    RELATIVE_TO_SELF, 0.5f
+                        currentDegree,
+                        -degree,
+                        RELATIVE_TO_SELF, 0.5f,
+                        RELATIVE_TO_SELF, 0.5f
                 )
                 rotateAnimation.duration = 1000
                 rotateAnimation.fillAfter = true
@@ -384,11 +384,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun createNotificationChannel() {
         // when on 8 Oreo or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                C.NOTIFICATION_CHANNEL,
-                C.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
-            )
+            val channel = NotificationChannel(C.NOTIFICATION_CHANNEL, C.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
 
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             //.setShowBadge(false).setSound(null, null);
@@ -404,53 +400,42 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     // ============================================== PERMISSION HANDLING =============================================
     // Returns the current state of the permissions needed.
     private fun checkPermissions(): Boolean {
-        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
+        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private fun requestPermissions() {
         val shouldProvideRationale =
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.")
-            Snackbar.make(
-                findViewById(R.id.activity_main),
-                C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
-                    // Request permission
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        C.REQUEST_PERMISSIONS_REQUEST_CODE
-                    )
-                }
-                .show()
+            Snackbar.make(findViewById(R.id.activity_main), C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
+                        // Request permission
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), C.REQUEST_PERMISSIONS_REQUEST_CODE)
+                    }
+                    .show()
         } else {
             Log.i(TAG, "Requesting permission")
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                C.REQUEST_PERMISSIONS_REQUEST_CODE
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    C.REQUEST_PERMISSIONS_REQUEST_CODE
             )
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
         Log.i(TAG, "onRequestPermissionResult")
         if (requestCode == C.REQUEST_PERMISSIONS_REQUEST_CODE) {
@@ -459,11 +444,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     // If user interaction was interrupted, the permission request is cancelled and
                     // you receive empty arrays.
                     Log.i(TAG, "User interaction was cancelled.")
-                    Toast.makeText(
-                        this,
-                        C.TOAST_USER_INTERACTION_CANCELLED_TEXT,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, C.TOAST_USER_INTERACTION_CANCELLED_TEXT, Toast.LENGTH_SHORT).show()
                 }
                 grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                     // Permission was granted.
@@ -472,24 +453,20 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 }
                 else -> {
                     // Permission denied.
-                    Snackbar.make(
-                        findViewById(R.id.activity_main),
-                        C.SNAKBAR_REQUEST_DENIED_TEXT,
-                        Snackbar.LENGTH_INDEFINITE
-                    )
-                        .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
-                            // Build intent that displays the App settings screen.
-                            val intent = Intent()
-                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            val uri: Uri = Uri.fromParts(
-                                "package",
-                                BuildConfig.APPLICATION_ID, null
-                            )
-                            intent.data = uri
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            startActivity(intent)
-                        }
-                        .show()
+                    Snackbar.make(findViewById(R.id.activity_main), C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE)
+                            .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
+                                // Build intent that displays the App settings screen.
+                                val intent = Intent()
+                                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                val uri: Uri = Uri.fromParts(
+                                        "package",
+                                        BuildConfig.APPLICATION_ID, null
+                                )
+                                intent.data = uri
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                            }
+                            .show()
                 }
             }
         }
@@ -579,7 +556,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!isSyncedWithService) syncMapData()
 
             val trackLocation =
-                intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+                    intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             updateLocation(trackLocation)
         }
 
@@ -587,23 +564,19 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private fun onTrackDataUpdate(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 
-            val trackData =
-                intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+            val trackData = intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
 
             textViewTotalDistance.text = Converter.distToString(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
-            textViewAverageSpeed.text =
-                Converter.speedToString(trackData.getAverageSpeedFromStart())
+            textViewAverageSpeed.text = Converter.speedToString(trackData.getAverageSpeedFromStart())
 
             textViewDistanceLastCP.text = Converter.distToString(trackData.distanceFromLastCP)
             textViewDriftLastCP.text = Converter.distToString(trackData.driftLastCP.toDouble())
-            textViewAverageSpeedLastCP.text =
-                Converter.speedToString(trackData.getAverageSpeedFromLastCP())
+            textViewAverageSpeedLastCP.text = Converter.speedToString(trackData.getAverageSpeedFromLastCP())
 
             textViewDistanceLastWP.text = Converter.distToString(trackData.distanceFromLastWP)
             textViewDriftLastWP.text = Converter.distToString(trackData.driftLastWP.toDouble())
-            textViewAverageSpeedLastWP.text =
-                Converter.speedToString(trackData.getAverageSpeedFromLastWP())
+            textViewAverageSpeedLastWP.text = Converter.speedToString(trackData.getAverageSpeedFromLastWP())
         }
     }
 
@@ -618,38 +591,20 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun setUpSpinners() {
         // Create an ArrayAdapters
-        val displayOptionAdapter = ArrayAdapter(
-            this,
-            R.layout.spinner_item,
-            DisplayMode.OPTIONS
-        )
+        val displayOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, DisplayMode.OPTIONS)
         spinnerDisplayMode.adapter = displayOptionAdapter
         spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 displayMode = DisplayMode.OPTIONS[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val compassOptionAdapter = ArrayAdapter(
-            this,
-            R.layout.spinner_item,
-            CompassMode.OPTIONS
-        )
+        val compassOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, CompassMode.OPTIONS)
         spinnerCompassMode.adapter = compassOptionAdapter
         spinnerCompassMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 compassMode = CompassMode.OPTIONS[position]
                 when (compassMode) {
                     CompassMode.IMAGE -> {
@@ -660,10 +615,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     CompassMode.NUMERIC -> {
                         imageVieWCompass.visibility = View.INVISIBLE
                         val animation = RotateAnimation(
-                            180f,
-                            0f,
-                            RELATIVE_TO_SELF, 0.5f,
-                            RELATIVE_TO_SELF, 0.5f
+                                180f,
+                                0f,
+                                RELATIVE_TO_SELF, 0.5f,
+                                RELATIVE_TO_SELF, 0.5f
                         )
                         animation.fillAfter = true
                         animation.duration = 1000

@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">SportsApp</string>
     <string name="title_activity_maps">Map</string>
-    <string name="stats_default_text">0</string>
+    <string name="stats_distance_default_text">0.0 m</string>
     <string name="add_wp">Add WP</string>
     <string name="add_cp">Add CP</string>
     <string name="start_stop_track">Start/Stop track</string>
     <string name="compass">compass</string>
+    <string name="stats_time_default_text">00:00:00</string>
+    <string name="stats_speed_default_text">0 km/h</string>
 </resources>

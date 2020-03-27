@@ -6,8 +6,7 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 
-class TrackSyncData(val track: List<TrackLocation>, val wayPoints: List<WayPoint>, val checkpoints: List<Checkpoint>):
-    Parcelable {
+class TrackSyncData(val track: List<TrackLocation>, val wayPoints: List<WayPoint>, val checkpoints: List<Checkpoint>): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.createTypedArrayList(TrackLocation)!!,
         parcel.createTypedArrayList(WayPoint)!!,

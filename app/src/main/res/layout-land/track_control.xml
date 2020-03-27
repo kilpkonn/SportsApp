@@ -22,7 +22,7 @@
             android:id="@+id/total_distance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_distance_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -30,7 +30,7 @@
             android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_time_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -38,7 +38,7 @@
             android:id="@+id/avg_speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_speed_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
     </LinearLayout>
@@ -70,7 +70,7 @@
             android:id="@+id/distance_cp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_distance_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -78,7 +78,7 @@
             android:id="@+id/drift_cp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_distance_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -86,7 +86,7 @@
             android:id="@+id/avg_speed_cp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_speed_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
     </LinearLayout>
@@ -116,7 +116,7 @@
             android:id="@+id/distance_wp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_distance_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -124,7 +124,7 @@
             android:id="@+id/drift_wp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_distance_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 
@@ -132,7 +132,7 @@
             android:id="@+id/avg_speed_wp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/stats_default_text"
+            android:text="@string/stats_speed_default_text"
             android:textColor="@color/track_control_text_color"
             android:textSize="@dimen/stats_text_size" />
 

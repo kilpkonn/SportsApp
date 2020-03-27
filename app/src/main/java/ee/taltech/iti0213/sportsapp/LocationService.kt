@@ -30,8 +30,7 @@ class LocationService : Service() {
 
         // The desired intervals for location updates. Inexact. Updates may be more or less frequent.
         private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000
-        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 2
+        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -55,8 +54,7 @@ class LocationService : Service() {
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
-        notificationManager =
-            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -78,11 +76,7 @@ class LocationService : Service() {
         Log.i(TAG, "Requesting location updates")
 
         try {
-            mFusedLocationClient.requestLocationUpdates(
-                mLocationRequest,
-                mLocationCallback,
-                Looper.myLooper()
-            )
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
         } catch (unlikely: SecurityException) {
             Log.e(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
@@ -102,10 +96,7 @@ class LocationService : Service() {
 
         // broadcast new location to UI
         val locationIntent = Intent(C.LOCATION_UPDATE_ACTION)
-        locationIntent.putExtra(
-            C.LOCATION_UPDATE_ACTION_TRACK_LOCATION,
-            TrackLocation.fromLocation(location)
-        )
+        locationIntent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location))
         LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent)
         LocalBroadcastManager.getInstance(this).sendBroadcast(trackDataIntent)
 
@@ -122,16 +113,16 @@ class LocationService : Service() {
     private fun getLastLocation() {
         try {
             mFusedLocationClient.lastLocation
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.w(TAG, "Get location task successful");
-                        if (task.result != null) {
-                            onNewLocation(task.result!!)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.w(TAG, "Get location task successful");
+                            if (task.result != null) {
+                                onNewLocation(task.result!!)
+                            }
+                        } else {
+                            Log.w(TAG, "Failed to get location." + task.exception)
                         }
-                    } else {
-                        Log.w(TAG, "Failed to get location." + task.exception)
                     }
-                }
         } catch (unlikely: SecurityException) {
             Log.e(TAG, "Lost location permission. $unlikely")
         }
@@ -193,11 +184,7 @@ class LocationService : Service() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track != null && track!!.lastLocation != null) {
-            val locWP = WayPoint(
-                track!!.lastLocation!!.latitude,
-                track!!.lastLocation!!.longitude,
-                track!!.lastLocation!!.elapsedTimestamp
-            )
+            val locWP = WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.elapsedTimestamp)
             intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
 
             intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation)
@@ -205,55 +192,35 @@ class LocationService : Service() {
 
         val notifyView = RemoteViews(packageName, R.layout.track_control)
 
-        val pendingIntentCp =
-            PendingIntent.getBroadcast(this, 0, intentCp, PendingIntent.FLAG_UPDATE_CURRENT)
-        val pendingIntentWp =
-            PendingIntent.getBroadcast(this, 0, intentWp, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, PendingIntent.FLAG_UPDATE_CURRENT)
 
         notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
-        notifyView.setTextViewText(
-            R.id.total_distance,
-            "%.2f".format(trackData?.totalDistance ?: 0f)
-        )
+        notifyView.setTextViewText(R.id.total_distance, Converter.distToString(trackData?.totalDistance ?: 0.0))
         notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(trackData?.totalTime ?: 0))
-        notifyView.setTextViewText(
-            R.id.avg_speed,
-            "%.1f km/h".format(trackData?.getAverageSpeedFromStart() ?: 0f)
-        )
+        notifyView.setTextViewText(R.id.avg_speed, Converter.speedToString(trackData?.getAverageSpeedFromStart() ?: 0.0))
 
-        notifyView.setTextViewText(
-            R.id.distance_cp,
-            "%.2f".format(trackData?.distanceFromLastCP ?: 0f)
-        )
-        notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(trackData?.driftLastCP ?: 0f))
-        notifyView.setTextViewText(
-            R.id.avg_speed_cp,
-            "%.1f km/h".format(trackData?.getAverageSpeedFromLastCP() ?: 0f)
-        )
+        notifyView.setTextViewText(R.id.distance_cp, Converter.distToString(trackData?.distanceFromLastCP ?: 0.0))
+        notifyView.setTextViewText(R.id.drift_cp, Converter.distToString(trackData?.driftLastCP?.toDouble() ?: 0.0))
+        notifyView.setTextViewText(R.id.avg_speed_cp, Converter.speedToString(trackData?.getAverageSpeedFromLastCP() ?: 0.0))
 
-        notifyView.setTextViewText(
-            R.id.distance_wp,
-            "%.2f".format(trackData?.distanceFromLastWP ?: 0f)
-        )
-        notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(trackData?.driftLastWP ?: 0f))
-        notifyView.setTextViewText(
-            R.id.avg_speed_wp,
-            "%.1f km/h".format(trackData?.getAverageSpeedFromLastWP())
-        )
+        notifyView.setTextViewText(R.id.distance_wp, Converter.distToString(trackData?.distanceFromLastWP ?: 0.0))
+        notifyView.setTextViewText(R.id.drift_wp, Converter.distToString(trackData?.driftLastWP?.toDouble() ?: 0.0))
+        notifyView.setTextViewText(R.id.avg_speed_wp, Converter.speedToString(trackData?.getAverageSpeedFromLastWP() ?: 0.0))
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
-            .setSmallIcon(R.drawable.baseline_gps_fixed_24)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
-            .setOngoing(true)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContent(notifyView)
-            .setCustomContentView(notifyView)
-            .setCustomBigContentView(notifyView)
+                .setSmallIcon(R.drawable.baseline_gps_fixed_24)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
+                .setOngoing(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContent(notifyView)
+                .setCustomContentView(notifyView)
+                .setCustomBigContentView(notifyView)
 
         // TODO: Why is this not being displayed on my phone???
 

@@ -36,7 +36,7 @@ class Checkpoint : Parcelable {
                 lastCP.latitude,
                 lastCP.longitude
             )
-            timeSinceLastCP = lastCP.timestamp - location.timestamp
+            timeSinceLastCP = lastCP.elapsedTimestamp - location.elapsedTimestamp
         } else {
             driftFromLastCP = 0f
             timeSinceLastCP = 0
