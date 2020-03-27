@@ -1,7 +1,5 @@
 package ee.taltech.iti0213.sportsapp.track
 
-import ee.taltech.iti0213.sportsapp.track.loaction.Checkpoint
-import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
 import java.io.Serializable
 
 class TrackData constructor(
@@ -12,9 +10,7 @@ class TrackData constructor(
     val distanceFromLastWP: Double,
     val timeFromLastWP: Long,
     val driftLastWP: Float,
-    val driftLastCP: Float,
-    val waypoints: List<WayPoint>,
-    val checkpoints: List<Checkpoint>
+    val driftLastCP: Float
 ) : Serializable {
 
     fun getAverageSpeedFromStart(): Double {

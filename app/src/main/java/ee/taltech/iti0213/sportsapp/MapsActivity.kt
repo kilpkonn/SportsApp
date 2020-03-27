@@ -34,7 +34,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
-import ee.taltech.iti0213.sportsapp.track.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
 
@@ -49,12 +48,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
-    private val wpMarkers = mutableMapOf<WayPoint, Marker>()
-    private val cpMarkers = mutableMapOf<Checkpoint, Marker>()
+    private val wpMarkers = mutableMapOf<Marker, WayPoint>()
 
 
     private var locationServiceActive = false
     private var lastLocation: LatLng? = null
+
+    private var isAddingWP = false
 
 
     private lateinit var mMap: GoogleMap
@@ -127,8 +127,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
         mMap = map ?: return
-
+        mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
+        mMap.setOnMarkerClickListener { marker ->  onMarkerClicked(marker)}
         mMap.isMyLocationEnabled = true
+    }
+
+    private fun onMapClicked(latLng: LatLng?) {
+        if (latLng == null) return
+
+        val marker = mMap.addMarker(MarkerOptions().position(latLng).snippet(""))
+        val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
+        wpMarkers[marker] = wp
+
+        val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
+        intent.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, wp)
+        sendBroadcast(intent)
+    }
+
+    private fun onMarkerClicked(marker: Marker): Boolean {
+        if (wpMarkers.containsKey(marker)) {
+            marker.remove()
+            val intent = Intent(C.TRACK_ACTION_REMOVE_WP)
+            intent.putExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION, wpMarkers[marker])
+            sendBroadcast(intent)
+        }
+        return true
     }
 
 
@@ -311,10 +334,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun btnWPOnClick() {
         Log.d(TAG, "buttonWPOnClick")
-        val intent = Intent(C.NOTIFICATION_ACTION_WP)
-        // TODO: wp from map
-        intent.putExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG, LatLng(59.43, 24.75))
-        sendBroadcast(intent)
+        isAddingWP = !isAddingWP // Toggle
     }
 
     private fun btnCPOnClick() {
@@ -345,7 +365,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
             if (lastLocation == null) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
             } else {
                 // mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
                 mMap.addPolyline(
@@ -379,36 +399,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             textViewDriftLastWP.text = "%.2f".format(trackData.driftLastWP)
             textViewAverageSpeedLastWP.text =
                 "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
-
-            val markersToRemove = mutableSetOf<Marker>()
-            wpMarkers.forEach { entry -> markersToRemove.add(entry.value) }
-            cpMarkers.forEach { entry -> markersToRemove.add(entry.value) }
-
-            for (wp in trackData.waypoints) {
-                val wpLatLng = LatLng(wp.latitude, wp.longitude)
-                if (!wpMarkers.containsKey(wp)) {
-                    wpMarkers[wp] = mMap.addMarker(
-                        MarkerOptions()
-                            .position(wpLatLng)
-                            .snippet(wp.driftToWP.toString())
-                    )
-                } else {
-                    val marker = wpMarkers[wp]
-                    markersToRemove.remove(marker)
-                    marker!!.snippet = wp.driftToWP.toString()
-                }
-            }
-
-            for (cp in trackData.checkpoints) {
-                val wpLatLng = LatLng(cp.latitude, cp.longitude)
-                if (!cpMarkers.containsKey(cp)) {
-                    cpMarkers[cp] = mMap.addMarker(MarkerOptions().position(wpLatLng))
-                } else {
-                    markersToRemove.remove(cpMarkers[cp])
-                }
-            }
-
-            markersToRemove.forEach{ m -> m.remove()}
         }
     }
 }

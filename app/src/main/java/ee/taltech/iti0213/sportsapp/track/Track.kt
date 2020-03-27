@@ -1,6 +1,5 @@
 package ee.taltech.iti0213.sportsapp.track
 
-import com.google.android.gms.maps.model.LatLng
 import ee.taltech.iti0213.sportsapp.track.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
@@ -39,7 +38,6 @@ class Track {
         currentTime = location.timestamp
         lastLocation = location
         track.add(location)
-        waypoints.forEach { checkpoint -> checkpoint.update(location) }
     }
 
     fun addCheckpoint() {
@@ -54,14 +52,14 @@ class Track {
         lastCPTime = track.last().timestamp
     }
 
-    fun addWayPoint(latLng: LatLng) {
-        waypoints.add(WayPoint(latLng.latitude, latLng.longitude))
+    fun addWayPoint(wayPoint: WayPoint) {
+        waypoints.add(wayPoint)
         runningDistanceFromLastWP = 0.0
         lastWPTime = track.last().timestamp
     }
 
     fun removeWayPoint(wayPoint: WayPoint) {
-        waypoints.remove(wayPoint)
+        waypoints.find { wp -> wp == wp }?.timeRemoved = System.currentTimeMillis()
     }
 
     fun getTimeSinceStart(): Long {
@@ -107,9 +105,7 @@ class Track {
             runningDistanceFromLastWP,
             getTimeSinceLastWP(),
             getDriftToLastWP(),
-            getDriftLastCP(),
-            waypoints,
-            checkpoints
+            getDriftLastCP()
         )
     }
 }

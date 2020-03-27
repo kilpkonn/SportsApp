@@ -5,8 +5,8 @@ class C {
         const val NOTIFICATION_CHANNEL = "ee.taltech.iti0213.sportsapp.default_channel"
         const val NOTIFICATION_CHANNEL_NAME = "Default channel2"
         const val NOTIFICATION_CHANNEL_DESCRIPTION = "Default channel description"
-        const val NOTIFICATION_ACTION_WP = "ee.taltech.iti0213.sportsapp.wp"
-        const val NOTIFICATION_ACTION_WP_LAT_LNG = "ee.taltech.iti0213.sportsapp.wp.lat_lng"
+        const val NOTIFICATION_ACTION_ADD_WP = "ee.taltech.iti0213.sportsapp.wp"
+        const val NOTIFICATION_ACTION_ADD_WP_DATA = "ee.taltech.iti0213.sportsapp.wp.lat_lng"
         const val NOTIFICATION_ACTION_CP = "ee.taltech.iti0213.sportsapp.cp"
 
         const val LOCATION_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.location_update"
@@ -14,6 +14,9 @@ class C {
 
         const val TRACK_STATS_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.track_stats_update"
         const val TRACK_STATS_UPDATE_ACTION_DATA = "ee.taltech.iti0213.sportsapp.track_stats_update.stats_data"
+
+        const val TRACK_ACTION_REMOVE_WP = "ee.taltech.iti0213.sportsapp.wp.remove"
+        const val TRACK_ACTION_REMOVE_WP_LOCATION = "ee.taltech.iti0213.sportsapp.wp.remove.location"
 
         const val NOTIFICATION_ID = 43210
         const val REQUEST_PERMISSIONS_REQUEST_CODE = 34;

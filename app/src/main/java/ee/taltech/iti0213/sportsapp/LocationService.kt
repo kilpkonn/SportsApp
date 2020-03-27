@@ -1,6 +1,5 @@
 package ee.taltech.iti0213.sportsapp
 
-import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -11,7 +10,6 @@ import android.content.IntentFilter
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
-import android.os.PowerManager
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -23,6 +21,7 @@ import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
 
 
 class LocationService : Service() {
@@ -50,7 +49,8 @@ class LocationService : Service() {
         super.onCreate()
 
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_CP)
-        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_WP)
+        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         //broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
@@ -190,10 +190,10 @@ class LocationService : Service() {
 
     fun showNotification(trackData: TrackData?) {
         val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
-        val intentWp = Intent(C.NOTIFICATION_ACTION_WP)
+        val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track!= null && track!!.lastLocation != null) {
             val loc = LatLng(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude)
-            intentWp.putExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG, loc)
+            intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, loc)
         }
 
         val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
@@ -242,14 +242,18 @@ class LocationService : Service() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
-                C.NOTIFICATION_ACTION_WP -> {
-                    if (!intent.hasExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)) return
-                    track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_WP_LAT_LNG)!!)
-                    showNotification(track?.getTrackData())
+                C.NOTIFICATION_ACTION_ADD_WP -> {
+                    if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)) return
+                    track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)!!)
+                    //showNotification(track?.getTrackData())
                 }
                 C.NOTIFICATION_ACTION_CP -> {
                     track?.addCheckpoint()
                     showNotification(track?.getTrackData())
+                }
+                C.TRACK_ACTION_REMOVE_WP -> {
+                    if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
+                    track?.removeWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION) as WayPoint)
                 }
             }
         }
