@@ -51,6 +51,18 @@ class TrackLocation(
             Location.distanceBetween(lat, lng, endLat, endLng, distance)
             return distance[0]
         }
+
+        fun calcBearingBetween(
+                lat: Double,
+                lng: Double,
+                endLat: Double,
+                endLng: Double
+        ): Float {
+            // distance, initial bearing, end bearing
+            val distance = floatArrayOf(0f, 0f, 0f)
+            Location.distanceBetween(lat, lng, endLat, endLng, distance)
+            return (distance[1] + distance[2]) / 2f // Average
+        }
     }
 
     var currentCP: WayPoint? = null

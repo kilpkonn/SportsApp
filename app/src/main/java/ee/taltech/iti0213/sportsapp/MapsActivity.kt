@@ -18,6 +18,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.hardware.SensorManager.SENSOR_DELAY_GAME
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,6 +32,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -40,6 +42,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
+import ee.taltech.iti0213.sportsapp.spinner.RotationMode
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -59,6 +62,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
         private const val BUNDLE_COMPASS_MODE = "compass_mode"
         private const val BUNDLE_DISPLAY_MODE = "display_mode"
+        private const val BUNDLE_ROTATION_MODE = "rotation_mode"
         private const val BUNDLE_GPS_ACTIVE = "gps_active"
     }
 
@@ -74,6 +78,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var isAddingWP = false
     private var displayMode = DisplayMode.CENTERED
     private var compassMode = CompassMode.IMAGE
+    private var rotationMode = RotationMode.NORTH_UP
     private var lastUpdateTime = 0L
 
     private var currentDegree = 0.0f
@@ -110,6 +115,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var imageVieWCompass: TextView
     private lateinit var spinnerDisplayMode: Spinner
     private lateinit var spinnerCompassMode: Spinner
+    private lateinit var spinnerRotationMode: Spinner
 
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
@@ -170,7 +176,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         imageVieWCompass = findViewById(R.id.compass)
         spinnerDisplayMode = findViewById(R.id.spinner_display_mode)
         spinnerCompassMode = findViewById(R.id.spinner_compass_mode)
-
+        spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
         setUpSpinners()
     }
     // ================================================ MAPS CALLBACKS ===============================================
@@ -250,13 +256,25 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                             .width(5f)
                             .color(Color.RED)
             )
-            if (displayMode == DisplayMode.CENTERED)
-                mMap.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                                location,
-                                FOCUSED_ZOOM_LEVEL
-                        )
-                ) // TODO: smoother
+            val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
+            val cameraZoom = FOCUSED_ZOOM_LEVEL
+
+            val cameraLoc = when(displayMode) {
+                DisplayMode.CENTERED -> lastLoc
+                else -> mMap.cameraPosition.target
+            }
+            val cameraBearing = when(rotationMode) {
+                RotationMode.NORTH_UP -> 0f
+                RotationMode.USER_CHOSEN_UP -> mMap.cameraPosition.bearing
+                else -> TrackLocation.calcBearingBetween(lastLoc.latitude, lastLoc.longitude, location.latitude, location.longitude)
+            }
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.builder()
+                    .bearing(cameraBearing)
+                    .target(cameraLoc)
+                    .zoom(cameraZoom)
+                    .tilt(cameraTilt)
+                    .build())
+            )
         }
 
         for ((marker, wp) in wpMarkers.entries) {
@@ -320,6 +338,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putBoolean(BUNDLE_IS_ADDING_WP, isAddingWP)
         outState.putString(BUNDLE_COMPASS_MODE, compassMode)
         outState.putString(BUNDLE_DISPLAY_MODE, displayMode)
+        outState.putString(BUNDLE_ROTATION_MODE, rotationMode)
         outState.putBoolean(BUNDLE_GPS_ACTIVE, locationServiceActive)
         super.onSaveInstanceState(outState)
     }
@@ -330,6 +349,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         isAddingWP = savedInstanceState.getBoolean(BUNDLE_IS_ADDING_WP)
         compassMode = savedInstanceState.getString(BUNDLE_COMPASS_MODE) ?: CompassMode.IMAGE
         displayMode = savedInstanceState.getString(BUNDLE_DISPLAY_MODE) ?: DisplayMode.CENTERED
+        rotationMode = savedInstanceState.getString(BUNDLE_ROTATION_MODE) ?: RotationMode.NORTH_UP
         locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
     }
 
@@ -416,7 +436,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             Snackbar.make(findViewById(R.id.activity_main), C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE)
                     .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
                         // Request permission
-                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), C.REQUEST_PERMISSIONS_REQUEST_CODE)
+                        ActivityCompat.requestPermissions(this,
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                                C.REQUEST_PERMISSIONS_REQUEST_CODE
+                        )
                     }
                     .show()
         } else {
@@ -631,6 +654,16 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         imageVieWCompass.visibility = View.INVISIBLE
                     }
                 }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        val rotationOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, RotationMode.OPTIONS)
+        spinnerRotationMode.adapter = rotationOptionAdapter
+        spinnerRotationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                rotationMode = RotationMode.OPTIONS[position]
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
