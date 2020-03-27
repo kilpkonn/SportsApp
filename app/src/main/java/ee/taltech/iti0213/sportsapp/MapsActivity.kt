@@ -42,6 +42,7 @@ import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import java.lang.Math.toDegrees
@@ -53,6 +54,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private const val DEFAULT_ZOOM_LEVEL = 13f
         private const val FOCUSED_ZOOM_LEVEL = 16f
+
+        private const val BUNDLE_LAST_UPDATE_TIME = "last_update_time"
+        private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
+        private const val BUNDLE_COMPASS_MODE = "compass_mode"
+        private const val BUNDLE_DISPLAY_MODE = "display_mode"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -67,6 +73,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var isAddingWP = false
     private var displayMode = DisplayMode.CENTERED
     private var compassMode = CompassMode.IMAGE
+    private var lastUpdateTime = 0L
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -127,6 +134,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STATS_UPDATE_ACTION)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_RESPONSE)
+
+        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -174,6 +184,19 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun onMapClicked(latLng: LatLng?) {
         if (!isAddingWP) return
         if (latLng == null) return
+
+        val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
+        addWP(wp)
+
+        val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
+        intent.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, wp)
+        sendBroadcast(intent)
+        // Don't add 2 in a row
+        btnWPOnClick()
+    }
+
+    private fun addWP(wp: WayPoint) {
+        val latLng = LatLng(wp.latitude, wp.longitude)
         val options = MarkerOptions().position(latLng)
         iconGenerator.setStyle(IconGenerator.STYLE_PURPLE)
         options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
@@ -181,15 +204,20 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         val marker = mMap.addMarker(options)
         marker.showInfoWindow()
-
-        val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
         wpMarkers[marker] = wp
+    }
 
-        val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
-        intent.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, wp)
-        sendBroadcast(intent)
-        // Don't add 2 in a row
-        btnWPOnClick()
+    private fun addCP(latLng: LatLng) {
+        val options = MarkerOptions().position(latLng)
+
+        iconGenerator.setStyle(IconGenerator.STYLE_BLUE)
+        iconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
+
+        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
+        options.anchor(0.2f, 1f)
+
+        val marker = mMap.addMarker(options)
+        marker.showInfoWindow()
     }
 
     private fun onMarkerClicked(marker: Marker): Boolean {
@@ -203,6 +231,26 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         return true
     }
 
+    private fun updateLocation(trackLocation: TrackLocation) {
+        val location = LatLng(trackLocation.latitude, trackLocation.longitude)
+
+        if (lastLocation == null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
+        } else {
+            val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
+            mMap.addPolyline(
+                PolylineOptions()
+                    .add(lastLoc, location)
+                    .width(5f)
+                    .color(Color.RED)
+            )
+            if (displayMode == DisplayMode.CENTERED)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, FOCUSED_ZOOM_LEVEL)) // TODO: smoother
+        }
+
+        lastLocation = trackLocation
+    }
+
 
     // ============================================== LIFECYCLE CALLBACKS =============================================
     override fun onStart() {
@@ -214,8 +262,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onResume")
         super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
+        syncMapData()
 
     }
 
@@ -231,6 +281,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onStop")
         super.onStop()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        //unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {
@@ -241,6 +292,22 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onRestart() {
         Log.d(TAG, "onRestart")
         super.onRestart()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putLong(BUNDLE_LAST_UPDATE_TIME, lastUpdateTime)
+        outState.putBoolean(BUNDLE_IS_ADDING_WP, isAddingWP)
+        outState.putString(BUNDLE_COMPASS_MODE, compassMode)
+        outState.putString(BUNDLE_DISPLAY_MODE, displayMode)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        lastUpdateTime = savedInstanceState.getLong(BUNDLE_LAST_UPDATE_TIME)
+        isAddingWP = savedInstanceState.getBoolean(BUNDLE_IS_ADDING_WP)
+        compassMode = savedInstanceState.getString(BUNDLE_COMPASS_MODE) ?: CompassMode.IMAGE
+        displayMode = savedInstanceState.getString(BUNDLE_DISPLAY_MODE) ?: DisplayMode.CENTERED
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
@@ -444,21 +511,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         if (lastLocation == null) return
         val latLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
-        val options = MarkerOptions().position(latLng)
-
-        iconGenerator.setStyle(IconGenerator.STYLE_BLUE)
-        iconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
-
-        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
-        options.anchor(0.2f, 1f)
-
-        val marker = mMap.addMarker(options)
-        marker.showInfoWindow()
+        addCP(latLng)
 
         val intent = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         intent.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, lastLocation)
         sendBroadcast(intent)
     }
+
 
     // ============================================== BROADCAST RECEIVER =============================================
     private inner class InnerBroadcastReceiver : BroadcastReceiver() {
@@ -467,34 +526,36 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             when (intent.action) {
                 C.LOCATION_UPDATE_ACTION -> onLocationUpdate(intent)
                 C.TRACK_STATS_UPDATE_ACTION -> onTrackDataUpdate(intent)
+                C.TRACK_SYNC_RESPONSE -> onTrackSync(intent)
             }
         }
 
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
 
+        private fun onTrackSync(intent: Intent) {
+            if (!intent.hasExtra(C.TRACK_SYNC_DATA)) return
+
+            val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA)?: return
+
+            for (trackPoint in syncData.track) {
+                updateLocation(trackPoint)
+            }
+            for (wp in syncData.wayPoints) {
+                addWP(wp)
+            }
+            for (cp in syncData.checkpoints) {
+                addCP(LatLng(cp.latitude, cp.longitude))
+            }
+            isSyncedWithService = true
+        }
+
         private fun onLocationUpdate(intent: Intent) {
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
-            if (!isSyncedWithService) return
+            if (!isSyncedWithService) syncMapData()
 
-            val trackLocation =
-                intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
-            val location = LatLng(trackLocation.latitude, trackLocation.longitude)
-
-            if (lastLocation == null) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
-            } else {
-                val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
-                mMap.addPolyline(
-                    PolylineOptions()
-                        .add(lastLoc, location)
-                        .width(5f)
-                        .color(Color.RED)
-                )
-                if (displayMode == DisplayMode.CENTERED)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, FOCUSED_ZOOM_LEVEL)) // TODO: smoother
-            }
-
-            lastLocation = trackLocation
+            val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            updateLocation(trackLocation)
+            lastUpdateTime = trackLocation.timestamp
         }
 
         @SuppressLint("SetTextI18n") // Just to format numbers...
@@ -531,8 +592,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     // ======================================= HELPER FUNCTIONS ======================================
 
     private fun syncMapData() {
-        val intent = Intent(C.TRACK_SYNC)
-        intent.putExtra(C.TRACK_SYNC_TIME, System.currentTimeMillis())
+        val intent = Intent(C.TRACK_SYNC_REQUEST)
+        intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, lastUpdateTime)
         sendBroadcast(intent)
     }
 

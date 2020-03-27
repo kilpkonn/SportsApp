@@ -51,7 +51,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
-        broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -192,14 +192,16 @@ class LocationService : Service() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track!= null && track!!.lastLocation != null) {
-            val loc = LatLng(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude)
-            intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, loc)
+            val locWP = WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, System.currentTimeMillis())
+            intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
+
+            intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation)
         }
 
-        val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, 0)
-        val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, 0)
-
         val notifyView = RemoteViews(packageName, R.layout.track_control)
+
+        val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, PendingIntent.FLAG_UPDATE_CURRENT)
 
         notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
@@ -238,7 +240,7 @@ class LocationService : Service() {
 
     private fun sendTrackData(since: Long) {
         if (track == null) return
-        val intent = Intent(C.TRACK_SYNC)
+        val intent = Intent(C.TRACK_SYNC_RESPONSE)
         val data = track!!.getTrackSyncData(since)
         intent.putExtra(C.TRACK_SYNC_DATA, data)
         sendBroadcast(intent)
@@ -263,9 +265,9 @@ class LocationService : Service() {
                     if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
                     track?.removeWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION) as WayPoint)
                 }
-                C.TRACK_SYNC -> {
-                    if (!intent.hasExtra(C.TRACK_SYNC_TIME)) return
-                    sendTrackData(intent.getLongExtra(C.TRACK_SYNC_TIME, 0L))
+                C.TRACK_SYNC_REQUEST -> {
+                    if (!intent.hasExtra(C.TRACK_SYNC_REQUEST_TIME)) return
+                    sendTrackData(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
             }
         }
