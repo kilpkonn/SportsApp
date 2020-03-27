@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toStartOf="@id/track_control_bar"
         app:layout_constraintHorizontal_bias="0.97"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/spinner_compass_mode" />
 
     <TextView
         android:id="@+id/compass"
