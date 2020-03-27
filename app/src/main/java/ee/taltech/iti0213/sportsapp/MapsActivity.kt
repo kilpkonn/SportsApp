@@ -11,13 +11,23 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.Sensor.TYPE_ACCELEROMETER
+import android.hardware.Sensor.TYPE_MAGNETIC_FIELD
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.hardware.SensorManager.SENSOR_DELAY_GAME
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation.RELATIVE_TO_SELF
+import android.view.animation.RotateAnimation
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -36,9 +46,10 @@ import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
+import java.lang.Math.toDegrees
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallback {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
 
@@ -56,6 +67,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var isAddingWP = false
 
+    var currentDegree = 0.0f
+    var lastAccelerometer = FloatArray(3)
+    var lastMagnetometer = FloatArray(3)
+    var lastAccelerometerSet = false
+    var lastMagnetometerSet = false
+
+
+    lateinit var sensorManager: SensorManager
+    lateinit var accelerometer: Sensor
+    lateinit var magnetometer: Sensor
 
     private lateinit var mMap: GoogleMap
 
@@ -63,8 +84,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var btnAddWP: ImageButton
     private lateinit var btnAddCP: ImageButton
 
-    private lateinit var textViewLatitude: TextView
-    private lateinit var textViewLongitude: TextView
+    //private lateinit var textViewLatitude: TextView
+    //private lateinit var textViewLongitude: TextView
 
     private lateinit var textViewTotalDistance: TextView
     private lateinit var textViewTotalTime: TextView
@@ -77,6 +98,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var textViewDistanceLastWP: TextView
     private lateinit var textViewDriftLastWP: TextView
     private lateinit var textViewAverageSpeedLastWP: TextView
+
+    lateinit var imageVieWCompass: ImageView
 
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
@@ -93,6 +116,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             requestPermissions()
         }
 
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(TYPE_ACCELEROMETER)
+        magnetometer = sensorManager.getDefaultSensor(TYPE_MAGNETIC_FIELD)
+
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STATS_UPDATE_ACTION)
 
@@ -104,8 +131,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         btnStartStop = findViewById(R.id.btn_startStop)
         btnAddWP = findViewById(R.id.btn_add_wp)
         btnAddCP = findViewById(R.id.btn_add_cp)
-        textViewLatitude = findViewById(R.id.textViewLatitude)
-        textViewLongitude = findViewById(R.id.textViewLongitude)
+        // textViewLatitude = findViewById(R.id.textViewLatitude)
+        // textViewLongitude = findViewById(R.id.textViewLongitude)
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -122,6 +149,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         textViewDistanceLastWP = findViewById(R.id.distance_wp)
         textViewDriftLastWP = findViewById(R.id.drift_wp)
         textViewAverageSpeedLastWP = findViewById(R.id.avg_speed_wp)
+
+        imageVieWCompass = findViewById(R.id.compass)
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -130,12 +159,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
         mMap.setOnMarkerClickListener { marker ->  onMarkerClicked(marker)}
         mMap.isMyLocationEnabled = true
+        mMap.uiSettings.isCompassEnabled = false;
+        mMap.uiSettings.isMapToolbarEnabled = false
     }
 
     private fun onMapClicked(latLng: LatLng?) {
         if (latLng == null) return
 
-        val marker = mMap.addMarker(MarkerOptions().position(latLng).title("1"))
+        val marker = mMap.addMarker(MarkerOptions().position(latLng))
         marker.showInfoWindow()
 
         val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
@@ -167,21 +198,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
+        sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
 
     }
 
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
+        sensorManager.unregisterListener(this, accelerometer)
+        sensorManager.unregisterListener(this, magnetometer)
     }
 
     override fun onStop() {
         Log.d(TAG, "onStop")
         super.onStop()
-
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
     }
 
@@ -193,6 +225,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onRestart() {
         Log.d(TAG, "onRestart")
         super.onRestart()
+    }
+
+    // ================================================= COMPASS CALLBACKS ======================================================
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
+
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor === accelerometer) {
+            lowPass(event.values, lastAccelerometer)
+            lastAccelerometerSet = true
+        } else if (event.sensor === magnetometer) {
+            lowPass(event.values, lastMagnetometer)
+            lastMagnetometerSet = true
+        }
+
+        if (lastAccelerometerSet && lastMagnetometerSet) {
+            val r = FloatArray(9)
+            if (SensorManager.getRotationMatrix(r, null, lastAccelerometer, lastMagnetometer)) {
+                val orientation = FloatArray(3)
+                SensorManager.getOrientation(r, orientation)
+                val degree = (toDegrees(orientation[0].toDouble()) + 360).toFloat() % 360
+
+                val rotateAnimation = RotateAnimation(
+                    currentDegree,
+                    -degree,
+                    RELATIVE_TO_SELF, 0.5f,
+                    RELATIVE_TO_SELF, 0.5f)
+                rotateAnimation.duration = 1000
+                rotateAnimation.fillAfter = true
+
+                imageVieWCompass.startAnimation(rotateAnimation)
+                currentDegree = -degree
+            }
+        }
+    }
+
+    fun lowPass(input: FloatArray, output: FloatArray) {
+        val alpha = 0.05f
+
+        for (i in input.indices) {
+            output[i] = output[i] + alpha * (input[i] - output[i])
+        }
     }
 
     // ============================================== NOTIFICATION CHANNEL CREATION =============================================
@@ -362,8 +436,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val trackLocation =
                 intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
-            textViewLatitude.text = trackLocation.latitude.toString()
-            textViewLongitude.text = trackLocation.longitude.toString()
+            // textViewLatitude.text = trackLocation.latitude.toString()
+            // textViewLongitude.text = trackLocation.longitude.toString()
             val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
             // mMap.addMarker(MarkerOptions().position(location).title("Current loc"))

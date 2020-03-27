@@ -5,4 +5,5 @@
     <string name="add_wp">Add WP</string>
     <string name="add_cp">Add CP</string>
     <string name="start_stop_track">Start/Stop track</string>
+    <string name="compass">compass</string>
 </resources>
