@@ -2,6 +2,8 @@ package ee.taltech.iti0213.sportsapp.track.loaction
 
 import android.location.Location
 import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
 import java.io.Serializable
 
 class TrackLocation(
@@ -11,9 +13,17 @@ class TrackLocation(
     val accuracy: Float,
     val altitude: Double,
     val altitudeAccuracy: Float
-) : Serializable {
+) : Parcelable {
 
-    companion object {
+    companion object CREATOR : Parcelable.Creator<TrackLocation> {
+        override fun createFromParcel(parcel: Parcel): TrackLocation {
+            return TrackLocation(parcel)
+        }
+
+        override fun newArray(size: Int): Array<TrackLocation?> {
+            return arrayOfNulls(size)
+        }
+
         fun fromLocation(location: Location): TrackLocation {
             val verticalAccuracy =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) location.verticalAccuracyMeters else 0f
@@ -42,5 +52,30 @@ class TrackLocation(
     }
 
     var currentCP: WayPoint? = null
+
+    constructor(parcel: Parcel) : this(
+        parcel.readDouble(),
+        parcel.readDouble(),
+        parcel.readLong(),
+        parcel.readFloat(),
+        parcel.readDouble(),
+        parcel.readFloat()
+    ) {
+        currentCP = parcel.readParcelable(WayPoint::class.java.classLoader)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeDouble(latitude)
+        parcel.writeDouble(longitude)
+        parcel.writeLong(timestamp)
+        parcel.writeFloat(accuracy)
+        parcel.writeDouble(altitude)
+        parcel.writeFloat(altitudeAccuracy)
+        parcel.writeParcelable(currentCP, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
 
 }

@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp.track
 
-import java.io.Serializable
+import android.os.Parcel
+import android.os.Parcelable
 
 class TrackData constructor(
     val totalDistance: Double,
@@ -11,7 +12,19 @@ class TrackData constructor(
     val timeFromLastWP: Long,
     val driftLastWP: Float,
     val driftLastCP: Float
-) : Serializable {
+) : Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        parcel.readDouble(),
+        parcel.readLong(),
+        parcel.readDouble(),
+        parcel.readLong(),
+        parcel.readDouble(),
+        parcel.readLong(),
+        parcel.readFloat(),
+        parcel.readFloat()
+    ) {
+    }
 
     fun getAverageSpeedFromStart(): Double {
         val speed = (totalDistance / totalTime) * 1000 * 3.6
@@ -26,5 +39,30 @@ class TrackData constructor(
     fun getAverageSpeedFromLastWP(): Double {
         val speed = (distanceFromLastWP / timeFromLastWP) * 1000 * 3.6
         return if (!speed.isNaN()) speed else 0.0
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeDouble(totalDistance)
+        parcel.writeLong(totalTime)
+        parcel.writeDouble(distanceFromLastCP)
+        parcel.writeLong(timeFromLastCP)
+        parcel.writeDouble(distanceFromLastWP)
+        parcel.writeLong(timeFromLastWP)
+        parcel.writeFloat(driftLastWP)
+        parcel.writeFloat(driftLastCP)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<TrackData> {
+        override fun createFromParcel(parcel: Parcel): TrackData {
+            return TrackData(parcel)
+        }
+
+        override fun newArray(size: Int): Array<TrackData?> {
+            return arrayOfNulls(size)
+        }
     }
 }

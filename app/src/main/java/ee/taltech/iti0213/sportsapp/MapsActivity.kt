@@ -54,6 +54,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private val TAG = this::class.java.declaringClass!!.simpleName
 
         private const val DEFAULT_ZOOM_LEVEL = 13f
+        private const val FOCUSED_ZOOM_LEVEL = 16f
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -446,7 +447,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
 
             val trackLocation =
-                intent.getSerializableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+                intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             // textViewLatitude.text = trackLocation.latitude.toString()
             // textViewLongitude.text = trackLocation.longitude.toString()
             val location = LatLng(trackLocation.latitude, trackLocation.longitude)
@@ -463,7 +464,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         .color(Color.RED)
                 )
                 if (displayMode == DisplayMode.CENTERED)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL)) // TODO: smoother
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, FOCUSED_ZOOM_LEVEL)) // TODO: smoother
             }
 
             lastLocation = trackLocation
@@ -474,7 +475,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 
             val trackData =
-                intent.getSerializableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+                intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
 
             textViewTotalDistance.text = "%.2f".format(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
