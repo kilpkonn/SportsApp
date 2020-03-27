@@ -172,6 +172,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun onMapClicked(latLng: LatLng?) {
+        if (!isAddingWP) return
         if (latLng == null) return
 
         val marker = mMap.addMarker(MarkerOptions().position(latLng))
@@ -183,6 +184,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         intent.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, wp)
         sendBroadcast(intent)
+        // Don't add 2 in a row
+        btnWPOnClick()
     }
 
     private fun onMarkerClicked(marker: Marker): Boolean {
@@ -425,6 +428,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun btnWPOnClick() {
         Log.d(TAG, "buttonWPOnClick")
         isAddingWP = !isAddingWP // Toggle
+        if (isAddingWP) {
+            btnAddWP.setImageResource(R.drawable.ic_not_interested_24px)
+        } else {
+            btnAddWP.setImageResource(R.drawable.ic_add_location_24px)
+        }
     }
 
     private fun btnCPOnClick() {
