@@ -10,7 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.Sensor.TYPE_ACCELEROMETER
@@ -36,11 +35,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
+import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.track.TrackData
@@ -82,6 +79,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var magnetometer: Sensor
 
     private lateinit var mMap: GoogleMap
+    private lateinit var iconGenerator: IconGenerator
 
     private lateinit var btnStartStop: ImageButton
     private lateinit var btnAddWP: ImageButton
@@ -164,6 +162,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     override fun onMapReady(map: GoogleMap?) {
         mMap = map ?: return
+        iconGenerator = IconGenerator(this)
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
         mMap.setOnMarkerClickListener { marker ->  onMarkerClicked(marker)}
         mMap.isMyLocationEnabled = true
@@ -174,8 +173,12 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun onMapClicked(latLng: LatLng?) {
         if (!isAddingWP) return
         if (latLng == null) return
+        val options = MarkerOptions().position(latLng)
+        iconGenerator.setStyle(IconGenerator.STYLE_PURPLE)
+        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
+        options.anchor(iconGenerator.anchorU, iconGenerator.anchorV)
 
-        val marker = mMap.addMarker(MarkerOptions().position(latLng))
+        val marker = mMap.addMarker(options)
         marker.showInfoWindow()
 
         val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
@@ -437,7 +440,23 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun btnCPOnClick() {
         Log.d(TAG, "buttonCPOnClick")
-        sendBroadcast(Intent(C.NOTIFICATION_ACTION_CP))
+
+        if (lastLocation == null) return
+        val latLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
+        val options = MarkerOptions().position(latLng)
+
+        iconGenerator.setStyle(IconGenerator.STYLE_BLUE)
+        iconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
+
+        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
+        options.anchor(0.2f, 1f)
+
+        val marker = mMap.addMarker(options)
+        marker.showInfoWindow()
+
+        val intent = Intent(C.NOTIFICATION_ACTION_ADD_CP)
+        intent.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, lastLocation)
+        sendBroadcast(intent)
     }
 
     // ============================================== BROADCAST RECEIVER =============================================
@@ -499,7 +518,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             if (lastLocation != null) {
                 for ((marker, wp) in wpMarkers.entries) {
-                    marker.title = "%.1f m".format(wp.getDriftToWP(lastLocation!!))
+                    val distance = "%.1f m".format(wp.getDriftToWP(lastLocation!!))
+                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(distance)))
                     marker.showInfoWindow()
                 }
             }

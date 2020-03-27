@@ -48,7 +48,7 @@ class LocationService : Service() {
         Log.d(TAG, "onCreate")
         super.onCreate()
 
-        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_CP)
+        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         //broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
@@ -189,7 +189,7 @@ class LocationService : Service() {
     }
 
     fun showNotification(trackData: TrackData?) {
-        val intentCp = Intent(C.NOTIFICATION_ACTION_CP)
+        val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track!= null && track!!.lastLocation != null) {
             val loc = LatLng(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude)
@@ -247,8 +247,9 @@ class LocationService : Service() {
                     track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)!!)
                     //showNotification(track?.getTrackData())
                 }
-                C.NOTIFICATION_ACTION_CP -> {
-                    track?.addCheckpoint()
+                C.NOTIFICATION_ACTION_ADD_CP -> {
+                    if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)) return
+                    track?.addCheckpoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)!!)
                     showNotification(track?.getTrackData())
                 }
                 C.TRACK_ACTION_REMOVE_WP -> {

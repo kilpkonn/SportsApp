@@ -7,7 +7,8 @@ class C {
         const val NOTIFICATION_CHANNEL_DESCRIPTION = "Default channel description"
         const val NOTIFICATION_ACTION_ADD_WP = "ee.taltech.iti0213.sportsapp.wp"
         const val NOTIFICATION_ACTION_ADD_WP_DATA = "ee.taltech.iti0213.sportsapp.wp.lat_lng"
-        const val NOTIFICATION_ACTION_CP = "ee.taltech.iti0213.sportsapp.cp"
+        const val NOTIFICATION_ACTION_ADD_CP = "ee.taltech.iti0213.sportsapp.cp"
+        const val NOTIFICATION_ACTION_ADD_CP_DATA = "ee.taltech.iti0213.sportsapp.cp.lat_lng"
 
         const val LOCATION_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.location_update"
         const val LOCATION_UPDATE_ACTION_TRACK_LOCATION = "ee.taltech.iti0213.sportsapp.location_update.track_location"

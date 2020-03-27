@@ -40,10 +40,10 @@ class Track {
         track.add(location)
     }
 
-    fun addCheckpoint() {
+    fun addCheckpoint(trackLocation: TrackLocation) {
         checkpoints.add(
             Checkpoint.fromLocation(
-                track.last(),
+                trackLocation,
                 runningDistance,
                 checkpoints.lastOrNull()
             )
