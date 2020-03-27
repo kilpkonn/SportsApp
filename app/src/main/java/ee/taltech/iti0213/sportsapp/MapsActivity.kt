@@ -88,7 +88,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var magnetometer: Sensor
 
     private lateinit var mMap: GoogleMap
-    private lateinit var iconGenerator: IconGenerator
+    private lateinit var wpIconGenerator: IconGenerator
+    private lateinit var cpIconGenerator: IconGenerator
 
     private lateinit var btnStartStop: ImageButton
     private lateinit var btnAddWP: ImageButton
@@ -176,7 +177,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     override fun onMapReady(map: GoogleMap?) {
         mMap = map ?: return
-        iconGenerator = IconGenerator(this)
+        wpIconGenerator = IconGenerator(this)
+        wpIconGenerator.setStyle(IconGenerator.STYLE_PURPLE)
+
+        cpIconGenerator = IconGenerator(this)
+        cpIconGenerator.setStyle(IconGenerator.STYLE_BLUE)
+        cpIconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
+
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
         mMap.setOnMarkerClickListener { marker ->  onMarkerClicked(marker)}
         mMap.isMyLocationEnabled = true
@@ -188,7 +195,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         if (!isAddingWP) return
         if (latLng == null) return
 
-        val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
+        val wp = WayPoint(latLng.latitude, latLng.longitude, lastUpdateTime)
         addWP(wp)
 
         val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
@@ -201,9 +208,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun addWP(wp: WayPoint) {
         val latLng = LatLng(wp.latitude, wp.longitude)
         val options = MarkerOptions().position(latLng)
-        iconGenerator.setStyle(IconGenerator.STYLE_PURPLE)
-        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
-        options.anchor(iconGenerator.anchorU, iconGenerator.anchorV)
+        options.icon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon("")))
+        options.anchor(wpIconGenerator.anchorU, wpIconGenerator.anchorV)
 
         val marker = mMap.addMarker(options)
         marker.showInfoWindow()
@@ -213,10 +219,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun addCP(latLng: LatLng) {
         val options = MarkerOptions().position(latLng)
 
-        iconGenerator.setStyle(IconGenerator.STYLE_BLUE)
-        iconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
-
-        options.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon("")))
+        options.icon(BitmapDescriptorFactory.fromBitmap(cpIconGenerator.makeIcon("")))
         options.anchor(0.2f, 1f)
 
         val marker = mMap.addMarker(options)
@@ -252,6 +255,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         }
 
         lastLocation = trackLocation
+        lastUpdateTime = trackLocation.timestamp
     }
 
 
@@ -259,6 +263,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
+        isSyncedWithService = false
     }
 
     override fun onResume() {
@@ -268,8 +273,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
-        syncMapData()
-
+        isSyncedWithService = false
     }
 
     override fun onPause() {
@@ -541,6 +545,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private fun onTrackSync(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_SYNC_DATA)) return
+            if (isSyncedWithService) return // Avoid double add
 
             val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA)?: return
 
@@ -562,7 +567,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             updateLocation(trackLocation)
-            lastUpdateTime = trackLocation.timestamp
         }
 
         @SuppressLint("SetTextI18n") // Just to format numbers...
@@ -572,7 +576,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val trackData =
                 intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
 
-            textViewTotalDistance.text = "%.2f".format(trackData.totalDistance)
+            textViewTotalDistance.text = if (trackData.totalDistance < 1000) "%.2f m".format(trackData.totalDistance) else "%.1f km".format(trackData.totalDistance / 1000)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
             textViewAverageSpeed.text = "%.1f km/h".format(trackData.getAverageSpeedFromStart())
 
@@ -589,7 +593,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (lastLocation != null) {
                 for ((marker, wp) in wpMarkers.entries) {
                     val distance = "%.1f m".format(wp.getDriftToWP(lastLocation!!))
-                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(distance)))
+                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
                     marker.showInfoWindow()
                 }
             }
