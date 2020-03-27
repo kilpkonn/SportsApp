@@ -66,6 +66,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var isAddingWP = false
     private var displayMode = DisplayMode.CENTERED
+    private var compassMode = CompassMode.IMAGE
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -237,6 +238,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
 
+    @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent) {
         if (event.sensor === accelerometer) {
             lowPass(event.values, lastAccelerometer)
@@ -261,7 +263,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 rotateAnimation.duration = 1000
                 rotateAnimation.fillAfter = true
 
-                imageVieWCompass.startAnimation(rotateAnimation)
+                if (compassMode == CompassMode.IMAGE) {
+                    imageVieWCompass.startAnimation(rotateAnimation)
+                } else if (compassMode == CompassMode.NUMERIC){
+                    imageVieWCompass.text = "%.1f".format(degree)
+                }
                 currentDegree = -degree
             }
         }
@@ -528,7 +534,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 position: Int,
                 id: Long
             ) {
-                val compassMode = CompassMode.OPTIONS[position]
+                compassMode = CompassMode.OPTIONS[position]
                 when (compassMode) {
                     CompassMode.IMAGE -> {
                         imageVieWCompass.visibility = View.VISIBLE
@@ -537,6 +543,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     }
                     CompassMode.NUMERIC -> {
                         imageVieWCompass.visibility = View.INVISIBLE
+                        val animation = RotateAnimation(
+                            180f,
+                            0f,
+                            RELATIVE_TO_SELF, 0.5f,
+                            RELATIVE_TO_SELF, 0.5f)
+                        animation.fillAfter = true
+                        animation.duration = 1000
+                        imageVieWCompass.startAnimation(animation)
                         imageVieWCompass.background = null
                     }
                     CompassMode.NONE -> {
