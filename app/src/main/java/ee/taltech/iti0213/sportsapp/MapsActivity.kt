@@ -185,7 +185,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         cpIconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
 
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
-        mMap.setOnMarkerClickListener { marker ->  onMarkerClicked(marker)}
+        mMap.setOnMarkerClickListener { marker -> onMarkerClicked(marker) }
         mMap.isMyLocationEnabled = true
         mMap.uiSettings.isCompassEnabled = false;
         mMap.uiSettings.isMapToolbarEnabled = false
@@ -251,7 +251,18 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     .color(Color.RED)
             )
             if (displayMode == DisplayMode.CENTERED)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, FOCUSED_ZOOM_LEVEL)) // TODO: smoother
+                mMap.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        location,
+                        FOCUSED_ZOOM_LEVEL
+                    )
+                ) // TODO: smoother
+        }
+
+        for ((marker, wp) in wpMarkers.entries) {
+            val distance = Converter.distToString(wp.getDriftToWP(trackLocation).toDouble())
+            marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
+            marker.showInfoWindow()
         }
 
         lastLocation = trackLocation
@@ -269,7 +280,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
@@ -323,7 +335,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     // ================================================= COMPASS CALLBACKS ======================================================
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent) {
@@ -346,13 +358,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     currentDegree,
                     -degree,
                     RELATIVE_TO_SELF, 0.5f,
-                    RELATIVE_TO_SELF, 0.5f)
+                    RELATIVE_TO_SELF, 0.5f
+                )
                 rotateAnimation.duration = 1000
                 rotateAnimation.fillAfter = true
 
                 if (compassMode == CompassMode.IMAGE) {
                     imageVieWCompass.startAnimation(rotateAnimation)
-                } else if (compassMode == CompassMode.NUMERIC){
+                } else if (compassMode == CompassMode.NUMERIC) {
                     imageVieWCompass.text = "%.1f".format(degree)
                 }
                 currentDegree = -degree
@@ -547,7 +560,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!intent.hasExtra(C.TRACK_SYNC_DATA)) return
             if (isSyncedWithService) return // Avoid double add
 
-            val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA)?: return
+            val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA) ?: return
 
             for (trackPoint in syncData.track) {
                 updateLocation(trackPoint)
@@ -565,7 +578,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
             if (!isSyncedWithService) syncMapData()
 
-            val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            val trackLocation =
+                intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
             updateLocation(trackLocation)
         }
 
@@ -576,27 +590,20 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val trackData =
                 intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
 
-            textViewTotalDistance.text = if (trackData.totalDistance < 1000) "%.2f m".format(trackData.totalDistance) else "%.1f km".format(trackData.totalDistance / 1000)
+            textViewTotalDistance.text = Converter.distToString(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
-            textViewAverageSpeed.text = "%.1f km/h".format(trackData.getAverageSpeedFromStart())
+            textViewAverageSpeed.text =
+                Converter.speedToString(trackData.getAverageSpeedFromStart())
 
-            textViewDistanceLastCP.text = "%.2f".format(trackData.distanceFromLastCP)
-            textViewDriftLastCP.text = "%.2f".format(trackData.driftLastCP)
+            textViewDistanceLastCP.text = Converter.distToString(trackData.distanceFromLastCP)
+            textViewDriftLastCP.text = Converter.distToString(trackData.driftLastCP.toDouble())
             textViewAverageSpeedLastCP.text =
-                "%.1f km/h".format(trackData.getAverageSpeedFromLastCP())
+                Converter.speedToString(trackData.getAverageSpeedFromLastCP())
 
-            textViewDistanceLastWP.text = "%.2f".format(trackData.distanceFromLastWP)
-            textViewDriftLastWP.text = "%.2f".format(trackData.driftLastWP)
+            textViewDistanceLastWP.text = Converter.distToString(trackData.distanceFromLastWP)
+            textViewDriftLastWP.text = Converter.distToString(trackData.driftLastWP.toDouble())
             textViewAverageSpeedLastWP.text =
-                "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
-
-            if (lastLocation != null) {
-                for ((marker, wp) in wpMarkers.entries) {
-                    val distance = "%.1f m".format(wp.getDriftToWP(lastLocation!!))
-                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
-                    marker.showInfoWindow()
-                }
-            }
+                Converter.speedToString(trackData.getAverageSpeedFromLastWP())
         }
     }
 
@@ -656,7 +663,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                             180f,
                             0f,
                             RELATIVE_TO_SELF, 0.5f,
-                            RELATIVE_TO_SELF, 0.5f)
+                            RELATIVE_TO_SELF, 0.5f
+                        )
                         animation.fillAfter = true
                         animation.duration = 1000
                         imageVieWCompass.startAnimation(animation)
