@@ -26,12 +26,10 @@ import android.util.Log
 import android.view.View
 import android.view.animation.Animation.RELATIVE_TO_SELF
 import android.view.animation.RotateAnimation
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -42,6 +40,8 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.snackbar.Snackbar
+import ee.taltech.iti0213.sportsapp.spinner.CompassMode
+import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.track.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
@@ -61,22 +61,22 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val wpMarkers = mutableMapOf<Marker, WayPoint>()
 
-
     private var locationServiceActive = false
     private var lastLocation: TrackLocation? = null
 
     private var isAddingWP = false
+    private var displayMode = DisplayMode.CENTERED
 
-    var currentDegree = 0.0f
-    var lastAccelerometer = FloatArray(3)
-    var lastMagnetometer = FloatArray(3)
-    var lastAccelerometerSet = false
-    var lastMagnetometerSet = false
+    private var currentDegree = 0.0f
+    private var lastAccelerometer = FloatArray(3)
+    private var lastMagnetometer = FloatArray(3)
+    private var lastAccelerometerSet = false
+    private var lastMagnetometerSet = false
 
 
-    lateinit var sensorManager: SensorManager
-    lateinit var accelerometer: Sensor
-    lateinit var magnetometer: Sensor
+    private lateinit var sensorManager: SensorManager
+    private lateinit var accelerometer: Sensor
+    private lateinit var magnetometer: Sensor
 
     private lateinit var mMap: GoogleMap
 
@@ -99,7 +99,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var textViewDriftLastWP: TextView
     private lateinit var textViewAverageSpeedLastWP: TextView
 
-    lateinit var imageVieWCompass: ImageView
+    private lateinit var imageVieWCompass: TextView
+    private lateinit var spinnerDisplayMode: Spinner
+    private lateinit var spinnerCompassMode: Spinner
 
 
     // ============================================== MAIN ENTRY - ON CREATE =============================================
@@ -151,6 +153,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         textViewAverageSpeedLastWP = findViewById(R.id.avg_speed_wp)
 
         imageVieWCompass = findViewById(R.id.compass)
+        spinnerDisplayMode = findViewById(R.id.spinner_display_mode)
+        spinnerCompassMode = findViewById(R.id.spinner_compass_mode)
+
+        setUpSpinners()
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -263,7 +269,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     fun lowPass(input: FloatArray, output: FloatArray) {
         val alpha = 0.05f
-
         for (i in input.indices) {
             output[i] = output[i] + alpha * (input[i] - output[i])
         }
@@ -451,6 +456,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         .width(5f)
                         .color(Color.RED)
                 )
+                if (displayMode == DisplayMode.CENTERED)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL)) // TODO: smoother
             }
 
             lastLocation = trackLocation
@@ -483,6 +490,62 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     marker.showInfoWindow()
                 }
             }
+        }
+    }
+
+    // ======================================= HELPER FUNCTIONS ======================================
+    private fun setUpSpinners() {
+        // Create an ArrayAdapters
+        val displayOptionAdapter = ArrayAdapter(
+            this,
+            R.layout.spinner_item,
+            DisplayMode.OPTIONS
+        )
+        spinnerDisplayMode.adapter = displayOptionAdapter
+        spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                displayMode = DisplayMode.OPTIONS[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        val compassOptionAdapter = ArrayAdapter(
+            this,
+            R.layout.spinner_item,
+            CompassMode.OPTIONS
+        )
+        spinnerCompassMode.adapter = compassOptionAdapter
+        spinnerCompassMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val compassMode = CompassMode.OPTIONS[position]
+                when (compassMode) {
+                    CompassMode.IMAGE -> {
+                        imageVieWCompass.visibility = View.VISIBLE
+                        imageVieWCompass.text = ""
+                        imageVieWCompass.setBackgroundResource(R.drawable.ic_compass)
+                    }
+                    CompassMode.NUMERIC -> {
+                        imageVieWCompass.visibility = View.INVISIBLE
+                        imageVieWCompass.background = null
+                    }
+                    CompassMode.NONE -> {
+                        imageVieWCompass.visibility = View.INVISIBLE
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 }

@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <TextView
         android:id="@+id/compass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:padding="@dimen/padding_small"
-        android:src="@drawable/ic_compass"
+        android:background="@drawable/ic_compass"
         android:contentDescription="@string/compass" />
 
     <include
@@ -53,5 +53,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/track_control_bar"
         android:contentDescription="@string/start_stop_track" />
+
+    <Spinner
+        android:id="@+id/spinner_compass_mode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/color_very_dark"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        app:layout_constraintEnd_toStartOf="@id/spinner_display_mode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Spinner
+        android:id="@+id/spinner_display_mode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/color_very_dark"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/spinner_compass_mode"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
