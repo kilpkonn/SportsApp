@@ -18,10 +18,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import ee.taltech.iti0213.sportsapp.track.Track
-import ee.taltech.iti0213.sportsapp.track.TrackData
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
-import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
-import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 
 
 class LocationService : Service() {
@@ -51,7 +51,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
-        //broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -234,7 +234,14 @@ class LocationService : Service() {
         // Need visual reminder - notification.
         // must be called within 5 secs after service starts.
         startForeground(C.NOTIFICATION_ID, builder.build())
+    }
 
+    private fun sendTrackData(since: Long) {
+        if (track == null) return
+        val intent = Intent(C.TRACK_SYNC)
+        val data = track!!.getTrackSyncData(since)
+        intent.putExtra(C.TRACK_SYNC_DATA, data)
+        sendBroadcast(intent)
     }
 
 
@@ -255,6 +262,10 @@ class LocationService : Service() {
                 C.TRACK_ACTION_REMOVE_WP -> {
                     if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
                     track?.removeWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION) as WayPoint)
+                }
+                C.TRACK_SYNC -> {
+                    if (!intent.hasExtra(C.TRACK_SYNC_TIME)) return
+                    sendTrackData(intent.getLongExtra(C.TRACK_SYNC_TIME, 0L))
                 }
             }
         }

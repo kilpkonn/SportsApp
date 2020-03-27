@@ -16,6 +16,10 @@ class C {
         const val TRACK_STATS_UPDATE_ACTION = "ee.taltech.iti0213.sportsapp.track_stats_update"
         const val TRACK_STATS_UPDATE_ACTION_DATA = "ee.taltech.iti0213.sportsapp.track_stats_update.stats_data"
 
+        const val TRACK_SYNC = "ee.taltech.iti0213.sportsapp.track_sync"
+        const val TRACK_SYNC_TIME = "ee.taltech.iti0213.sportsapp.track_sync.time"
+        const val TRACK_SYNC_DATA = "ee.taltech.iti0213.sportsapp.track_sync.data"
+
         const val TRACK_ACTION_REMOVE_WP = "ee.taltech.iti0213.sportsapp.wp.remove"
         const val TRACK_ACTION_REMOVE_WP_LOCATION = "ee.taltech.iti0213.sportsapp.wp.remove.location"
 

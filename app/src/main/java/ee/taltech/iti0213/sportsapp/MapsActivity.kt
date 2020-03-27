@@ -40,10 +40,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
-import ee.taltech.iti0213.sportsapp.track.TrackData
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
-import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
-import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import java.lang.Math.toDegrees
 
 
@@ -62,6 +62,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var locationServiceActive = false
     private var lastLocation: TrackLocation? = null
+    private var isSyncedWithService = false
 
     private var isAddingWP = false
     private var displayMode = DisplayMode.CENTERED
@@ -473,6 +474,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private fun onLocationUpdate(intent: Intent) {
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
+            if (!isSyncedWithService) return
 
             val trackLocation =
                 intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
@@ -527,6 +529,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     // ======================================= HELPER FUNCTIONS ======================================
+
+    private fun syncMapData() {
+        val intent = Intent(C.TRACK_SYNC)
+        intent.putExtra(C.TRACK_SYNC_TIME, System.currentTimeMillis())
+        sendBroadcast(intent)
+    }
+
+
     private fun setUpSpinners() {
         // Create an ArrayAdapters
         val displayOptionAdapter = ArrayAdapter(

@@ -1,8 +1,10 @@
 package ee.taltech.iti0213.sportsapp.track
 
-import ee.taltech.iti0213.sportsapp.track.loaction.Checkpoint
-import ee.taltech.iti0213.sportsapp.track.loaction.WayPoint
-import ee.taltech.iti0213.sportsapp.track.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 
 class Track {
 
@@ -107,5 +109,11 @@ class Track {
             getDriftToLastWP(),
             getDriftLastCP()
         )
+    }
+
+    fun getTrackSyncData(since: Long): TrackSyncData {
+        return TrackSyncData(track.filter { p -> p.timestamp > since },
+            waypoints.filter { p -> p.timeAdded > since },
+            checkpoints.filter { p -> p.timestamp > since })
     }
 }

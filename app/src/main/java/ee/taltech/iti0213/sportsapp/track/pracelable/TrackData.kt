@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.track
+package ee.taltech.iti0213.sportsapp.track.pracelable
 
 import android.os.Parcel
 import android.os.Parcelable

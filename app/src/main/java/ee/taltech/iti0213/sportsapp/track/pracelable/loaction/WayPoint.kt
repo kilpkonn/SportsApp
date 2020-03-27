@@ -1,8 +1,7 @@
-package ee.taltech.iti0213.sportsapp.track.loaction
+package ee.taltech.iti0213.sportsapp.track.pracelable.loaction
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.io.Serializable
 
 class WayPoint(val latitude: Double, val longitude: Double, val timeAdded: Long) : Parcelable {
     var timeRemoved: Long? = null

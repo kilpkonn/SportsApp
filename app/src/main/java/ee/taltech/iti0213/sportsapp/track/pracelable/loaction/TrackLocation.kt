@@ -1,10 +1,9 @@
-package ee.taltech.iti0213.sportsapp.track.loaction
+package ee.taltech.iti0213.sportsapp.track.pracelable.loaction
 
 import android.location.Location
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import java.io.Serializable
 
 class TrackLocation(
     val latitude: Double,
