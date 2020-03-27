@@ -6,6 +6,6 @@
     android:layout_height="wrap_content"
     android:textColor="@color/track_control_text_color"
     android:background="@color/track_control_button_background_color"
-    android:textSize="@dimen/stats_text_size"
+    android:textSize="@dimen/spinner_text_size"
     android:gravity="center"
     android:padding="5dp" />

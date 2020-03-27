@@ -4,4 +4,5 @@
     <dimen name="stats_text_size">14sp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_track_controls">4dp</dimen>
+    <dimen name="spinner_text_size">18sp</dimen>
 </resources>

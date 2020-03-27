@@ -15,8 +15,7 @@
         android:layout_marginEnd="@dimen/padding_small"
         android:layout_weight="1"
         android:gravity="end"
-        android:paddingTop="@dimen/padding_track_controls"
-        android:paddingBottom="@dimen/padding_track_controls"
+        android:padding="@dimen/padding_track_controls"
         android:orientation="vertical">
 
         <TextView
@@ -63,8 +62,7 @@
         android:layout_marginEnd="@dimen/padding_small"
         android:layout_weight="1"
         android:gravity="end"
-        android:paddingTop="@dimen/padding_track_controls"
-        android:paddingBottom="@dimen/padding_track_controls"
+        android:padding="@dimen/padding_track_controls"
         android:orientation="vertical">
 
 
@@ -110,8 +108,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="end"
-        android:paddingTop="@dimen/padding_track_controls"
-        android:paddingBottom="@dimen/padding_track_controls"
+        android:padding="@dimen/padding_track_controls"
         android:layout_marginEnd="@dimen/padding_small"
         android:orientation="vertical">
 

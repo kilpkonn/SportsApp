@@ -87,9 +87,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var btnAddWP: ImageButton
     private lateinit var btnAddCP: ImageButton
 
-    //private lateinit var textViewLatitude: TextView
-    //private lateinit var textViewLongitude: TextView
-
     private lateinit var textViewTotalDistance: TextView
     private lateinit var textViewTotalTime: TextView
     private lateinit var textViewAverageSpeed: TextView
@@ -140,8 +137,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         btnStartStop = findViewById(R.id.btn_startStop)
         btnAddWP = findViewById(R.id.btn_add_wp)
         btnAddCP = findViewById(R.id.btn_add_cp)
-        // textViewLatitude = findViewById(R.id.textViewLatitude)
-        // textViewLongitude = findViewById(R.id.textViewLongitude)
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -454,11 +449,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val trackLocation =
                 intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
-            // textViewLatitude.text = trackLocation.latitude.toString()
-            // textViewLongitude.text = trackLocation.longitude.toString()
             val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
-            // mMap.addMarker(MarkerOptions().position(location).title("Current loc"))
             if (lastLocation == null) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
             } else {
@@ -561,6 +553,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         imageVieWCompass.background = null
                     }
                     CompassMode.NONE -> {
+                        imageVieWCompass.text = ""
+                        imageVieWCompass.background = null
                         imageVieWCompass.visibility = View.INVISIBLE
                     }
                 }
