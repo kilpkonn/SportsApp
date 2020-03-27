@@ -27,17 +27,17 @@ class TrackData constructor(
     }
 
     fun getAverageSpeedFromStart(): Double {
-        val speed = (totalDistance / totalTime) * 1000 * 3.6
+        val speed = (totalDistance / totalTime) * 1000 * 1000 * 3.6
         return if (!speed.isNaN()) speed else 0.0
     }
 
     fun getAverageSpeedFromLastCP(): Double {
-        val speed = (distanceFromLastCP / timeFromLastCP) * 1000 * 3.6
+        val speed = (distanceFromLastCP / timeFromLastCP) * 1000 * 1000 * 3.6
         return if (!speed.isNaN()) speed else 0.0
     }
 
     fun getAverageSpeedFromLastWP(): Double {
-        val speed = (distanceFromLastWP / timeFromLastWP) * 1000 * 3.6
+        val speed = (distanceFromLastWP / timeFromLastWP) * 1000 * 1000 * 3.6
         return if (!speed.isNaN()) speed else 0.0
     }
 

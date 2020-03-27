@@ -55,7 +55,8 @@ class LocationService : Service() {
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
-        notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -191,8 +192,12 @@ class LocationService : Service() {
     fun showNotification(trackData: TrackData?) {
         val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
-        if (track!= null && track!!.lastLocation != null) {
-            val locWP = WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.timestamp)
+        if (track != null && track!!.lastLocation != null) {
+            val locWP = WayPoint(
+                track!!.lastLocation!!.latitude,
+                track!!.lastLocation!!.longitude,
+                track!!.lastLocation!!.elapsedTimestamp
+            )
             intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
 
             intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation)
@@ -200,23 +205,43 @@ class LocationService : Service() {
 
         val notifyView = RemoteViews(packageName, R.layout.track_control)
 
-        val pendingIntentCp = PendingIntent.getBroadcast(this, 0, intentCp, PendingIntent.FLAG_UPDATE_CURRENT)
-        val pendingIntentWp = PendingIntent.getBroadcast(this, 0, intentWp, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntentCp =
+            PendingIntent.getBroadcast(this, 0, intentCp, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntentWp =
+            PendingIntent.getBroadcast(this, 0, intentWp, PendingIntent.FLAG_UPDATE_CURRENT)
 
         notifyView.setOnClickPendingIntent(R.id.btn_add_cp, pendingIntentCp)
         notifyView.setOnClickPendingIntent(R.id.btn_add_wp, pendingIntentWp)
 
-        notifyView.setTextViewText(R.id.total_distance, "%.2f".format(trackData?.totalDistance ?: 0f))
+        notifyView.setTextViewText(
+            R.id.total_distance,
+            "%.2f".format(trackData?.totalDistance ?: 0f)
+        )
         notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(trackData?.totalTime ?: 0))
-        notifyView.setTextViewText(R.id.avg_speed, "%.1f km/h".format( trackData?.getAverageSpeedFromStart() ?: 0f))
+        notifyView.setTextViewText(
+            R.id.avg_speed,
+            "%.1f km/h".format(trackData?.getAverageSpeedFromStart() ?: 0f)
+        )
 
-        notifyView.setTextViewText(R.id.distance_cp, "%.2f".format(trackData?.distanceFromLastCP ?: 0f))
+        notifyView.setTextViewText(
+            R.id.distance_cp,
+            "%.2f".format(trackData?.distanceFromLastCP ?: 0f)
+        )
         notifyView.setTextViewText(R.id.drift_cp, "%.2f".format(trackData?.driftLastCP ?: 0f))
-        notifyView.setTextViewText(R.id.avg_speed_cp, "%.1f km/h".format(trackData?.getAverageSpeedFromLastCP() ?: 0f))
+        notifyView.setTextViewText(
+            R.id.avg_speed_cp,
+            "%.1f km/h".format(trackData?.getAverageSpeedFromLastCP() ?: 0f)
+        )
 
-        notifyView.setTextViewText(R.id.distance_wp, "%.2f".format(trackData?.distanceFromLastWP ?: 0f))
+        notifyView.setTextViewText(
+            R.id.distance_wp,
+            "%.2f".format(trackData?.distanceFromLastWP ?: 0f)
+        )
         notifyView.setTextViewText(R.id.drift_wp, "%.2f".format(trackData?.driftLastWP ?: 0f))
-        notifyView.setTextViewText(R.id.avg_speed_wp, "%.1f km/h".format(trackData?.getAverageSpeedFromLastWP()))
+        notifyView.setTextViewText(
+            R.id.avg_speed_wp,
+            "%.1f km/h".format(trackData?.getAverageSpeedFromLastWP())
+        )
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification

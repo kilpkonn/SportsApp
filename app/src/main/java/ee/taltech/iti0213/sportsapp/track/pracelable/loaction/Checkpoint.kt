@@ -7,6 +7,7 @@ class Checkpoint : Parcelable {
     val latitude: Double
     val longitude: Double
     val timestamp: Long
+    val elapsedTimestamp: Long
     val driftFromLastCP: Float
     val timeSinceLastCP: Long
     val distanceFromLastCP: Double
@@ -14,6 +15,7 @@ class Checkpoint : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readDouble(),
         parcel.readDouble(),
+        parcel.readLong(),
         parcel.readLong(),
         parcel.readFloat(),
         parcel.readLong(),
@@ -26,6 +28,7 @@ class Checkpoint : Parcelable {
         this.latitude = location.latitude
         this.longitude = location.longitude
         this.timestamp = location.timestamp
+        this.elapsedTimestamp = location.elapsedTimestamp
         if (lastCP != null) {
             driftFromLastCP = TrackLocation.calcDistanceBetween(
                 latitude,
@@ -40,10 +43,11 @@ class Checkpoint : Parcelable {
         }
     }
 
-    constructor(latitude: Double, longitude: Double, timestamp: Long, driftFromLastCP: Float, timeSinceLastCP: Long, distanceFromLastCP: Double) {
+    constructor(latitude: Double, longitude: Double, timestamp: Long, elapsedTimestamp: Long, driftFromLastCP: Float, timeSinceLastCP: Long, distanceFromLastCP: Double) {
         this.latitude = latitude
         this.longitude = longitude
         this.timestamp = timestamp
+        this.elapsedTimestamp = elapsedTimestamp
         this.driftFromLastCP = driftFromLastCP
         this.timeSinceLastCP = timeSinceLastCP
         this.distanceFromLastCP = distanceFromLastCP
@@ -53,6 +57,7 @@ class Checkpoint : Parcelable {
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
         parcel.writeLong(timestamp)
+        parcel.writeLong(elapsedTimestamp)
         parcel.writeFloat(driftFromLastCP)
         parcel.writeLong(timeSinceLastCP)
         parcel.writeDouble(distanceFromLastCP)

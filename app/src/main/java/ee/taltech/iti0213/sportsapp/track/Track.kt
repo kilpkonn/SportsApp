@@ -25,7 +25,7 @@ class Track {
 
     fun update(location: TrackLocation) {
         if (lastLocation == null) {
-            startTime = location.timestamp
+            startTime = location.elapsedTimestamp
         } else {
             val distance = TrackLocation.calcDistanceBetween(
                 lastLocation!!.latitude,
@@ -37,7 +37,7 @@ class Track {
             runningDistanceFromLastCP += distance
             runningDistanceFromLastWP += distance
         }
-        currentTime = location.timestamp
+        currentTime = location.elapsedTimestamp
         lastLocation = location
         track.add(location)
     }
@@ -51,17 +51,17 @@ class Track {
             )
         )
         runningDistanceFromLastCP = 0.0
-        lastCPTime = track.last().timestamp
+        lastCPTime = track.last().elapsedTimestamp
     }
 
     fun addWayPoint(wayPoint: WayPoint) {
         waypoints.add(wayPoint)
         runningDistanceFromLastWP = 0.0
-        lastWPTime = track.last().timestamp
+        lastWPTime = track.last().elapsedTimestamp
     }
 
     fun removeWayPoint(wayPoint: WayPoint) {
-        waypoints.find { wp -> wp == wp }?.timeRemoved = System.currentTimeMillis()
+        waypoints.find { wp -> wp == wayPoint }?.timeRemoved = wayPoint.timeRemoved
     }
 
     fun getTimeSinceStart(): Long {
@@ -112,8 +112,8 @@ class Track {
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {
-        return TrackSyncData(track.filter { p -> p.timestamp >= since },
+        return TrackSyncData(track.filter { p -> p.elapsedTimestamp >= since },
             waypoints.filter { p -> p.timeAdded >= since },
-            checkpoints.filter { p -> p.timestamp >= since })
+            checkpoints.filter { p -> p.elapsedTimestamp >= since })
     }
 }

@@ -266,7 +266,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         }
 
         lastLocation = trackLocation
-        lastUpdateTime = trackLocation.timestamp
+        lastUpdateTime = trackLocation.elapsedTimestamp
     }
 
 

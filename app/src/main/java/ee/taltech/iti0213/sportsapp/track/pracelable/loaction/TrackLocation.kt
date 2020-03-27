@@ -4,11 +4,13 @@ import android.location.Location
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import java.sql.Timestamp
 
 class TrackLocation(
     val latitude: Double,
     val longitude: Double,
     val timestamp: Long,
+    val elapsedTimestamp: Long,
     val accuracy: Float,
     val altitude: Double,
     val altitudeAccuracy: Float
@@ -31,6 +33,7 @@ class TrackLocation(
                 location.latitude,
                 location.longitude,
                 location.time,
+                location.elapsedRealtimeNanos,
                 location.accuracy,
                 location.altitude,
                 verticalAccuracy
@@ -56,6 +59,7 @@ class TrackLocation(
         parcel.readDouble(),
         parcel.readDouble(),
         parcel.readLong(),
+        parcel.readLong(),
         parcel.readFloat(),
         parcel.readDouble(),
         parcel.readFloat()
@@ -67,6 +71,7 @@ class TrackLocation(
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
         parcel.writeLong(timestamp)
+        parcel.writeLong(elapsedTimestamp)
         parcel.writeFloat(accuracy)
         parcel.writeDouble(altitude)
         parcel.writeFloat(altitudeAccuracy)
