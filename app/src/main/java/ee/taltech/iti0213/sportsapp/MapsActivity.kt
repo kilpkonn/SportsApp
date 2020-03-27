@@ -52,7 +52,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private var locationServiceActive = false
-    private var lastLocation: LatLng? = null
+    private var lastLocation: TrackLocation? = null
 
     private var isAddingWP = false
 
@@ -135,7 +135,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun onMapClicked(latLng: LatLng?) {
         if (latLng == null) return
 
-        val marker = mMap.addMarker(MarkerOptions().position(latLng).snippet(""))
+        val marker = mMap.addMarker(MarkerOptions().position(latLng).title("1"))
+        marker.showInfoWindow()
+
         val wp = WayPoint(latLng.latitude, latLng.longitude, System.currentTimeMillis())
         wpMarkers[marker] = wp
 
@@ -150,6 +152,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val intent = Intent(C.TRACK_ACTION_REMOVE_WP)
             intent.putExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION, wpMarkers[marker])
             sendBroadcast(intent)
+            wpMarkers.remove(marker)
         }
         return true
     }
@@ -367,16 +370,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (lastLocation == null) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
             } else {
-                // mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+                val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
                 mMap.addPolyline(
                     PolylineOptions()
-                        .add(lastLocation, location)
+                        .add(lastLoc, location)
                         .width(5f)
                         .color(Color.RED)
                 )
             }
 
-            lastLocation = location
+            lastLocation = trackLocation
         }
 
         @SuppressLint("SetTextI18n") // Just to format numbers...
@@ -399,6 +402,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             textViewDriftLastWP.text = "%.2f".format(trackData.driftLastWP)
             textViewAverageSpeedLastWP.text =
                 "%.1f km/h".format(trackData.getAverageSpeedFromLastWP())
+
+            if (lastLocation != null) {
+                for ((marker, wp) in wpMarkers.entries) {
+                    marker.title = "%.1f m".format(wp.getDriftToWP(lastLocation!!))
+                    marker.showInfoWindow()
+                }
+            }
         }
     }
 }
