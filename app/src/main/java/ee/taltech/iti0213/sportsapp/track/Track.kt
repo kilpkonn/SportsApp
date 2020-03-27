@@ -112,8 +112,8 @@ class Track {
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {
-        return TrackSyncData(track.filter { p -> p.timestamp > since },
-            waypoints.filter { p -> p.timeAdded > since },
-            checkpoints.filter { p -> p.timestamp > since })
+        return TrackSyncData(track.filter { p -> p.timestamp >= since },
+            waypoints.filter { p -> p.timeAdded >= since },
+            checkpoints.filter { p -> p.timestamp >= since })
     }
 }

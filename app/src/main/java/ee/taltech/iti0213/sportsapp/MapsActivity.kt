@@ -59,6 +59,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
         private const val BUNDLE_COMPASS_MODE = "compass_mode"
         private const val BUNDLE_DISPLAY_MODE = "display_mode"
+        private const val BUNDLE_GPS_ACTIVE = "gps_active"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -146,6 +147,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         btnStartStop = findViewById(R.id.btn_startStop)
         btnAddWP = findViewById(R.id.btn_add_wp)
         btnAddCP = findViewById(R.id.btn_add_cp)
+
+        locationServiceActive = savedInstanceState?.getBoolean(BUNDLE_GPS_ACTIVE) ?: false
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -274,6 +277,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         super.onPause()
         sensorManager.unregisterListener(this, accelerometer)
         sensorManager.unregisterListener(this, magnetometer)
+        isSyncedWithService = false
     }
 
 
@@ -292,6 +296,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onRestart() {
         Log.d(TAG, "onRestart")
         super.onRestart()
+        isSyncedWithService = false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -299,6 +304,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putBoolean(BUNDLE_IS_ADDING_WP, isAddingWP)
         outState.putString(BUNDLE_COMPASS_MODE, compassMode)
         outState.putString(BUNDLE_DISPLAY_MODE, displayMode)
+        outState.putBoolean(BUNDLE_GPS_ACTIVE, locationServiceActive)
         super.onSaveInstanceState(outState)
     }
 
@@ -308,6 +314,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         isAddingWP = savedInstanceState.getBoolean(BUNDLE_IS_ADDING_WP)
         compassMode = savedInstanceState.getString(BUNDLE_COMPASS_MODE) ?: CompassMode.IMAGE
         displayMode = savedInstanceState.getString(BUNDLE_DISPLAY_MODE) ?: DisplayMode.CENTERED
+        locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
