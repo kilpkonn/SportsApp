@@ -51,13 +51,13 @@ class Track {
             )
         )
         runningDistanceFromLastCP = 0.0
-        lastCPTime = track.last().elapsedTimestamp
+        lastCPTime = trackLocation.elapsedTimestamp
     }
 
     fun addWayPoint(wayPoint: WayPoint) {
         waypoints.add(wayPoint)
         runningDistanceFromLastWP = 0.0
-        lastWPTime = track.last().elapsedTimestamp
+        lastWPTime = wayPoint.timeAdded
     }
 
     fun removeWayPoint(wayPoint: WayPoint) {

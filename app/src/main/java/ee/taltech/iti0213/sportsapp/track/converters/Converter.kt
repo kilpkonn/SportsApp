@@ -1,5 +1,7 @@
 package ee.taltech.iti0213.sportsapp.track.converters
 
+import kotlin.math.abs
+
 class Converter {
     companion object {
         fun longToHhMmSs(nanos: Long): String {
@@ -11,11 +13,11 @@ class Converter {
         }
 
         fun distToString(distance: Double): String {
-            return if (distance < 1000) "%.2f m".format(distance) else "%.1f km".format(distance / 1000)
+            return if (distance < 1000) "%.2f m".format(abs(distance)) else "%.1f km".format(distance / 1000)
         }
 
         fun speedToString(speed: Double): String {
-            return "%.2f km/h".format(speed)
+            return "%.2f km/h".format(abs(speed))
         }
     }
 }

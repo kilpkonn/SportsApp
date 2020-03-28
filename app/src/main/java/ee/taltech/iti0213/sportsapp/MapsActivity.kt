@@ -70,10 +70,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
-    private val wpMarkers = mutableMapOf<Marker, WayPoint>()
+    private val wpMarkers = HashMap<Marker, WayPoint>()
 
-    private val flingDetector =
-        FlingDetector()
+    private val flingDetector = FlingDetector()
 
     private var locationServiceActive = false
     private var isTracking = false
@@ -607,10 +606,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private fun onTrackReset(intent: Intent) {
             mMap.clear()
+            wpMarkers.clear()
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
-            isTracking = false
+            //isTracking = false
             // START / STOP ?
         }
 
