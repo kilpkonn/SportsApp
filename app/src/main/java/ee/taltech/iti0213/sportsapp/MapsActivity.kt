@@ -188,6 +188,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerDisplayMode = findViewById(R.id.spinner_display_mode)
         spinnerCompassMode = findViewById(R.id.spinner_compass_mode)
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
+
+        flingDetector.onFlingUp = Runnable { onFlingUp() }
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -568,6 +570,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onTouch")
         flingDetector.update(event)
         return super.dispatchTouchEvent(event)
+    }
+
+    private fun onFlingUp() {
+        val intent = Intent(this, OptionsActivity::class.java)
+        startActivity(intent)
     }
 
     // ============================================== BROADCAST RECEIVER =============================================

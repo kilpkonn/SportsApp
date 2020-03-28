@@ -8,6 +8,11 @@ class FlingDetector {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
+    var onFlingUp: Runnable? = null
+    var onFlingDown: Runnable? = null
+    var onFlingLeft: Runnable? = null
+    var onFlingRight: Runnable? = null
+
     var flingMinSpeedX = 0.0000002f
     var flingMinSpeedY = 0.0000002f
 
@@ -56,26 +61,25 @@ class FlingDetector {
             if (velocityX1!! > flingMinSpeedX) {
                 // fling left
                 Log.d(TAG, "fling left!")
-                return
+                onFlingLeft?.run()
             }
             if (velocityX1!! < -flingMinSpeedX) {
                 // fling right
                 Log.d(TAG, "fling right!")
-                return
+                onFlingRight?.run()
             }
             if (velocityY1!! > flingMinSpeedY) {
                 // fling up
                 Log.d(TAG, "fling up!")
-                return
+                onFlingUp?.run()
             }
             if (velocityY1!! < -flingMinSpeedY) {
                 // fling down
                 Log.d(TAG, "fling down!")
-                return
+                onFlingDown?.run()
             }
         }
         x1 = 0f
         y1 = 0f
-
     }
 }
