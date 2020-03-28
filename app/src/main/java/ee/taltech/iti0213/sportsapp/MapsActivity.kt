@@ -35,6 +35,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.CancelableCallback
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -80,6 +81,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var compassMode = CompassMode.IMAGE
     private var rotationMode = RotationMode.NORTH_UP
     private var lastUpdateTime = 0L
+
+    private var isCameraIdle = true
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -143,6 +146,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STATS_UPDATE_ACTION)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_RESPONSE)
+        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
+        broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -177,7 +182,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerDisplayMode = findViewById(R.id.spinner_display_mode)
         spinnerCompassMode = findViewById(R.id.spinner_compass_mode)
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
-        setUpSpinners()
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -192,9 +196,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
         mMap.setOnMarkerClickListener { marker -> onMarkerClicked(marker) }
+        mMap.setOnCameraMoveListener { isCameraIdle = false }
+        mMap.setOnCameraIdleListener { isCameraIdle = true }
         mMap.isMyLocationEnabled = true
         mMap.uiSettings.isCompassEnabled = false;
         mMap.uiSettings.isMapToolbarEnabled = false
+
+        setUpSpinners()
     }
 
     private fun onMapClicked(latLng: LatLng?) {
@@ -204,8 +212,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         val wp = WayPoint(latLng.latitude, latLng.longitude, lastUpdateTime)
         addWP(wp)
 
-        val intent = Intent(C.NOTIFICATION_ACTION_ADD_WP)
-        intent.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, wp)
+        val intent = Intent(C.TRACK_ACTION_ADD_WP)
+        intent.putExtra(C.TRACK_ACTION_ADD_WP_DATA, wp)
         sendBroadcast(intent)
         // Don't add 2 in a row
         btnWPOnClick()
@@ -248,6 +256,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         if (lastLocation == null) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
+            isCameraIdle = false
         } else {
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
             mMap.addPolyline(
@@ -257,7 +266,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                             .color(Color.RED)
             )
             val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
-            val cameraZoom = FOCUSED_ZOOM_LEVEL
+            val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
 
             val cameraLoc = when(displayMode) {
                 DisplayMode.CENTERED -> lastLoc
@@ -268,13 +277,15 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 RotationMode.USER_CHOSEN_UP -> mMap.cameraPosition.bearing
                 else -> TrackLocation.calcBearingBetween(lastLoc.latitude, lastLoc.longitude, location.latitude, location.longitude)
             }
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.builder()
-                    .bearing(cameraBearing)
-                    .target(cameraLoc)
-                    .zoom(cameraZoom)
-                    .tilt(cameraTilt)
-                    .build())
-            )
+            if (isCameraIdle) {
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.builder()
+                        .bearing(cameraBearing)
+                        .target(cameraLoc)
+                        .zoom(cameraZoom)
+                        .tilt(cameraTilt)
+                        .build())
+                )
+            }
         }
 
         for ((marker, wp) in wpMarkers.entries) {
@@ -537,8 +548,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         val latLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
         addCP(latLng)
 
-        val intent = Intent(C.NOTIFICATION_ACTION_ADD_CP)
-        intent.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, lastLocation)
+        val intent = Intent(C.TRACK_ACTION_ADD_CP)
+        intent.putExtra(C.TRACK_ACTION_ADD_CP_DATA, lastLocation)
         sendBroadcast(intent)
     }
 
@@ -551,10 +562,25 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 C.LOCATION_UPDATE_ACTION -> onLocationUpdate(intent)
                 C.TRACK_STATS_UPDATE_ACTION -> onTrackDataUpdate(intent)
                 C.TRACK_SYNC_RESPONSE -> onTrackSync(intent)
+                C.NOTIFICATION_ACTION_ADD_WP -> onNotificationAddedWp(intent)
+                C.NOTIFICATION_ACTION_ADD_CP -> onNotificationAddCp(intent)
             }
         }
 
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
+
+        private fun onNotificationAddCp(intent: Intent) {
+            if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)) return
+            val cp = intent.getParcelableExtra<TrackLocation>(C.NOTIFICATION_ACTION_ADD_CP_DATA) ?: return
+            val latLng = LatLng(cp.latitude, cp.longitude)
+            addCP(latLng)
+        }
+
+        private fun onNotificationAddedWp(intent: Intent) {
+            if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)) return
+            val wp = intent.getParcelableExtra<WayPoint>(C.NOTIFICATION_ACTION_ADD_WP_DATA) ?: return
+            addWP(wp)
+        }
 
         private fun onTrackSync(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_SYNC_DATA)) return
@@ -619,6 +645,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 displayMode = DisplayMode.OPTIONS[position]
+                mMap.uiSettings.isScrollGesturesEnabled = displayMode == DisplayMode.FREE_MOVE
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -664,6 +691,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerRotationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 rotationMode = RotationMode.OPTIONS[position]
+                mMap.isBuildingsEnabled = rotationMode == RotationMode.DIRECTION_UP
+                mMap.uiSettings.isRotateGesturesEnabled = rotationMode == RotationMode.USER_CHOSEN_UP
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}

@@ -49,6 +49,8 @@ class LocationService : Service() {
 
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_ADD_WP)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
 
@@ -246,12 +248,18 @@ class LocationService : Service() {
                 C.NOTIFICATION_ACTION_ADD_WP -> {
                     if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)) return
                     track?.addWayPoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA)!!)
-                    //showNotification(track?.getTrackData())
                 }
                 C.NOTIFICATION_ACTION_ADD_CP -> {
                     if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)) return
                     track?.addCheckpoint(intent.getParcelableExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)!!)
-                    showNotification(track?.getTrackData())
+                }
+                C.TRACK_ACTION_ADD_WP -> {
+                    if (!intent.hasExtra(C.TRACK_ACTION_ADD_WP_DATA)) return
+                    track?.addWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_ADD_WP_DATA)!!)
+                }
+                C.TRACK_ACTION_ADD_CP -> {
+                    if (!intent.hasExtra(C.TRACK_ACTION_ADD_CP_DATA)) return
+                    track?.addCheckpoint(intent.getParcelableExtra(C.TRACK_ACTION_ADD_CP_DATA)!!)
                 }
                 C.TRACK_ACTION_REMOVE_WP -> {
                     if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
