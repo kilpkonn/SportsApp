@@ -39,6 +39,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
+import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.spinner.RotationMode
@@ -71,7 +72,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val wpMarkers = mutableMapOf<Marker, WayPoint>()
 
-    private val flingDetector = FlingDetector()
+    private val flingDetector =
+        FlingDetector()
 
     private var locationServiceActive = false
     private var isTracking = false
@@ -190,9 +192,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         flingDetector.onFlingUp = Runnable { onFlingUp() }
 
-        if (!locationServiceActive) {
-            startLocationService()
-        }
+        startLocationService()
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -335,7 +335,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         sensorManager.unregisterListener(this, magnetometer)
         isSyncedWithService = false
     }
-
 
     override fun onStop() {
         Log.d(TAG, "onStop")
@@ -554,6 +553,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun btnWPOnClick() {
         Log.d(TAG, "buttonWPOnClick")
+        if (!isTracking) return
+
         isAddingWP = !isAddingWP // Toggle
         if (isAddingWP) {
             btnAddWP.setImageResource(R.drawable.ic_not_interested_24px)
@@ -564,6 +565,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun btnCPOnClick() {
         Log.d(TAG, "buttonCPOnClick")
+        if (!isTracking) return
 
         if (lastLocation == null) return
         val latLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
@@ -608,6 +610,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
+            isTracking = false
             // START / STOP ?
         }
 
@@ -677,7 +680,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, lastUpdateTime)
         sendBroadcast(intent)
     }
-
 
     private fun setUpSpinners() {
         // Create an ArrayAdapters

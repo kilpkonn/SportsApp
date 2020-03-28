@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp
+package ee.taltech.iti0213.sportsapp.detector
 
 import android.util.Log
 import android.view.MotionEvent
@@ -14,7 +14,7 @@ class FlingDetector {
     var onFlingRight: Runnable? = null
 
     var flingMinSpeedX = 0.0000002f
-    var flingMinSpeedY = 0.0000002f
+    var flingMinSpeedY = 0.00000018f
 
     private var x1: Float? = 0f
     private var x2: Float? = 0f

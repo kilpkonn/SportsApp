@@ -11,13 +11,15 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 
 class OptionsActivity : AppCompatActivity() {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
-    private val flingDetector = FlingDetector()
+    private val flingDetector =
+        FlingDetector()
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -87,8 +89,9 @@ class OptionsActivity : AppCompatActivity() {
     }
 
     private fun onFlingDown() {
-        val intent = Intent(this, MapsActivity::class.java)
-        startActivity(intent)
+        finish()
+        //val intent = Intent(this, MapsActivity::class.java)
+        //startActivity(intent)
     }
 
     // ====================================== BROADCAST RECEIVER ======================================

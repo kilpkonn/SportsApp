@@ -171,7 +171,6 @@ class LocationService : Service() {
         showNotification(track?.getTrackData())
 
         return START_STICKY
-        //return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
