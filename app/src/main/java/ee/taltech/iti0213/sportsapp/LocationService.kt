@@ -53,6 +53,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -240,6 +241,7 @@ class LocationService : Service() {
         sendBroadcast(intent)
     }
 
+    // ===================================== BROADCAST RECEIVER ========================================
 
     private inner class InnerBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -269,9 +271,10 @@ class LocationService : Service() {
                     if (!intent.hasExtra(C.TRACK_SYNC_REQUEST_TIME)) return
                     sendTrackData(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
+                C.TRACK_RESET -> {
+                    track = Track()
+                }
             }
         }
-
     }
-
 }

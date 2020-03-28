@@ -18,13 +18,11 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.hardware.SensorManager.SENSOR_DELAY_GAME
-import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
@@ -34,10 +32,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.CancelableCallback
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -46,12 +42,11 @@ import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.spinner.RotationMode
-import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
+import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
-import java.lang.Math.abs
 import java.lang.Math.toDegrees
 
 
@@ -154,6 +149,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_RESPONSE)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -338,7 +334,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onStop")
         super.onStop()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
-        //unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {
@@ -587,10 +582,19 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 C.TRACK_SYNC_RESPONSE -> onTrackSync(intent)
                 C.NOTIFICATION_ACTION_ADD_WP -> onNotificationAddedWp(intent)
                 C.NOTIFICATION_ACTION_ADD_CP -> onNotificationAddCp(intent)
+                C.TRACK_RESET -> onTrackReset(intent)
             }
         }
 
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
+
+        private fun onTrackReset(intent: Intent) {
+            mMap.clear()
+            lastUpdateTime = 0L
+            lastLocation = null
+            isSyncedWithService = false
+            // START / STOP ?
+        }
 
         private fun onNotificationAddCp(intent: Intent) {
             if (!intent.hasExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA)) return
@@ -632,7 +636,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             updateLocation(trackLocation)
         }
 
-        @SuppressLint("SetTextI18n") // Just to format numbers...
         private fun onTrackDataUpdate(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 

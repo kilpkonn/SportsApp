@@ -8,4 +8,5 @@
     <string name="compass">compass</string>
     <string name="stats_time_default_text">00:00:00</string>
     <string name="stats_speed_default_text">0 km/h</string>
+    <string name="options_reset_track_text">Reset track</string>
 </resources>

@@ -4,6 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_very_dark"
     tools:context=".OptionsActivity">
 
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/options_reset_track_text"
+        android:onClick="buttonResetOnClick"
+        android:textColor="#FFFFFF"
+        android:background="#5A0303"
+        android:padding="@dimen/padding_small"
+        android:layout_margin="@dimen/padding_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

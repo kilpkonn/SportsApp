@@ -29,6 +29,8 @@ class C {
         const val TRACK_ACTION_REMOVE_WP = "ee.taltech.iti0213.sportsapp.wp.remove"
         const val TRACK_ACTION_REMOVE_WP_LOCATION = "ee.taltech.iti0213.sportsapp.wp.remove.location"
 
+        const val TRACK_RESET = "ee.taltech.iti0213.sportsapp.track.reset"
+
         const val NOTIFICATION_ID = 43210
         const val REQUEST_PERMISSIONS_REQUEST_CODE = 324;
 
