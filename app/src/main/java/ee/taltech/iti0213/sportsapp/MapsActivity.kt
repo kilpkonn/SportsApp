@@ -24,6 +24,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.animation.Animation.RELATIVE_TO_SELF
@@ -49,6 +51,7 @@ import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
+import java.lang.Math.abs
 import java.lang.Math.toDegrees
 
 
@@ -72,6 +75,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val wpMarkers = mutableMapOf<Marker, WayPoint>()
 
+    private val flingDetector = FlingDetector()
+
     private var locationServiceActive = false
     private var lastLocation: TrackLocation? = null
     private var isSyncedWithService = false
@@ -90,7 +95,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var lastMagnetometer = FloatArray(3)
     private var lastAccelerometerSet = false
     private var lastMagnetometerSet = false
-
 
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
@@ -558,6 +562,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         sendBroadcast(intent)
     }
 
+    // =========================================== FLING DETECTION ===============================================
+
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+        Log.d(TAG, "onTouch")
+        flingDetector.update(event)
+        return super.dispatchTouchEvent(event)
+    }
 
     // ============================================== BROADCAST RECEIVER =============================================
     private inner class InnerBroadcastReceiver : BroadcastReceiver() {
