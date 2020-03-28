@@ -30,7 +30,7 @@ class C {
         const val TRACK_ACTION_REMOVE_WP_LOCATION = "ee.taltech.iti0213.sportsapp.wp.remove.location"
 
         const val NOTIFICATION_ID = 43210
-        const val REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+        const val REQUEST_PERMISSIONS_REQUEST_CODE = 324;
 
 
         const val SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT = "Hey, i really need to access GPS!"
