@@ -75,6 +75,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var locationServiceActive = false
     private var lastLocation: TrackLocation? = null
     private var isSyncedWithService = false
+    private var isPermissionsGranted = false
 
     private var isAddingWP = false
     private var displayMode = DisplayMode.CENTERED
@@ -135,7 +136,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         // safe to call every time
         createNotificationChannel()
 
-        if (!checkPermissions()) {
+        isPermissionsGranted = checkPermissions()
+        if (!isPermissionsGranted) {
             requestPermissions()
         }
 
@@ -198,7 +200,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         mMap.setOnMarkerClickListener { marker -> onMarkerClicked(marker) }
         mMap.setOnCameraMoveListener { isCameraIdle = false }
         mMap.setOnCameraIdleListener { isCameraIdle = true }
-        mMap.isMyLocationEnabled = true
+        mMap.isMyLocationEnabled = isPermissionsGranted
         mMap.uiSettings.isCompassEnabled = false;
         mMap.uiSettings.isMapToolbarEnabled = false
 
@@ -485,6 +487,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     // Permission was granted.
                     Log.i(TAG, "Permission was granted")
                     Toast.makeText(this, C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT).show()
+                    isPermissionsGranted = true
+                    if (::mMap.isInitialized) mMap.isMyLocationEnabled = true
                 }
                 else -> {
                     // Permission denied.
