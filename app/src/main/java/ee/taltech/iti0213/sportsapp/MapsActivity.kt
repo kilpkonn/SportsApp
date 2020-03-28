@@ -63,6 +63,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_DISPLAY_MODE = "display_mode"
         private const val BUNDLE_ROTATION_MODE = "rotation_mode"
         private const val BUNDLE_GPS_ACTIVE = "gps_active"
+        private const val BUNDLE_TRACK_ACTIVE = "track_active"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -73,6 +74,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private val flingDetector = FlingDetector()
 
     private var locationServiceActive = false
+    private var isTracking = false
     private var lastLocation: TrackLocation? = null
     private var isSyncedWithService = false
     private var isPermissionsGranted = false
@@ -163,10 +165,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         btnAddCP = findViewById(R.id.btn_add_cp)
 
         locationServiceActive = savedInstanceState?.getBoolean(BUNDLE_GPS_ACTIVE) ?: false
+        isTracking = savedInstanceState?.getBoolean(BUNDLE_TRACK_ACTIVE) ?: false
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
-        btnStartStop.setImageResource(if (locationServiceActive) R.drawable.ic_pause_circle_outline_24px else R.drawable.ic_play_circle_outline_24px)
+        btnStartStop.setImageResource(if (isTracking) R.drawable.ic_pause_circle_outline_24px else R.drawable.ic_play_circle_outline_24px)
 
         textViewTotalDistance = findViewById(R.id.total_distance)
         textViewTotalTime = findViewById(R.id.duration)
@@ -186,6 +189,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
 
         flingDetector.onFlingUp = Runnable { onFlingUp() }
+
+        if (!locationServiceActive) {
+            startLocationService()
+        }
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
@@ -354,6 +361,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putString(BUNDLE_DISPLAY_MODE, displayMode)
         outState.putString(BUNDLE_ROTATION_MODE, rotationMode)
         outState.putBoolean(BUNDLE_GPS_ACTIVE, locationServiceActive)
+        outState.putBoolean(BUNDLE_TRACK_ACTIVE, isTracking)
         super.onSaveInstanceState(outState)
     }
 
@@ -365,6 +373,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         displayMode = savedInstanceState.getString(BUNDLE_DISPLAY_MODE) ?: DisplayMode.CENTERED
         rotationMode = savedInstanceState.getString(BUNDLE_ROTATION_MODE) ?: RotationMode.NORTH_UP
         locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
+        isTracking = savedInstanceState.getBoolean(BUNDLE_TRACK_ACTIVE)
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
@@ -519,22 +528,28 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "buttonStartStopOnClick. locationServiceActive: $locationServiceActive")
         // try to start/stop the background service
 
-        if (locationServiceActive) {
+        if (isTracking) {
             // stopping the service
-            stopService(Intent(this, LocationService::class.java))
+            sendBroadcast(Intent(C.TRACK_STOP))
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
         } else {
-            if (Build.VERSION.SDK_INT >= 26) {
-                // starting the FOREGROUND service
-                // service has to display non-dismissable notification within 5 secs
-                startForegroundService(Intent(this, LocationService::class.java))
-            } else {
-                startService(Intent(this, LocationService::class.java))
-            }
+            sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
         }
 
-        locationServiceActive = !locationServiceActive
+        isTracking = !isTracking
+    }
+
+    private fun startLocationService() {
+        if (locationServiceActive) return
+        if (Build.VERSION.SDK_INT >= 26) {
+            // starting the FOREGROUND service
+            // service has to display non-dismissable notification within 5 secs
+            startForegroundService(Intent(this, LocationService::class.java))
+        } else {
+            startService(Intent(this, LocationService::class.java))
+        }
+        locationServiceActive = true
     }
 
     private fun btnWPOnClick() {

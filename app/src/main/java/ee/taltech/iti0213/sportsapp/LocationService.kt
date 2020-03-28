@@ -37,11 +37,15 @@ class LocationService : Service() {
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
     private val mLocationRequest: LocationRequest = LocationRequest()
-    private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private lateinit var notificationManager: NotificationManager
+
     private var mLocationCallback: LocationCallback? = null
 
     private var track: Track? = null
+    private var isAddingToTrack = false
+
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private lateinit var notificationManager: NotificationManager
+
 
     override fun onCreate() {
         Log.d(TAG, "onCreate")
@@ -54,6 +58,8 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_START)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_STOP)
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -89,7 +95,7 @@ class LocationService : Service() {
         Log.i(TAG, "New location: $location")
         // First location
 
-        track?.update(TrackLocation.fromLocation(location))
+        if (isAddingToTrack) track?.update(TrackLocation.fromLocation(location))
 
         // broadcast trackData
         val trackData = track?.getTrackData()
@@ -273,7 +279,10 @@ class LocationService : Service() {
                 }
                 C.TRACK_RESET -> {
                     track = Track()
+                    isAddingToTrack = false
                 }
+                C.TRACK_START -> isAddingToTrack = true
+                C.TRACK_STOP -> isAddingToTrack = false
             }
         }
     }
