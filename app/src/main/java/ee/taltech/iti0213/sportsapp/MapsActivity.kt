@@ -202,7 +202,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         cpIconGenerator = IconGenerator(this)
         cpIconGenerator.setStyle(IconGenerator.STYLE_BLUE)
-        cpIconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_24px))
+        cpIconGenerator.setBackground(resources.getDrawable(R.drawable.ic_flag_filled_24px))
 
         mMap.setOnMapClickListener { latLng -> onMapClicked(latLng) }
         mMap.setOnMarkerClickListener { marker -> onMarkerClicked(marker) }
