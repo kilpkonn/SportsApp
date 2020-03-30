@@ -647,7 +647,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private fun onLocationUpdate(intent: Intent) {
             if (!intent.hasExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION)) return
-            if (!isSyncedWithService) syncMapData()
+            if (!isSyncedWithService) {
+                syncMapData()
+                return // Throw away as sync will return it anyways. Avoids straight line
+            }
 
             val trackLocation =
                     intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation

@@ -8,7 +8,7 @@
     tools:context=".MapsActivity">
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/map"
         layout="@layout/activity_maps"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -26,8 +26,9 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/include"
+        app:layout_constraintTop_toTopOf="@id/map"
         android:padding="@dimen/padding_small"
+        android:textSize="@dimen/compass_text_size"
         android:background="@drawable/ic_compass"
         android:contentDescription="@string/compass" />
 
