@@ -18,18 +18,17 @@ class OptionsActivity : AppCompatActivity() {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
-    private val flingDetector =
-        FlingDetector()
-
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
+
+    private lateinit var flingDetector: FlingDetector
 
     private lateinit var buttonReset: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_options)
-
+        flingDetector = FlingDetector(this)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)  // Remove?
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)

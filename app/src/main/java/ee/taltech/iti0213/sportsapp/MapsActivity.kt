@@ -72,8 +72,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val wpMarkers = HashMap<Marker, WayPoint>()
 
-    private val flingDetector = FlingDetector()
-
     private var locationServiceActive = false
     private var isTracking = false
     private var lastLocation: TrackLocation? = null
@@ -97,6 +95,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
     private lateinit var magnetometer: Sensor
+
+    private lateinit var flingDetector: FlingDetector
 
     private lateinit var mMap: GoogleMap
     private lateinit var wpIconGenerator: IconGenerator
@@ -146,6 +146,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(TYPE_ACCELEROMETER)
         magnetometer = sensorManager.getDefaultSensor(TYPE_MAGNETIC_FIELD)
+        flingDetector = FlingDetector(this)
 
         broadcastReceiverIntentFilter.addAction(C.LOCATION_UPDATE_ACTION)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STATS_UPDATE_ACTION)

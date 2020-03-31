@@ -1,85 +1,91 @@
 package ee.taltech.iti0213.sportsapp.detector
 
+import android.content.Context
 import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
+import kotlin.math.abs
 
-class FlingDetector {
+class FlingDetector(context: Context) : GestureDetector.OnGestureListener {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
+
+    private val detector: GestureDetector
 
     var onFlingUp: Runnable? = null
     var onFlingDown: Runnable? = null
     var onFlingLeft: Runnable? = null
     var onFlingRight: Runnable? = null
 
-    var flingMinSpeedX = 0.0000002f
-    var flingMinSpeedY = 0.00000018f
+    var flingMinSpeedX = 2000f
+    var flingMinSpeedY = 2000f
+    var flingMinDistanceX = 50f
+    var flingMinDistanceY = 60f
 
-    private var x1: Float? = 0f
-    private var x2: Float? = 0f
-    private var velocityX1: Float? = 0f
-    private var velocityX2: Float? = 0f
-    private var y1: Float? = 0f
-    private var y2: Float? = 0f
-    private var velocityY1: Float? = 0f
-    private var velocityY2: Float? = 0f
+    init {
+        this.detector = GestureDetector(context, this)
+    }
+
 
     fun update(event: MotionEvent?) {
-        val action = event?.action
-        if (x1 == 0f) {
-            x1 = event?.rawX
-            return
+        detector.onTouchEvent(event)
+    }
+
+    override fun onShowPress(e: MotionEvent?) {
+    }
+
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onDown(e: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        val distanceX: Float = e1!!.x - e2!!.x
+        val distanceY: Float = e1.x - e2.y
+        val time: Long = e2.downTime - e1.downTime
+
+        if (velocityX > flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
+            // fling left
+            Log.d(TAG, "fling left!")
+            onFlingLeft?.run()
         }
-        if (y1 == 0f) {
-            y1 = event?.rawY
-            return
+        if (velocityX < -flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
+            // fling right
+            Log.d(TAG, "fling right!")
+            onFlingRight?.run()
         }
-
-        x2 = event?.rawX
-        y2 = event?.rawY
-        val distanceX: Float? = x1!! - x2!!
-        val distanceY: Float? = y1!! - y2!!
-        val time: Float? = event?.downTime?.toFloat()
-
-        velocityX2 = velocityX1
-        velocityY2 = velocityY1
-        velocityX1 = distanceX!! / time!!
-        velocityY1 = distanceY!! / time
-
-        Log.d(TAG, "velocity x1: " + velocityX1?.toString())
-        Log.d(TAG, "velocity x2: " + velocityX2?.toString())
-        Log.d(TAG, "velocity y1: " + velocityY1?.toString())
-        Log.d(TAG, "velocity y2: " + velocityY2?.toString())
-
-        val velocityDeltaX: Float = velocityX2!! - velocityX1!!
-        val velocityDeltaY: Float = velocityY2!! - velocityY1!!
-        velocityX2 = 0f
-        velocityY2 = 0f
-
-        if (action == MotionEvent.ACTION_MOVE) {
-            if (velocityX1!! > flingMinSpeedX) {
-                // fling left
-                Log.d(TAG, "fling left!")
-                onFlingLeft?.run()
-            }
-            if (velocityX1!! < -flingMinSpeedX) {
-                // fling right
-                Log.d(TAG, "fling right!")
-                onFlingRight?.run()
-            }
-            if (velocityY1!! > flingMinSpeedY) {
-                // fling up
-                Log.d(TAG, "fling up!")
-                onFlingUp?.run()
-            }
-            if (velocityY1!! < -flingMinSpeedY) {
-                // fling down
-                Log.d(TAG, "fling down!")
-                onFlingDown?.run()
-            }
+        if (velocityY > flingMinSpeedY && abs(distanceY) > flingMinDistanceY) {
+            // fling down
+            Log.d(TAG, "fling down!")
+            onFlingDown?.run()
         }
-        x1 = 0f
-        y1 = 0f
+        if (velocityY < -flingMinSpeedY && abs(distanceY) > flingMinDistanceY) {
+            // fling up
+            Log.d(TAG, "fling up!")
+            onFlingUp?.run()
+        }
+        return true
+    }
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent?) {
+        return
     }
 }
