@@ -17,7 +17,7 @@ class Converter {
         }
 
         fun speedToString(speed: Double): String {
-            return "%.2f km/h".format(abs(speed))
+            return (if (abs(speed) < 10) "%.2f km/h" else "%.1f km/h").format(abs(speed))
         }
     }
 }
