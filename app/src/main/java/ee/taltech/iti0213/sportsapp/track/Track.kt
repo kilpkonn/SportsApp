@@ -1,5 +1,6 @@
 package ee.taltech.iti0213.sportsapp.track
 
+import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
@@ -15,6 +16,8 @@ class Track {
     var runningDistance = 0.0
     var runningDistanceFromLastCP = 0.0
     var runningDistanceFromLastWP = 0.0
+
+    var elevationGained = 0.0
 
     var lastLocation: TrackLocation? = null
 
@@ -36,6 +39,8 @@ class Track {
             runningDistance += distance
             runningDistanceFromLastCP += distance
             runningDistanceFromLastWP += distance
+
+            elevationGained += location.altitude - lastLocation!!.altitude
         }
         currentTime = location.elapsedTimestamp
         lastLocation = location
@@ -109,6 +114,12 @@ class Track {
             getDriftToLastWP(),
             getDriftLastCP()
         )
+    }
+
+    fun getDetailedTrackData(): DetailedTrackData {
+        val avgElevation = track.map { p -> p.altitude }.average()
+        val drift = TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble()
+        return DetailedTrackData(getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {

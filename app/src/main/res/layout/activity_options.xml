@@ -22,7 +22,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/txt_time"
+        android:id="@+id/duration"
         style="@style/DetailInfoTitle"
         android:background="@drawable/rounded_corners"
         android:layout_width="0dp"
@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/column_b"
-        app:layout_constraintTop_toBottomOf="@id/txt_time"
+        app:layout_constraintTop_toBottomOf="@id/duration"
         app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
 
     <include layout="@layout/detail_column_b"
@@ -47,7 +47,7 @@
         android:layout_width="0dp"
         app:layout_constraintStart_toEndOf="@id/column_a"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_time"
+        app:layout_constraintTop_toBottomOf="@id/duration"
         app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

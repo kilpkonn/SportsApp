@@ -40,6 +40,10 @@ class TrackLocation(
             )
         }
 
+        fun calcDistanceBetween(from: TrackLocation, to: TrackLocation): Float {
+            return calcDistanceBetween(from.latitude, from.longitude, to.latitude, to.longitude)
+        }
+
         fun calcDistanceBetween(
             lat: Double,
             lng: Double,

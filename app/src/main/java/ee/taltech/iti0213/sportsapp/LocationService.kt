@@ -57,6 +57,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_ACTION_REMOVE_WP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_REQUEST)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
         broadcastReceiverIntentFilter.addAction(C.TRACK_START)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STOP)
@@ -276,6 +277,7 @@ class LocationService : Service() {
                     if (!intent.hasExtra(C.TRACK_SYNC_REQUEST_TIME)) return
                     sendTrackData(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
+                C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest()
                 C.TRACK_RESET -> {
                     track = Track()
                     isAddingToTrack = false
@@ -283,6 +285,14 @@ class LocationService : Service() {
                 C.TRACK_START -> isAddingToTrack = true
                 C.TRACK_STOP -> isAddingToTrack = false
             }
+        }
+
+        // ----------------------------------- BROADCAST RECEIVER CALLBACKS --------------------------------
+        private fun onDetailTrackDataRequest() {
+            val intent = Intent(C.TRACK_DETAIL_RESPONSE)
+            val data = track?.getDetailedTrackData()
+            intent.putExtra(C.TRACK_DETAIL_DATA, data)
+            sendBroadcast(intent)
         }
     }
 }

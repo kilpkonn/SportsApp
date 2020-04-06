@@ -9,9 +9,12 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.converters.Converter
+import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
 
 class DetailActivity : AppCompatActivity() {
     companion object {
@@ -25,15 +28,31 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var buttonReset: Button
 
+    private lateinit var txtViewDuration: TextView
+    private lateinit var txtViewAverageSpeed: TextView
+    private lateinit var txtViewElevationGained: TextView
+    private lateinit var txtViewDrift: TextView
+    private lateinit var txtViewDistance: TextView
+    private lateinit var txtViewElevation: TextView
+    private lateinit var txtViewCheckpoints: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_options)
         flingDetector = FlingDetector(this)
-        broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)  // Remove?
+        broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_RESPONSE)  // Remove?
 
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         buttonReset = findViewById(R.id.btn_reset)
+
+        txtViewDuration = findViewById(R.id.duration)
+        txtViewAverageSpeed = findViewById(R.id.avg_speed)
+        txtViewElevationGained = findViewById(R.id.elevation_gained)
+        txtViewDrift = findViewById(R.id.drift)
+        txtViewDistance = findViewById(R.id.total_distance)
+        txtViewElevation = findViewById(R.id.avg_elevation)
+        txtViewCheckpoints = findViewById(R.id.checkpoints_count)
 
         flingDetector.onFlingDown = Runnable { onFlingDown() }
     }
@@ -56,6 +75,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        requestData()
     }
 
     override fun onPause() {
@@ -99,11 +119,26 @@ class DetailActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d(TAG, intent!!.action!!)
             when (intent.action) {
-                C.TRACK_RESET -> return
+                C.TRACK_DETAIL_RESPONSE -> onTrackDetailResponse(intent)
             }
         }
 
         // ----------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------
+        private fun onTrackDetailResponse(intent: Intent) {
+            val data: DetailedTrackData = intent.getParcelableExtra(C.TRACK_DETAIL_DATA) ?: return
+            txtViewDuration.text = Converter.longToHhMmSs(data.duration);
+            txtViewAverageSpeed.text = Converter.speedToString(data.getSpeed())
+            txtViewElevationGained.text = Converter.elevationToString(data.elevationGained)
+            txtViewDrift.text = Converter.distToString(data.drift)
+            txtViewDistance.text = Converter.distToString(data.distance)
+            txtViewElevation.text = Converter.elevationToString(data.averageElevation)
+            txtViewCheckpoints.text = data.checkpointsCount.toString()
+        }
+    }
 
+    // ================================== HELPER FUNCTIONS =============================================
+    private fun requestData() {
+        val intent = Intent(C.TRACK_DETAIL_REQUEST)
+        sendBroadcast(intent)
     }
 }

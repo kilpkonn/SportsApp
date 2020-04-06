@@ -19,5 +19,9 @@ class Converter {
         fun speedToString(speed: Double): String {
             return (if (abs(speed) < 10) "%.2f km/h" else "%.1f km/h").format(abs(speed))
         }
+
+        fun elevationToString(elevationGained: Double): String {
+            return "%.1fm".format(elevationGained)
+        }
     }
 }
