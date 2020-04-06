@@ -1,15 +1,13 @@
 package ee.taltech.iti0213.sportsapp
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
@@ -19,6 +17,11 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
 class DetailActivity : AppCompatActivity() {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
+
+        private const val ALERT_RESET_TITLE = "Reset track?"
+        private const val ALERT_RESET_TEXT = "Last track data will be lost! Do you want to continue?"
+        private const val ALERT_RESET_CANCEL_TEXT = "Cancel"
+        private const val ALERT_RESET_RESET_TEXT = "Reset"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -60,8 +63,19 @@ class DetailActivity : AppCompatActivity() {
     // ============================================== ON CLICK CALLBACKS ==============================================
 
     fun buttonResetOnClick(view: View) {
-        val intent = Intent(C.TRACK_RESET)
-        sendBroadcast(intent)
+        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+            .setTitle(ALERT_RESET_TITLE)
+            .setMessage(ALERT_RESET_TEXT)
+            .setPositiveButton(ALERT_RESET_RESET_TEXT) { _, _ ->
+                run {
+                    val intent = Intent(C.TRACK_RESET)
+                    sendBroadcast(intent)
+                }
+            }
+            .setNegativeButton(ALERT_RESET_CANCEL_TEXT, null)
+            .create()
+        alert.show()
+
     }
 
 
