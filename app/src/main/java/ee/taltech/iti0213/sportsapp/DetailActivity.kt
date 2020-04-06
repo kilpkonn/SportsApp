@@ -110,8 +110,6 @@ class DetailActivity : AppCompatActivity() {
 
     private fun onFlingDown() {
         finish()
-        //val intent = Intent(this, MapsActivity::class.java)
-        //startActivity(intent)
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
@@ -137,7 +135,7 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    // ================================== HELPER FUNCTIONS =============================================
+    // ==================================== HELPER FUNCTIONS =============================================
     private fun requestData(keepBroadcasting: Boolean) {
         val intent = Intent(C.TRACK_DETAIL_REQUEST)
         intent.putExtra(C.TRACK_DETAIL_REQUEST_DATA, keepBroadcasting)

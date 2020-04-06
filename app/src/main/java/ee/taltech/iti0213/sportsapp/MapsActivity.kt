@@ -58,6 +58,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val DEFAULT_ZOOM_LEVEL = 13f
         private const val FOCUSED_ZOOM_LEVEL = 16f
 
+        private const val TRACK_COLOR_TRACKING = Color.RED
+        private const val TRACK_COLOR_IDLE = Color.BLUE
+
         private const val BUNDLE_LAST_UPDATE_TIME = "last_update_time"
         private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
         private const val BUNDLE_COMPASS_MODE = "compass_mode"
@@ -85,6 +88,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var lastUpdateTime = 0L
 
     private var isCameraIdle = true
+
+    private var trackColor = TRACK_COLOR_TRACKING
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -168,6 +173,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         locationServiceActive = savedInstanceState?.getBoolean(BUNDLE_GPS_ACTIVE) ?: false
         isTracking = savedInstanceState?.getBoolean(BUNDLE_TRACK_ACTIVE) ?: false
+
+        trackColor = if (isTracking) TRACK_COLOR_TRACKING else TRACK_COLOR_IDLE
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -274,7 +281,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     PolylineOptions()
                             .add(lastLoc, location)
                             .width(5f)
-                            .color(Color.RED)
+                            .color(trackColor)
             )
             val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
             val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
@@ -531,9 +538,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             // stopping the service
             sendBroadcast(Intent(C.TRACK_STOP))
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
+            trackColor = TRACK_COLOR_IDLE
         } else {
             sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
+            trackColor = TRACK_COLOR_TRACKING
         }
 
         isTracking = !isTracking
