@@ -6,6 +6,7 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
+import kotlin.math.max
 
 class Track {
 
@@ -18,6 +19,7 @@ class Track {
     var runningDistanceFromLastWP = 0.0
 
     var elevationGained = 0.0
+    var lastAltitude = 0.0
 
     var lastLocation: TrackLocation? = null
 
@@ -40,7 +42,11 @@ class Track {
             runningDistanceFromLastCP += distance
             runningDistanceFromLastWP += distance
 
-            elevationGained += location.altitude - lastLocation!!.altitude
+            if (location.altitude != 0.0) {
+                if (lastAltitude != 0.0)
+                    elevationGained += max(0.0, location.altitude - lastAltitude)
+                lastAltitude = location.altitude
+            }
         }
         currentTime = location.elapsedTimestamp
         lastLocation = location
@@ -117,7 +123,7 @@ class Track {
     }
 
     fun getDetailedTrackData(): DetailedTrackData {
-        val avgElevation = track.map { p -> p.altitude }.average()
+        val avgElevation = track.map { p -> p.altitude }.filter { a -> a != 0.0 }.average()
         val drift = if (track.size > 1) TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble() else 0.0
         return DetailedTrackData(getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
     }
