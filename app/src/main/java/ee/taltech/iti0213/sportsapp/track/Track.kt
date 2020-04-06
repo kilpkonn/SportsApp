@@ -118,7 +118,7 @@ class Track {
 
     fun getDetailedTrackData(): DetailedTrackData {
         val avgElevation = track.map { p -> p.altitude }.average()
-        val drift = TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble()
+        val drift = if (track.size > 1) TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble() else 0.0
         return DetailedTrackData(getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
     }
 

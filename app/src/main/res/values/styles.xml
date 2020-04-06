@@ -12,14 +12,26 @@
         <item name="android:textColor">#FFFFFF</item>
         <item name="borderWidth">2dp</item>
         <item name="android:layout_margin">4dp</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:padding">16dp</item>
+        <item name="android:padding">4dp</item>
     </style>
 
     <style name="DetailInfoTitle" parent="DetailInfo">
         <item name="android:textSize">34sp</item>
         <item name="android:padding">18dp</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DetailInfoBig">
+        <item name="android:textColor">#DADADA</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <style name="DetailInfoHint">
+        <item name="android:textColor">#979797</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
 </resources>

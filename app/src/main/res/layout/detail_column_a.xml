@@ -5,28 +5,70 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/avg_speed"
-        style="@style/DetailInfo"
-        android:background="@drawable/rounded_corners"
-        android:text="abc km/h"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners"
+        style="@style/DetailInfo">
 
-    <TextView
-        android:id="@+id/elevation_gained"
-        style="@style/DetailInfo"
-        android:background="@drawable/rounded_corners"
-        android:text="231m"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/avg_speed"
+            style="@style/DetailInfoBig"
+            android:text="@string/stats_speed_default_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailInfoHint"
+            android:text="@string/speed_hint" />
 
-    <TextView
-        android:id="@+id/drift"
-        style="@style/DetailInfo"
-        android:background="@drawable/rounded_corners"
-        android:text="5m"
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners"
+        style="@style/DetailInfo">
+
+        <TextView
+            android:id="@+id/elevation_gained"
+            style="@style/DetailInfoBig"
+            android:text="@string/stats_distance_default_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailInfoHint"
+            android:text="@string/elevation_gained_hint" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners"
+        style="@style/DetailInfo">
+
+        <TextView
+            android:id="@+id/drift"
+            style="@style/DetailInfoBig"
+            android:text="@string/stats_distance_default_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailInfoHint"
+            android:text="@string/drift_hint" />
+
+    </LinearLayout>
 
 </LinearLayout>

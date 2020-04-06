@@ -27,7 +27,7 @@
         android:background="@drawable/rounded_corners"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="txtDuration"
+        android:text="@string/stats_time_default_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

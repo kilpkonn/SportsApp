@@ -38,11 +38,11 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_options)
+        setContentView(R.layout.activity_detail)
         flingDetector = FlingDetector(this)
         broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_RESPONSE)  // Remove?
 
-        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         buttonReset = findViewById(R.id.btn_reset)
 
@@ -87,8 +87,8 @@ class DetailActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop")
         super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         requestData(false)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {

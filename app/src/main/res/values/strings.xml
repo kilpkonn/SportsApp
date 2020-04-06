@@ -9,4 +9,11 @@
     <string name="stats_time_default_text">00:00:00</string>
     <string name="stats_speed_default_text">0 km/h</string>
     <string name="options_reset_track_text">Reset track</string>
+    <string name="cp_count_default_text">0</string>
+    <string name="distance_hint">DISTANCE</string>
+    <string name="avg_elevation_hint">AVG ELEVATION</string>
+    <string name="checkpoints_hint">CHECKPOINTS</string>
+    <string name="drift_hint">DRIFT</string>
+    <string name="elevation_gained_hint">ELEVATION GAINED</string>
+    <string name="speed_hint">SPEED</string>
 </resources>
