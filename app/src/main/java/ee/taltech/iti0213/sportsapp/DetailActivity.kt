@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 
-class OptionsActivity : AppCompatActivity() {
+class DetailActivity : AppCompatActivity() {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }

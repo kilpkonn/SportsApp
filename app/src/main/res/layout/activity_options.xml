@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_very_dark"
-    tools:context=".OptionsActivity">
+    tools:context=".DetailActivity">
 
     <Button
         android:id="@+id/btn_reset"
@@ -20,4 +20,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_time"
+        style="@style/DetailInfoTitle"
+        android:background="@drawable/rounded_corners"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="txtDuration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include layout="@layout/detail_column_a"
+        android:id="@+id/column_a"
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/column_b"
+        app:layout_constraintTop_toBottomOf="@id/txt_time"
+        app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
+
+    <include layout="@layout/detail_column_b"
+        android:id="@+id/column_b"
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        app:layout_constraintStart_toEndOf="@id/column_a"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_time"
+        app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

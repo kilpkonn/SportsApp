@@ -585,7 +585,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun onFlingUp() {
-        val intent = Intent(this, OptionsActivity::class.java)
+        val intent = Intent(this, DetailActivity::class.java)
         startActivity(intent)
     }
 

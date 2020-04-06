@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/drift_speed"
+        style="@style/DetailInfo"
+        android:background="@drawable/rounded_corners"
+        android:text="abc km/h"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/elevation"
+        style="@style/DetailInfo"
+        android:background="@drawable/rounded_corners"
+        android:text="22m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/checkpoints_count"
+        style="@style/DetailInfo"
+        android:background="@drawable/rounded_corners"
+        android:text="5 cp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
