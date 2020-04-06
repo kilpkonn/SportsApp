@@ -75,7 +75,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
-        requestData()
+        requestData(true)
     }
 
     override fun onPause() {
@@ -88,6 +88,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onStop")
         super.onStop()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        requestData(false)
     }
 
     override fun onDestroy() {
@@ -137,8 +138,9 @@ class DetailActivity : AppCompatActivity() {
     }
 
     // ================================== HELPER FUNCTIONS =============================================
-    private fun requestData() {
+    private fun requestData(keepBroadcasting: Boolean) {
         val intent = Intent(C.TRACK_DETAIL_REQUEST)
+        intent.putExtra(C.TRACK_DETAIL_REQUEST_DATA, keepBroadcasting)
         sendBroadcast(intent)
     }
 }

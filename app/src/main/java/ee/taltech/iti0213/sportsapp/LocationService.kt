@@ -16,7 +16,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.model.LatLng
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
@@ -42,6 +41,7 @@ class LocationService : Service() {
 
     private var track: Track? = null
     private var isAddingToTrack = false
+    private var isSendingDetailedData = false
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var notificationManager: NotificationManager
@@ -110,6 +110,7 @@ class LocationService : Service() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent)
         LocalBroadcastManager.getInstance(this).sendBroadcast(trackDataIntent)
 
+        if (isSendingDetailedData) sendDetailedTrackData()
     }
 
     private fun createLocationRequest() {
@@ -239,11 +240,10 @@ class LocationService : Service() {
         startForeground(C.NOTIFICATION_ID, builder.build())
     }
 
-    private fun sendTrackData(since: Long) {
-        if (track == null) return
-        val intent = Intent(C.TRACK_SYNC_RESPONSE)
-        val data = track!!.getTrackSyncData(since)
-        intent.putExtra(C.TRACK_SYNC_DATA, data)
+    private fun sendDetailedTrackData() {
+        val intent = Intent(C.TRACK_DETAIL_RESPONSE)
+        val data = track?.getDetailedTrackData()
+        intent.putExtra(C.TRACK_DETAIL_DATA, data)
         sendBroadcast(intent)
     }
 
@@ -275,9 +275,9 @@ class LocationService : Service() {
                 }
                 C.TRACK_SYNC_REQUEST -> {
                     if (!intent.hasExtra(C.TRACK_SYNC_REQUEST_TIME)) return
-                    sendTrackData(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
+                    onTrackSyncRequest(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
-                C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest()
+                C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
                 C.TRACK_RESET -> {
                     track = Track()
                     isAddingToTrack = false
@@ -288,10 +288,17 @@ class LocationService : Service() {
         }
 
         // ----------------------------------- BROADCAST RECEIVER CALLBACKS --------------------------------
-        private fun onDetailTrackDataRequest() {
-            val intent = Intent(C.TRACK_DETAIL_RESPONSE)
-            val data = track?.getDetailedTrackData()
-            intent.putExtra(C.TRACK_DETAIL_DATA, data)
+        private fun onDetailTrackDataRequest(intent: Intent) {
+            isSendingDetailedData = intent.getBooleanExtra(C.TRACK_DETAIL_REQUEST_DATA, false)
+            if (isSendingDetailedData)
+                sendDetailedTrackData()
+        }
+
+        private fun onTrackSyncRequest(since: Long) {
+            if (track == null) return
+            val intent = Intent(C.TRACK_SYNC_RESPONSE)
+            val data = track!!.getTrackSyncData(since)
+            intent.putExtra(C.TRACK_SYNC_DATA, data)
             sendBroadcast(intent)
         }
     }

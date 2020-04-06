@@ -34,6 +34,7 @@ class C {
         const val TRACK_STOP = "ee.taltech.iti0213.sportsapp.track.stop"
 
         const val TRACK_DETAIL_REQUEST = "ee.taltech.iti0213.sportsapp.track.detail.request"
+        const val TRACK_DETAIL_REQUEST_DATA = "ee.taltech.iti0213.sportsapp.track.detail.request.data"
         const val TRACK_DETAIL_RESPONSE = "ee.taltech.iti0213.sportsapp.track.detail.response"
         const val TRACK_DETAIL_DATA = "ee.taltech.iti0213.sportsapp.track.detail.data"
 
