@@ -620,8 +620,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
-            //isTracking = false
-            // START / STOP ?
+            isTracking = false
+            btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
+            trackColor = TRACK_COLOR_IDLE
         }
 
         private fun onNotificationAddCp(intent: Intent) {

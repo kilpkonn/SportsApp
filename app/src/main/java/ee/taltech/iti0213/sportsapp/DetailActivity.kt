@@ -45,8 +45,6 @@ class DetailActivity : AppCompatActivity() {
         flingDetector = FlingDetector(this)
         broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_RESPONSE)  // Remove?
 
-        //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
-
         buttonReset = findViewById(R.id.btn_reset)
 
         txtViewDuration = findViewById(R.id.duration)
@@ -88,7 +86,8 @@ class DetailActivity : AppCompatActivity() {
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        //LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         requestData(true)
     }
 
@@ -102,7 +101,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onStop")
         super.onStop()
         requestData(false)
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {
