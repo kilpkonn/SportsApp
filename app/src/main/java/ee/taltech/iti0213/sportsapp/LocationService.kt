@@ -283,7 +283,10 @@ class LocationService : Service() {
                     isAddingToTrack = false
                 }
                 C.TRACK_START -> isAddingToTrack = true
-                C.TRACK_STOP -> isAddingToTrack = false
+                C.TRACK_STOP -> {
+                    isAddingToTrack = false
+                    track?.onPause()
+                }
             }
         }
 

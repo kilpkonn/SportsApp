@@ -269,7 +269,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         return true
     }
 
-    private fun updateLocation(trackLocation: TrackLocation) {
+    private fun updateLocation(trackLocation: TrackLocation, drawLine: Boolean) {
         val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
         if (lastLocation == null) {
@@ -277,12 +277,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             isCameraIdle = false
         } else {
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
-            mMap.addPolyline(
+            if (drawLine) {
+                mMap.addPolyline(
                     PolylineOptions()
-                            .add(lastLoc, location)
-                            .width(5f)
-                            .color(trackColor)
-            )
+                        .add(lastLoc, location)
+                        .width(5f)
+                        .color(trackColor)
+                )
+            }
             val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
             val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
 
@@ -645,9 +647,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA) ?: return
 
-            for (trackPoint in syncData.track) {
-                updateLocation(trackPoint)
+            syncData.track.forEachIndexed{ i, trackPoint ->
+                updateLocation(trackPoint, !syncData.pauses.contains(i))
             }
+
             for (wp in syncData.wayPoints) {
                 addWP(wp)
             }
@@ -664,9 +667,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 return // Throw away as sync will return it anyways. Avoids straight line
             }
 
-            val trackLocation =
-                    intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
-            updateLocation(trackLocation)
+            val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            updateLocation(trackLocation, isTracking)
         }
 
         private fun onTrackDataUpdate(intent: Intent) {

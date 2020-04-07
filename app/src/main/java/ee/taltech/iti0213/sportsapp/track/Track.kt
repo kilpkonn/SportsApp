@@ -13,6 +13,7 @@ class Track {
     val track = mutableListOf<TrackLocation>()
     val waypoints = mutableListOf<WayPoint>()
     val checkpoints = mutableListOf<Checkpoint>()
+    val pauses = mutableListOf<Int>()
 
     var runningDistance = 0.0
     var runningDistanceFromLastCP = 0.0
@@ -51,6 +52,10 @@ class Track {
         currentTime = location.elapsedTimestamp
         lastLocation = location
         track.add(location)
+    }
+
+    fun onPause() {
+        pauses.add(track.size)
     }
 
     fun addCheckpoint(trackLocation: TrackLocation) {
@@ -129,8 +134,11 @@ class Track {
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {
-        return TrackSyncData(track.filter { p -> p.elapsedTimestamp >= since },
+        return TrackSyncData(
+            track.filter { p -> p.elapsedTimestamp >= since },
             waypoints.filter { p -> p.timeAdded >= since },
-            checkpoints.filter { p -> p.elapsedTimestamp >= since })
+            checkpoints.filter { p -> p.elapsedTimestamp >= since },
+            pauses
+        )
     }
 }
