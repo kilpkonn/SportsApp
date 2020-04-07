@@ -596,6 +596,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun onFlingUp() {
         val intent = Intent(this, DetailActivity::class.java)
         startActivity(intent)
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up)
     }
 
     // ============================================== BROADCAST RECEIVER =============================================

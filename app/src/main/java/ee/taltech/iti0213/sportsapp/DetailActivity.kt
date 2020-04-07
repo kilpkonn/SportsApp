@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp
 
 import android.content.*
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -114,6 +115,11 @@ class DetailActivity : AppCompatActivity() {
         super.onRestart()
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_from_top,R.anim.slide_in_top);
+    }
+
     // ======================================== FLING DETECTION =======================================
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -122,7 +128,9 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun onFlingDown() {
-        finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAfterTransition();
+        } else finish()
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
