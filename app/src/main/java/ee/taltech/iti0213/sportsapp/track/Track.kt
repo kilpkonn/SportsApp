@@ -45,7 +45,10 @@ class Track {
 
             if (location.altitude != 0.0) {
                 if (lastAltitude != 0.0)
-                    elevationGained += max(0.0, location.altitude - lastAltitude - max(location.altitude, lastAltitude) / 2)
+                    elevationGained += max(
+                        0.0,
+                        location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f) / 2
+                    )
                 lastAltitude = location.altitude
             }
         }

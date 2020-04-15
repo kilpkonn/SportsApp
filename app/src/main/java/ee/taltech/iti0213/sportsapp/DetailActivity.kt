@@ -68,7 +68,7 @@ class DetailActivity : AppCompatActivity() {
             .setPositiveButton(ALERT_RESET_RESET_TEXT) { _, _ ->
                 run {
                     val intent = Intent(C.TRACK_RESET)
-                    sendBroadcast(intent)
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
                 }
             }
             .setNegativeButton(ALERT_RESET_CANCEL_TEXT, null)
@@ -88,7 +88,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
         //LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
-        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         requestData(true)
     }
 
@@ -102,7 +102,7 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onStop")
         super.onStop()
         requestData(false)
-        unregisterReceiver(broadcastReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {
@@ -160,6 +160,6 @@ class DetailActivity : AppCompatActivity() {
     private fun requestData(keepBroadcasting: Boolean) {
         val intent = Intent(C.TRACK_DETAIL_REQUEST)
         intent.putExtra(C.TRACK_DETAIL_REQUEST_DATA, keepBroadcasting)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 }

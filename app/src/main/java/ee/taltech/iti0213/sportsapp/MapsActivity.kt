@@ -55,8 +55,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
 
-        private const val DEFAULT_ZOOM_LEVEL = 13f
-        private const val FOCUSED_ZOOM_LEVEL = 16f
+        private const val DEFAULT_ZOOM_LEVEL = 14f
+        private const val FOCUSED_ZOOM_LEVEL = 17f
 
         private const val TRACK_COLOR_TRACKING = Color.RED
         private const val TRACK_COLOR_IDLE = Color.BLUE
@@ -160,8 +160,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
 
-        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
-
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.retainInstance = false
@@ -198,7 +196,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
 
         flingDetector.onFlingUp = Runnable { onFlingUp() }
-
         startLocationService()
     }
     // ================================================ MAPS CALLBACKS ===============================================
@@ -219,7 +216,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         mMap.isMyLocationEnabled = isPermissionsGranted
         mMap.uiSettings.isCompassEnabled = false;
         mMap.uiSettings.isMapToolbarEnabled = false
-
         setUpSpinners()
     }
 
@@ -232,7 +228,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         val intent = Intent(C.TRACK_ACTION_ADD_WP)
         intent.putExtra(C.TRACK_ACTION_ADD_WP_DATA, wp)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
         // Don't add 2 in a row
         btnWPOnClick()
     }
@@ -263,7 +259,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             marker.remove()
             val intent = Intent(C.TRACK_ACTION_REMOVE_WP)
             intent.putExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION, wpMarkers[marker])
-            sendBroadcast(intent)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             wpMarkers.remove(marker)
         }
         return true
@@ -323,14 +319,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         isSyncedWithService = false
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
@@ -340,6 +335,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         sensorManager.unregisterListener(this, accelerometer)
         sensorManager.unregisterListener(this, magnetometer)
         isSyncedWithService = false
@@ -348,7 +344,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStop() {
         Log.d(TAG, "onStop")
         super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
     }
 
     override fun onDestroy() {
@@ -538,11 +533,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         if (isTracking) {
             // stopping the service
-            sendBroadcast(Intent(C.TRACK_STOP))
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_STOP))
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
             trackColor = TRACK_COLOR_IDLE
         } else {
-            sendBroadcast(Intent(C.TRACK_START))
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
             trackColor = TRACK_COLOR_TRACKING
         }
@@ -584,7 +579,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         val intent = Intent(C.TRACK_ACTION_ADD_CP)
         intent.putExtra(C.TRACK_ACTION_ADD_CP_DATA, lastLocation)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     // =========================================== FLING DETECTION ===============================================
@@ -694,9 +689,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun syncMapData() {
         val intent = Intent(C.TRACK_SYNC_REQUEST)
-        intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, lastUpdateTime)
+        intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, 0L) // lastUpdateTime)
         //intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, 0L)
-        sendBroadcast(intent)
+        lastUpdateTime = 0L
+        lastLocation = null
+        mMap.clear()
+        wpMarkers.clear()
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     private fun setUpSpinners() {

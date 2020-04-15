@@ -62,7 +62,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_START)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STOP)
 
-        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -100,7 +100,10 @@ class LocationService : Service() {
 
         // broadcast trackData
         val trackData = track?.getTrackData()
-        showNotification(trackData)
+
+        if (isAddingToTrack)
+            showNotification(trackData)
+
         val trackDataIntent = Intent(C.TRACK_STATS_UPDATE_ACTION)
         trackDataIntent.putExtra(C.TRACK_STATS_UPDATE_ACTION_DATA, trackData)
 
@@ -151,7 +154,7 @@ class LocationService : Service() {
         NotificationManagerCompat.from(this).cancelAll()
 
         // don't forget to unregister broadcast receiver!!!!
-        unregisterReceiver(broadcastReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
 
         // broadcast stop to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)
@@ -224,15 +227,13 @@ class LocationService : Service() {
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.baseline_gps_fixed_24)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
-                .setOngoing(true)
+                .setOngoing(isAddingToTrack)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContent(notifyView)
                 .setCustomContentView(notifyView)
                 .setCustomBigContentView(notifyView)
-
-        // TODO: Why is this not being displayed on my phone???
 
         // Super important, start as foreground service - ie android considers this as an active app.
         // Need visual reminder - notification.
@@ -244,7 +245,21 @@ class LocationService : Service() {
         val intent = Intent(C.TRACK_DETAIL_RESPONSE)
         val data = track?.getDetailedTrackData()
         intent.putExtra(C.TRACK_DETAIL_DATA, data)
-        sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    }
+
+    private fun onTrackSyncRequest(since: Long) {
+        if (track == null) return
+
+        // Notify activity, that track has been reset
+        if (track!!.lastLocation == null) {
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_RESET))
+        }
+
+        val intent = Intent(C.TRACK_SYNC_RESPONSE)
+        val data = track!!.getTrackSyncData(since)
+        intent.putExtra(C.TRACK_SYNC_DATA, data)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     // ===================================== BROADCAST RECEIVER ========================================
@@ -280,12 +295,14 @@ class LocationService : Service() {
                 C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
                 C.TRACK_RESET -> {
                     track = Track()
+                    showNotification(track!!.getTrackData())
                     isAddingToTrack = false
                 }
                 C.TRACK_START -> isAddingToTrack = true
                 C.TRACK_STOP -> {
                     isAddingToTrack = false
                     track?.onPause()
+                    stopForeground(false)
                 }
             }
         }
@@ -295,14 +312,6 @@ class LocationService : Service() {
             isSendingDetailedData = intent.getBooleanExtra(C.TRACK_DETAIL_REQUEST_DATA, false)
             if (isSendingDetailedData)
                 sendDetailedTrackData()
-        }
-
-        private fun onTrackSyncRequest(since: Long) {
-            if (track == null) return
-            val intent = Intent(C.TRACK_SYNC_RESPONSE)
-            val data = track!!.getTrackSyncData(since)
-            intent.putExtra(C.TRACK_SYNC_DATA, data)
-            sendBroadcast(intent)
         }
     }
 }
