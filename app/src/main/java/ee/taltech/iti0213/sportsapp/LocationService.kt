@@ -295,13 +295,15 @@ class LocationService : Service() {
                 C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
                 C.TRACK_RESET -> {
                     track = Track()
-                    showNotification(track!!.getTrackData())
                     isAddingToTrack = false
+                    showNotification(track!!.getTrackData())
+                    stopForeground(false)
                 }
                 C.TRACK_START -> isAddingToTrack = true
                 C.TRACK_STOP -> {
                     isAddingToTrack = false
                     track?.onPause()
+                    showNotification(track!!.getTrackData()) // <- This is somehow needed
                     stopForeground(false)
                 }
             }
