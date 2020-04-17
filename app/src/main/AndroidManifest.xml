@@ -23,9 +23,9 @@
             android:name=".ScrollingActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".HistoryActivity" />
+        <activity android:name=".activity.HistoryActivity" />
         <activity
-            android:name=".DetailActivity"
+            android:name=".activity.DetailActivity"
             android:launchMode="singleInstance" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -36,7 +36,7 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <activity
-            android:name=".MapsActivity"
+            android:name=".activity.MapsActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,7 +49,7 @@
         Requires buildTools SDK >= 29
         -->
         <service
-            android:name=".LocationService"
+            android:name=".service.LocationService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location"

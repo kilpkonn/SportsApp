@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp
+package ee.taltech.iti0213.sportsapp.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -39,7 +39,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
+import ee.taltech.iti0213.sportsapp.BuildConfig
+import ee.taltech.iti0213.sportsapp.C
+import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.service.LocationService
 import ee.taltech.iti0213.sportsapp.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.spinner.RotationMode
@@ -269,7 +273,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
         if (lastLocation == null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM_LEVEL))
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,
+                DEFAULT_ZOOM_LEVEL
+            ))
             isCameraIdle = false
         } else {
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
@@ -430,7 +436,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun createNotificationChannel() {
         // when on 8 Oreo or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(C.NOTIFICATION_CHANNEL, C.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(
+                C.NOTIFICATION_CHANNEL,
+                C.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
 
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             //.setShowBadge(false).setSound(null, null);
@@ -459,12 +467,13 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.")
-            Snackbar.make(findViewById(R.id.activity_main), C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(findViewById(R.id.activity_main),
+                C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE)
                     .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
                         // Request permission
                         ActivityCompat.requestPermissions(this,
                                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                                C.REQUEST_PERMISSIONS_REQUEST_CODE
+                            C.REQUEST_PERMISSIONS_REQUEST_CODE
                         )
                     }
                     .show()
@@ -476,7 +485,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    C.REQUEST_PERMISSIONS_REQUEST_CODE
+                C.REQUEST_PERMISSIONS_REQUEST_CODE
             )
         }
     }
@@ -494,25 +503,28 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     // If user interaction was interrupted, the permission request is cancelled and
                     // you receive empty arrays.
                     Log.i(TAG, "User interaction was cancelled.")
-                    Toast.makeText(this, C.TOAST_USER_INTERACTION_CANCELLED_TEXT, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        C.TOAST_USER_INTERACTION_CANCELLED_TEXT, Toast.LENGTH_SHORT).show()
                 }
                 grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                     // Permission was granted.
                     Log.i(TAG, "Permission was granted")
-                    Toast.makeText(this, C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,
+                        C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT).show()
                     isPermissionsGranted = true
                     if (::mMap.isInitialized) mMap.isMyLocationEnabled = true
                 }
                 else -> {
                     // Permission denied.
-                    Snackbar.make(findViewById(R.id.activity_main), C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE)
+                    Snackbar.make(findViewById(R.id.activity_main),
+                        C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE)
                             .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
                                 // Build intent that displays the App settings screen.
                                 val intent = Intent()
                                 intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                                 val uri: Uri = Uri.fromParts(
                                         "package",
-                                        BuildConfig.APPLICATION_ID, null
+                                    BuildConfig.APPLICATION_ID, null
                                 )
                                 intent.data = uri
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -594,7 +606,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun onFlingUp() {
         val intent = Intent(this, DetailActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.slide_out_to_top)
+        overridePendingTransition(
+            R.anim.slide_in_from_bottom,
+            R.anim.slide_out_to_top
+        )
     }
 
     // ============================================== BROADCAST RECEIVER =============================================
@@ -701,7 +716,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun setUpSpinners() {
         // Create an ArrayAdapters
-        val displayOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, DisplayMode.OPTIONS)
+        val displayOptionAdapter = ArrayAdapter(this,
+            R.layout.spinner_item, DisplayMode.OPTIONS)
         spinnerDisplayMode.adapter = displayOptionAdapter
         spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -712,7 +728,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val compassOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, CompassMode.OPTIONS)
+        val compassOptionAdapter = ArrayAdapter(this,
+            R.layout.spinner_item, CompassMode.OPTIONS)
         spinnerCompassMode.adapter = compassOptionAdapter
         spinnerCompassMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -747,7 +764,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val rotationOptionAdapter = ArrayAdapter(this, R.layout.spinner_item, RotationMode.OPTIONS)
+        val rotationOptionAdapter = ArrayAdapter(this,
+            R.layout.spinner_item, RotationMode.OPTIONS)
         spinnerRotationMode.adapter = rotationOptionAdapter
         spinnerRotationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {

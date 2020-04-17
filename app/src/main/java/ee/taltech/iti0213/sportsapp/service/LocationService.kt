@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp
+package ee.taltech.iti0213.sportsapp.service
 
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -16,6 +16,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
+import ee.taltech.iti0213.sportsapp.C
+import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
@@ -121,10 +123,13 @@ class LocationService : Service() {
     }
 
     private fun createLocationRequest() {
-        mLocationRequest.interval = UPDATE_INTERVAL_IN_MILLISECONDS
-        mLocationRequest.fastestInterval = FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
+        mLocationRequest.interval =
+            UPDATE_INTERVAL_IN_MILLISECONDS
+        mLocationRequest.fastestInterval =
+            FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
         mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        mLocationRequest.maxWaitTime = UPDATE_INTERVAL_IN_MILLISECONDS
+        mLocationRequest.maxWaitTime =
+            UPDATE_INTERVAL_IN_MILLISECONDS
     }
 
 
@@ -230,7 +235,9 @@ class LocationService : Service() {
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
-        val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
+        val builder = NotificationCompat.Builder(applicationContext,
+            C.NOTIFICATION_CHANNEL
+        )
             .setSmallIcon(R.drawable.baseline_gps_fixed_24)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_NAVIGATION)

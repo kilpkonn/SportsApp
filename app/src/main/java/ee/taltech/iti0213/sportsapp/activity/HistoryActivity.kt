@@ -1,18 +1,13 @@
-package ee.taltech.iti0213.sportsapp
+package ee.taltech.iti0213.sportsapp.activity
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.core.graphics.BitmapCompat
+import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
@@ -58,7 +53,10 @@ class HistoryActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
+        overridePendingTransition(
+            R.anim.slide_in_from_left,
+            R.anim.slide_out_to_right
+        )
     }
 
     // ============================= FLING DETECTOR CALLBACKS ==========================

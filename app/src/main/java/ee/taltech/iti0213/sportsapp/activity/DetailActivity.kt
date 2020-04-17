@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp
+package ee.taltech.iti0213.sportsapp.activity
 
 import android.content.*
 import android.os.Build
@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import ee.taltech.iti0213.sportsapp.C
+import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
@@ -140,7 +142,10 @@ class DetailActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.slide_in_from_top,R.anim.slide_out_to_bottom);
+        overridePendingTransition(
+            R.anim.slide_in_from_top,
+            R.anim.slide_out_to_bottom
+        );
     }
 
     // ======================================== FLING DETECTION =======================================
@@ -159,7 +164,10 @@ class DetailActivity : AppCompatActivity() {
     private fun onFlingLeft() {
         val intent = Intent(this, HistoryActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
+        overridePendingTransition(
+            R.anim.slide_in_from_right,
+            R.anim.slide_out_to_left
+        )
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
