@@ -537,6 +537,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
             trackColor = TRACK_COLOR_IDLE
         } else {
+            startLocationService(true)
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
             trackColor = TRACK_COLOR_TRACKING
@@ -545,8 +546,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         isTracking = !isTracking
     }
 
-    private fun startLocationService() {
-        if (locationServiceActive) return
+    private fun startLocationService(force: Boolean = false) {
+        if (locationServiceActive && !force) return
         if (Build.VERSION.SDK_INT >= 26) {
             // starting the FOREGROUND service
             // service has to display non-dismissable notification within 5 secs
