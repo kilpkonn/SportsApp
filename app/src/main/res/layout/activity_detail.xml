@@ -38,6 +38,20 @@
         app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
 
     <Button
+        android:id="@+id/btn_save"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/save_track_text"
+        android:onClick="buttonSaveOnClick"
+        android:textColor="@color/text_intense_light"
+        android:background="#03245A"
+        android:padding="@dimen/padding_small"
+        android:layout_margin="@dimen/padding_small"
+        app:layout_constraintBottom_toTopOf="@id/btn_reset"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/btn_reset"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -47,6 +61,7 @@
         android:background="#5A0303"
         android:padding="@dimen/padding_small"
         android:layout_margin="@dimen/padding_small"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

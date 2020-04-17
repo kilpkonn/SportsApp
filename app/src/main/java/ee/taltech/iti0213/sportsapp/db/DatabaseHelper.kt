@@ -95,8 +95,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 + KEY_LOCATION_ACCURACY + " REAL NOT NULL,"
                 + KEY_LOCATION_ALTITUDE_ACCURACY + " REAL NOT NULL,"
                 + KEY_LOCATION_TIME + " UNSIGNED BIGINT NOT NULL,"
-                + KEY_LOCATION_TIME_ELAPSED + " UNSIGNED BIGINT NOT NULL"
-                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + KEY_LOCATION_TIME_ELAPSED + " UNSIGNED BIGINT NOT NULL,"
+                + " FOREIGN KEY (" + KEY_TRACK_ID
                 + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createLocationsTable)
@@ -109,13 +109,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 + KEY_CHECKPOINT_LONGITUDE + " REAL NOT NULL,"
                 + KEY_CHECKPOINT_ALTITUDE + " REAL NOT NULL,"
                 + KEY_CHECKPOINT_ACCURACY + " REAL NOT NULL,"
-                + KEY_CHECKPOINT_ALTITUDE_ACCURACY + " REAL NOT NULL"
+                + KEY_CHECKPOINT_ALTITUDE_ACCURACY + " REAL NOT NULL,"
                 + KEY_CHECKPOINT_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
                 + KEY_CHECKPOINT_ELAPSED_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
                 + KEY_CHECKPOINT_DRIFT_FROM_LAST_CP + " REAL NOT NULL,"
                 + KEY_CHECKPOINT_TIME_SINCE_LAST_CP + " UNSIGNED BIGINT NOT NULL,"
-                + KEY_CHECKPOINT_DIST_FROM_LAST_CP + " REAL NOT NULL"
-                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + KEY_CHECKPOINT_DIST_FROM_LAST_CP + " REAL NOT NULL,"
+                + " FOREIGN KEY (" + KEY_TRACK_ID
                 + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createCheckpointsTable)
@@ -127,8 +127,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 + KEY_WAY_POINT_LATITUDE + " REAL NOT NULL,"
                 + KEY_WAY_POINT_LONGITUDE + " REAL NOT NULL,"
                 + KEY_WAY_POINT_ADDED_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
-                + KEY_WAY_POINT_REMOVED_TIMESTAMP + " UNSIGNED BIGINT NULL"
-                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + KEY_WAY_POINT_REMOVED_TIMESTAMP + " UNSIGNED BIGINT NULL,"
+                + " FOREIGN KEY (" + KEY_TRACK_ID
                 + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createWayPointsTable)

@@ -23,6 +23,11 @@ class DetailActivity : AppCompatActivity() {
         private const val ALERT_RESET_TEXT = "Last track data will be lost! Do you want to continue?"
         private const val ALERT_RESET_CANCEL_TEXT = "Cancel"
         private const val ALERT_RESET_RESET_TEXT = "Reset"
+
+        private const val ALERT_SAVE_TITLE = "Save track?"
+        private const val ALERT_SAVE_TEXT = "After saving current session will be cleared! Do you want to continue?"
+        private const val ALERT_SAVE_CANCEL_TEXT = "Cancel"
+        private const val ALERT_SAVE_RESET_TEXT = "Save"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -30,6 +35,7 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var flingDetector: FlingDetector
 
+    private lateinit var buttonSave: Button
     private lateinit var buttonReset: Button
 
     private lateinit var txtViewDuration: TextView
@@ -46,6 +52,7 @@ class DetailActivity : AppCompatActivity() {
         flingDetector = FlingDetector(this)
         broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_RESPONSE)  // Remove?
 
+        buttonSave = findViewById(R.id.btn_save)
         buttonReset = findViewById(R.id.btn_reset)
 
         txtViewDuration = findViewById(R.id.duration)
@@ -61,8 +68,23 @@ class DetailActivity : AppCompatActivity() {
 
     // ============================================== ON CLICK CALLBACKS ==============================================
 
+    fun buttonSaveOnClick(view: View) {
+        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertInfoDialogStyle)
+            .setTitle(ALERT_SAVE_TITLE)
+            .setMessage(ALERT_SAVE_TEXT)
+            .setPositiveButton(ALERT_SAVE_RESET_TEXT) { _, _ ->
+                run {
+                    val intent = Intent(C.TRACK_SAVE)
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                }
+            }
+            .setNegativeButton(ALERT_SAVE_CANCEL_TEXT, null)
+            .create()
+        alert.show()
+    }
+
     fun buttonResetOnClick(view: View) {
-        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
+        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertWarnDialogStyle)
             .setTitle(ALERT_RESET_TITLE)
             .setMessage(ALERT_RESET_TEXT)
             .setPositiveButton(ALERT_RESET_RESET_TEXT) { _, _ ->

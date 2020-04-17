@@ -30,6 +30,7 @@ class C {
         const val TRACK_ACTION_REMOVE_WP_LOCATION = "ee.taltech.iti0213.sportsapp.wp.remove.location"
 
         const val TRACK_RESET = "ee.taltech.iti0213.sportsapp.track.reset"
+        const val TRACK_SAVE = "ee.taltech.iti0213.sportsapp.track.save"
         const val TRACK_START = "ee.taltech.iti0213.sportsapp.track.start"
         const val TRACK_STOP = "ee.taltech.iti0213.sportsapp.track.stop"
 

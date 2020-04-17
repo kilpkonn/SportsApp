@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
+import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
@@ -36,6 +37,8 @@ class LocationService : Service() {
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
     private val mLocationRequest: LocationRequest = LocationRequest()
+
+    private val databaseHelper: DatabaseHelper = DatabaseHelper(this)
 
     private var mLocationCallback: LocationCallback? = null
 
@@ -59,6 +62,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_SYNC_REQUEST)
         broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_REQUEST)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SAVE)
         broadcastReceiverIntentFilter.addAction(C.TRACK_START)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STOP)
 
@@ -127,16 +131,16 @@ class LocationService : Service() {
     private fun getLastLocation() {
         try {
             mFusedLocationClient.lastLocation
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.w(TAG, "Get location task successful");
-                            if (task.result != null) {
-                                onNewLocation(task.result!!)
-                            }
-                        } else {
-                            Log.w(TAG, "Failed to get location." + task.exception)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.w(TAG, "Get location task successful");
+                        if (task.result != null) {
+                            onNewLocation(task.result!!)
                         }
+                    } else {
+                        Log.w(TAG, "Failed to get location." + task.exception)
                     }
+                }
         } catch (unlikely: SecurityException) {
             Log.e(TAG, "Lost location permission. $unlikely")
         }
@@ -197,7 +201,8 @@ class LocationService : Service() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track != null && track!!.lastLocation != null) {
-            val locWP = WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.elapsedTimestamp)
+            val locWP =
+                WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.elapsedTimestamp)
             intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
 
             intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation)
@@ -226,14 +231,14 @@ class LocationService : Service() {
 
         // construct and show notification
         val builder = NotificationCompat.Builder(applicationContext, C.NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.baseline_gps_fixed_24)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
-                .setOngoing(isAddingToTrack)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContent(notifyView)
-                .setCustomContentView(notifyView)
-                .setCustomBigContentView(notifyView)
+            .setSmallIcon(R.drawable.baseline_gps_fixed_24)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
+            .setOngoing(isAddingToTrack)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContent(notifyView)
+            .setCustomContentView(notifyView)
+            .setCustomBigContentView(notifyView)
 
         // Super important, start as foreground service - ie android considers this as an active app.
         // Need visual reminder - notification.
@@ -293,6 +298,7 @@ class LocationService : Service() {
                     onTrackSyncRequest(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
                 C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
+                C.TRACK_SAVE -> onTrackSave(intent)
                 C.TRACK_RESET -> {
                     track = Track()
                     isAddingToTrack = false
@@ -314,6 +320,21 @@ class LocationService : Service() {
             isSendingDetailedData = intent.getBooleanExtra(C.TRACK_DETAIL_REQUEST_DATA, false)
             if (isSendingDetailedData)
                 sendDetailedTrackData()
+        }
+
+        private fun onTrackSave(intent: Intent) {
+            if (track == null) return
+            val trackId = databaseHelper.saveTrack(track!!)
+
+            track!!.track.forEachIndexed { index, trackLocation ->
+                databaseHelper.saveLocationToTrack(trackLocation, index, trackId)
+            }
+            track!!.checkpoints.forEachIndexed { index, checkpoint ->
+                databaseHelper.saveCheckpointToTrack(checkpoint, index, trackId)
+            }
+            track!!.waypoints.forEachIndexed { index, wayPoint ->
+                databaseHelper.saveWayPointToTrack(wayPoint, index, trackId)
+            }
         }
     }
 }

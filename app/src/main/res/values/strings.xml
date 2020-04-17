@@ -16,4 +16,5 @@
     <string name="drift_hint">DRIFT</string>
     <string name="elevation_gained_hint">ELEVATION GAINED</string>
     <string name="speed_hint">SPEED</string>
+    <string name="save_track_text">Save</string>
 </resources>
