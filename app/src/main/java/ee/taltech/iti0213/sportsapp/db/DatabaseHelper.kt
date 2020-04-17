@@ -1,12 +1,17 @@
 package ee.taltech.iti0213.sportsapp.db
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.media.MediaFormat
+import ee.taltech.iti0213.sportsapp.track.Track
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 
 
-class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
+class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "SportsApp"
@@ -68,62 +73,160 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     override fun onCreate(db: SQLiteDatabase?) {
         val createTracksTable = ("CREATE TABLE " + TABLE_TRACKS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_TRACK_NAME + " TEXT,"
-                + KEY_TRACK_TYPE + " INTEGER,"
-                + KEY_TRACK_START_STAMP + " UNSIGNED BIGINT,"
-                + KEY_TRACK_END_STAMP + " UNSIGNED BIGINT"
-                + KEY_TRACK_DURATION_MOVING + " KEY_TRACK_DURATION_MOVING,"
-                + KEY_TRACK_DISTANCE + " REAL,"
-                + KEY_TRACK_DRIFT + " REAL,"
-                + KEY_TRACK_ELEVATION_GAINED + " REAL,"
-                + KEY_TRACK_MAX_SPEED + " REAL" + ")")
+                + KEY_TRACK_NAME + " TEXT NOT NULL,"
+                + KEY_TRACK_TYPE + " INTEGER NOT NULL,"
+                + KEY_TRACK_START_STAMP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_TRACK_END_STAMP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_TRACK_DURATION_MOVING + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_TRACK_DISTANCE + " REAL NOT NULL,"
+                + KEY_TRACK_DRIFT + " REAL NOT NULL,"
+                + KEY_TRACK_ELEVATION_GAINED + " REAL NOT NULL,"
+                + KEY_TRACK_MAX_SPEED + " REAL NOT NULL" + ")")
 
         db?.execSQL(createTracksTable)
 
         val createLocationsTable = ("CREATE TABLE " + TABLE_LOCATIONS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_TRACK_ID + " INTEGER,"
-                + KEY_LOCATION_NUMBER + " INTEGER,"
-                + KEY_LOCATION_LATITUDE + " REAL,"
-                + KEY_LOCATION_LONGITUDE + " REAL,"
-                + KEY_LOCATION_ALTITUDE + " REAL,"
-                + KEY_LOCATION_ACCURACY + " REAL,"
-                + KEY_LOCATION_ALTITUDE_ACCURACY + " REAL,"
-                + KEY_LOCATION_TIME + " UNSIGNED BIGINT,"
-                + KEY_LOCATION_TIME_ELAPSED + " UNSIGNED BIGINT" + ")")
+                + KEY_TRACK_ID + " INTEGER NOT NULL,"
+                + KEY_LOCATION_NUMBER + " INTEGER NOT NULL,"
+                + KEY_LOCATION_LATITUDE + " REAL NOT NULL,"
+                + KEY_LOCATION_LONGITUDE + " REAL NOT NULL,"
+                + KEY_LOCATION_ALTITUDE + " REAL NOT NULL,"
+                + KEY_LOCATION_ACCURACY + " REAL NOT NULL,"
+                + KEY_LOCATION_ALTITUDE_ACCURACY + " REAL NOT NULL,"
+                + KEY_LOCATION_TIME + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_LOCATION_TIME_ELAPSED + " UNSIGNED BIGINT NOT NULL"
+                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createLocationsTable)
 
         val createCheckpointsTable = ("CREATE TABLE " + TABLE_CHECKPOINTS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_TRACK_ID + " INTEGER,"
-                + KEY_CHECKPOINT_NUMBER + " INTEGER,"
-                + KEY_CHECKPOINT_LATITUDE + " REAL,"
-                + KEY_CHECKPOINT_LONGITUDE + " REAL,"
-                + KEY_CHECKPOINT_ALTITUDE + " REAL,"
-                + KEY_CHECKPOINT_ACCURACY + " REAL,"
-                + KEY_CHECKPOINT_ALTITUDE_ACCURACY + " REAL"
-                + KEY_CHECKPOINT_TIMESTAMP + " UNSIGNED BIGINT,"
-                + KEY_CHECKPOINT_ELAPSED_TIMESTAMP + " UNSIGNED BIGINT,"
-                + KEY_CHECKPOINT_DRIFT_FROM_LAST_CP + " REAL,"
-                + KEY_CHECKPOINT_TIME_SINCE_LAST_CP + " UNSIGNED BIGINT,"
-                + KEY_CHECKPOINT_DIST_FROM_LAST_CP + " REAL"+ ")")
+                + KEY_TRACK_ID + " INTEGER NOT NULL,"
+                + KEY_CHECKPOINT_NUMBER + " INTEGER NOT NULL,"
+                + KEY_CHECKPOINT_LATITUDE + " REAL NOT NULL,"
+                + KEY_CHECKPOINT_LONGITUDE + " REAL NOT NULL,"
+                + KEY_CHECKPOINT_ALTITUDE + " REAL NOT NULL,"
+                + KEY_CHECKPOINT_ACCURACY + " REAL NOT NULL,"
+                + KEY_CHECKPOINT_ALTITUDE_ACCURACY + " REAL NOT NULL"
+                + KEY_CHECKPOINT_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_CHECKPOINT_ELAPSED_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_CHECKPOINT_DRIFT_FROM_LAST_CP + " REAL NOT NULL,"
+                + KEY_CHECKPOINT_TIME_SINCE_LAST_CP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_CHECKPOINT_DIST_FROM_LAST_CP + " REAL NOT NULL"
+                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createCheckpointsTable)
 
         val createWayPointsTable = ("CREATE TABLE " + TABLE_WAY_POINTS + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_TRACK_ID + " INTEGER,"
-                + KEY_WAY_POINT_NUMBER + " INTEGER,"
-                + KEY_WAY_POINT_LATITUDE + " REAL,"
-                + KEY_WAY_POINT_LONGITUDE + " REAL,"
-                + KEY_WAY_POINT_ADDED_TIMESTAMP + " UNSIGNED BIGINT,"
-                + KEY_WAY_POINT_REMOVED_TIMESTAMP + " UNSIGNED BIGINT" + ")")
+                + KEY_TRACK_ID + " INTEGER NOT NULL,"
+                + KEY_WAY_POINT_NUMBER + " INTEGER NOT NULL,"
+                + KEY_WAY_POINT_LATITUDE + " REAL NOT NULL,"
+                + KEY_WAY_POINT_LONGITUDE + " REAL NOT NULL,"
+                + KEY_WAY_POINT_ADDED_TIMESTAMP + " UNSIGNED BIGINT NOT NULL,"
+                + KEY_WAY_POINT_REMOVED_TIMESTAMP + " UNSIGNED BIGINT NULL"
+                + "CONSTRAINT fk_track FOREIGN KEY (" + KEY_TRACK_ID
+                + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createWayPointsTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         TODO("Not yet implemented")
+    }
+
+    fun saveTrack(track: Track): Long {
+        val trackValues = ContentValues()
+        trackValues.put(KEY_TRACK_NAME, track.name)
+        trackValues.put(KEY_TRACK_TYPE, track.type.value)
+        trackValues.put(KEY_TRACK_START_STAMP, track.startTime)
+        trackValues.put(KEY_TRACK_END_STAMP, track.currentTime)
+        trackValues.put(KEY_TRACK_DURATION_MOVING, track.movingTime)
+        trackValues.put(KEY_TRACK_DISTANCE, track.runningDistance)
+        trackValues.put(KEY_TRACK_DRIFT, track.getDrift())
+        trackValues.put(KEY_TRACK_ELEVATION_GAINED, track.elevationGained)
+        trackValues.put(KEY_TRACK_MAX_SPEED, track.maxSpeed)
+
+        return this.writableDatabase.insert(TABLE_TRACKS, null, trackValues)
+    }
+
+    fun saveLocationToTrack(location: TrackLocation, locationNumber: Int, trackId: Long): Long {
+        val locationValues = ContentValues()
+        locationValues.put(KEY_TRACK_ID, trackId)
+        locationValues.put(KEY_LOCATION_NUMBER, locationNumber)
+        locationValues.put(KEY_LOCATION_LATITUDE, location.latitude)
+        locationValues.put(KEY_LOCATION_LONGITUDE, location.longitude)
+        locationValues.put(KEY_LOCATION_ALTITUDE, location.altitude)
+        locationValues.put(KEY_LOCATION_ACCURACY, location.accuracy)
+        locationValues.put(KEY_LOCATION_ALTITUDE_ACCURACY, location.altitudeAccuracy)
+        locationValues.put(KEY_LOCATION_TIME, location.timestamp)
+        locationValues.put(KEY_LOCATION_TIME_ELAPSED, location.elapsedTimestamp)
+
+        return this.writableDatabase.insert(TABLE_LOCATIONS, null, locationValues)
+    }
+
+    fun saveCheckpointToTrack(cp: Checkpoint, cpNumber: Int, trackId: Long): Long {
+        val cpValues = ContentValues()
+        cpValues.put(KEY_TRACK_ID, trackId)
+        cpValues.put(KEY_CHECKPOINT_NUMBER, cpNumber)
+        cpValues.put(KEY_CHECKPOINT_LATITUDE, cp.latitude)
+        cpValues.put(KEY_CHECKPOINT_LONGITUDE, cp.longitude)
+        cpValues.put(KEY_CHECKPOINT_ALTITUDE, cp.altitude)
+        cpValues.put(KEY_CHECKPOINT_ACCURACY, cp.accuracy)
+        cpValues.put(KEY_CHECKPOINT_ALTITUDE_ACCURACY, cp.altitudeAccuracy)
+        cpValues.put(KEY_CHECKPOINT_TIMESTAMP, cp.timestamp)
+        cpValues.put(KEY_CHECKPOINT_ELAPSED_TIMESTAMP, cp.elapsedTimestamp)
+        cpValues.put(KEY_CHECKPOINT_DRIFT_FROM_LAST_CP, cp.driftFromLastCP)
+        cpValues.put(KEY_CHECKPOINT_TIME_SINCE_LAST_CP, cp.timeSinceLastCP)
+        cpValues.put(KEY_CHECKPOINT_DIST_FROM_LAST_CP, cp.distanceFromLastCP)
+
+        return this.writableDatabase.insert(TABLE_CHECKPOINTS, null, cpValues)
+    }
+
+    fun saveWayPointToTrack(wp: WayPoint, wpNumber: Int, trackId: Long): Long {
+        val wpValues = ContentValues()
+        wpValues.put(KEY_TRACK_ID, trackId)
+        wpValues.put(KEY_WAY_POINT_NUMBER, wpNumber)
+        wpValues.put(KEY_WAY_POINT_LATITUDE, wp.latitude)
+        wpValues.put(KEY_WAY_POINT_LONGITUDE, wp.longitude)
+        wpValues.put(KEY_WAY_POINT_ADDED_TIMESTAMP, wp.timeAdded)
+        wpValues.put(KEY_WAY_POINT_REMOVED_TIMESTAMP, wp.timeRemoved)
+
+        return this.writableDatabase.insert(TABLE_WAY_POINTS, null, wpValues)
+    }
+
+    fun readTracksSummary(startId: Long, endId: Long): List<TrackSummary> {
+        val trackList = mutableListOf<TrackSummary>()
+
+        val selectQuery = ("SELECT  * FROM " + TABLE_TRACKS
+                + " WHERE " + KEY_ID + " BETWEEN " + startId.toString() + " AND " + endId.toString()
+                + " ORDER BY " + KEY_ID + " DESC")
+
+        val cursor = this.readableDatabase.rawQuery(selectQuery, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    val trackSummary = TrackSummary(
+                        cursor.getLong(0),
+                        cursor.getString(1),
+                        cursor.getInt(2),
+                        cursor.getLong(3),
+                        cursor.getLong(4),
+                        cursor.getLong(5),
+                        cursor.getDouble(6),
+                        cursor.getDouble(7),
+                        cursor.getDouble(8),
+                        cursor.getDouble(9)
+                    )
+                    trackList.add(trackSummary)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+        return trackList
     }
 }

@@ -6,6 +6,9 @@ import android.os.Parcelable
 class Checkpoint : Parcelable {
     val latitude: Double
     val longitude: Double
+    val altitude: Double
+    val accuracy: Double
+    val altitudeAccuracy: Double
     val timestamp: Long
     val elapsedTimestamp: Long
     val driftFromLastCP: Float
@@ -13,6 +16,9 @@ class Checkpoint : Parcelable {
     val distanceFromLastCP: Double
 
     constructor(parcel: Parcel) : this(
+        parcel.readDouble(),
+        parcel.readDouble(),
+        parcel.readDouble(),
         parcel.readDouble(),
         parcel.readDouble(),
         parcel.readLong(),
@@ -27,6 +33,9 @@ class Checkpoint : Parcelable {
         this.distanceFromLastCP = distanceFromLastCP
         this.latitude = location.latitude
         this.longitude = location.longitude
+        this.altitude = location.altitude
+        this.accuracy = location.accuracy.toDouble()
+        this.altitudeAccuracy = location.altitudeAccuracy.toDouble()
         this.timestamp = location.timestamp
         this.elapsedTimestamp = location.elapsedTimestamp
         if (lastCP != null) {
@@ -43,9 +52,23 @@ class Checkpoint : Parcelable {
         }
     }
 
-    constructor(latitude: Double, longitude: Double, timestamp: Long, elapsedTimestamp: Long, driftFromLastCP: Float, timeSinceLastCP: Long, distanceFromLastCP: Double) {
+    constructor(
+        latitude: Double,
+        longitude: Double,
+        altitude: Double,
+        accuracy: Double,
+        altitudeAccuracy: Double,
+        timestamp: Long,
+        elapsedTimestamp: Long,
+        driftFromLastCP: Float,
+        timeSinceLastCP: Long,
+        distanceFromLastCP: Double
+    ) {
         this.latitude = latitude
         this.longitude = longitude
+        this.altitude = altitude
+        this.accuracy = accuracy
+        this.altitudeAccuracy = altitudeAccuracy
         this.timestamp = timestamp
         this.elapsedTimestamp = elapsedTimestamp
         this.driftFromLastCP = driftFromLastCP
@@ -56,6 +79,9 @@ class Checkpoint : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
+        parcel.writeDouble(altitude)
+        parcel.writeDouble(accuracy)
+        parcel.writeDouble(altitudeAccuracy)
         parcel.writeLong(timestamp)
         parcel.writeLong(elapsedTimestamp)
         parcel.writeFloat(driftFromLastCP)

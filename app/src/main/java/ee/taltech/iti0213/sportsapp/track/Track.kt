@@ -10,6 +10,9 @@ import kotlin.math.max
 
 class Track {
 
+    var name: String = "Track" // TODO: Custom names
+    var type: TrackType = TrackType.UNKNOWN // TODO: Select type
+
     val track = mutableListOf<TrackLocation>()
     val waypoints = mutableListOf<WayPoint>()
     val checkpoints = mutableListOf<Checkpoint>()
@@ -22,12 +25,15 @@ class Track {
     var elevationGained = 0.0
     var lastAltitude = 0.0
 
+    var maxSpeed = 0.0
+
     var lastLocation: TrackLocation? = null
 
     var startTime = 0L
     var lastCPTime = 0L
     var lastWPTime = 0L
     var currentTime = 0L
+    var movingTime = 0L
 
     fun update(location: TrackLocation) {
         if (lastLocation == null) {
@@ -50,6 +56,15 @@ class Track {
                         location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f) / 2
                     )
                 lastAltitude = location.altitude
+            }
+
+            if (pauses.isEmpty() || pauses.last() != track.size) {
+                movingTime += location.elapsedTimestamp - currentTime
+
+                // No funny stuff with pauses
+                if (1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) > maxSpeed) {
+                    maxSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000
+                }
             }
         }
         currentTime = location.elapsedTimestamp
@@ -114,6 +129,17 @@ class Track {
             lastLocation!!.longitude,
             wp.latitude,
             wp.longitude
+        )
+    }
+
+    fun getDrift(): Float {
+        if (lastLocation == null) return 0f
+        val start = track.first()
+        return TrackLocation.calcDistanceBetween(
+            lastLocation!!.latitude,
+            lastLocation!!.longitude,
+            start.latitude,
+            start.longitude
         )
     }
 
