@@ -3,11 +3,14 @@ package ee.taltech.iti0213.sportsapp
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.converters.Converter
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -27,8 +30,15 @@ class HistoryActivity : AppCompatActivity() {
 
         databaseHelper.readTracksSummary(0, 999).forEach { track ->
             run {
-                val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent)
-                // linearLayoutScrollContent.addView(trackView)
+                val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent, false)
+                trackView.findViewById<TextView>(R.id.track_name).text = track.name
+                trackView.findViewById<TextView>(R.id.distance).text = Converter.distToString(track.distance)
+                trackView.findViewById<TextView>(R.id.duration).text = Converter.longToHhMmSs(track.durationMovinng)
+                trackView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(track.elevationGained)
+                trackView.findViewById<TextView>(R.id.avg_speed).text = Converter.speedToString(track.distance / track.durationMovinng)
+                trackView.findViewById<TextView>(R.id.max_speed).text = Converter.speedToString(track.maxSpeed)
+                trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
+                linearLayoutScrollContent.addView(trackView)
             }
         }
 

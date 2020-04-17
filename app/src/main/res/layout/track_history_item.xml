@@ -17,7 +17,7 @@
         android:contentDescription="@string/track_image_description" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/track_title"
+        android:id="@+id/track_header"
         android:background="@drawable/rounded_corners_light"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/track_title"
+        app:layout_constraintTop_toBottomOf="@id/track_header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/track_image"
         app:layout_constraintEnd_toStartOf="@id/column_b">
@@ -105,7 +105,7 @@
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/track_title"
+        app:layout_constraintTop_toBottomOf="@id/track_header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/column_a">
@@ -153,13 +153,13 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:text="CP count:"
+            android:text="Drift:"
             style="@style/HistoryInfoHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <TextView android:id="@+id/checkpoints_count"
-            android:text="5"
+        <TextView android:id="@+id/drift"
+            android:text="0m"
             style="@style/HistoryInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
