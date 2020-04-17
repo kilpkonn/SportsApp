@@ -44,9 +44,9 @@ import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.service.LocationService
-import ee.taltech.iti0213.sportsapp.spinner.CompassMode
-import ee.taltech.iti0213.sportsapp.spinner.DisplayMode
-import ee.taltech.iti0213.sportsapp.spinner.RotationMode
+import ee.taltech.iti0213.sportsapp.component.spinner.CompassMode
+import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
+import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData

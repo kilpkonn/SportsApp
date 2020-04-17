@@ -1,12 +1,17 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.constraintlayout.widget.ConstraintLayout
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
@@ -43,6 +48,22 @@ class HistoryActivity : AppCompatActivity() {
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
                 trackImage.track = databaseHelper.readTrackLocations(track.trackId)
+
+                trackView.findViewById<Button>(R.id.btn_blue).background.setTint(0xFF0000AC.toInt())
+                trackView.findViewById<Button>(R.id.btn_green).background.setTint(0xFF005200.toInt())
+                trackView.findViewById<Button>(R.id.btn_orange).background.setTint(0xFFCE4D00.toInt())
+                trackView.findViewById<Button>(R.id.btn_purple).background.setTint(0xFF5C0095.toInt())
+
+                val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
+
+                trackView.setOnClickListener {
+                    if (optionsView.visibility == View.GONE) {
+                        optionsView.visibility = View.VISIBLE
+                    } else {
+                        optionsView.visibility = View.GONE
+                    }
+                }
+
                 linearLayoutScrollContent.addView(trackView)
             }
         }

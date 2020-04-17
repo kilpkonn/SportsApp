@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.spinner
+package ee.taltech.iti0213.sportsapp.component.spinner
 
 class DisplayMode {
    companion object {

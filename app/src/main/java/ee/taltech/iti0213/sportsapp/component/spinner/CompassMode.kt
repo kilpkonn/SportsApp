@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.spinner
+package ee.taltech.iti0213.sportsapp.component.spinner
 
 class CompassMode {
     companion object {
