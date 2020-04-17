@@ -2,7 +2,6 @@ package ee.taltech.iti0213.sportsapp.db
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import ee.taltech.iti0213.sportsapp.track.Track
@@ -223,6 +222,93 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                         cursor.getDouble(9)
                     )
                     trackList.add(trackSummary)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+        return trackList
+    }
+
+    fun readTrackLocations(trackId: Long): List<TrackLocation> {
+        val trackList = mutableListOf<TrackLocation>()
+
+        val selectQuery = ("SELECT  * FROM " + TABLE_LOCATIONS
+                + " WHERE " + KEY_TRACK_ID + " = " + trackId.toString()
+                + " ORDER BY " + KEY_LOCATION_NUMBER + " ASC")
+
+        val cursor = this.readableDatabase.rawQuery(selectQuery, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    val trackLocation = TrackLocation(
+                        cursor.getDouble(3),
+                        cursor.getDouble(4),
+                        cursor.getDouble(5),
+                        cursor.getFloat(6),
+                        cursor.getFloat(7),
+                        cursor.getLong(8),
+                        cursor.getLong(9)
+                    )
+                    trackList.add(trackLocation)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+        return trackList
+    }
+
+    fun readTrackCheckpoints(trackId: Long): List<Checkpoint> {
+        val trackList = mutableListOf<Checkpoint>()
+
+        val selectQuery = ("SELECT  * FROM " + TABLE_CHECKPOINTS
+                + " WHERE " + KEY_TRACK_ID + " = " + trackId.toString()
+                + " ORDER BY " + KEY_CHECKPOINT_NUMBER + " ASC")
+
+        val cursor = this.readableDatabase.rawQuery(selectQuery, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    val trackLocation = Checkpoint(
+                        cursor.getDouble(3),
+                        cursor.getDouble(4),
+                        cursor.getDouble(5),
+                        cursor.getDouble(6),
+                        cursor.getDouble(7),
+                        cursor.getLong(8),
+                        cursor.getLong(9),
+                        cursor.getFloat(10),
+                        cursor.getLong(11),
+                        cursor.getDouble(12)
+                    )
+                    trackList.add(trackLocation)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+        return trackList
+    }
+
+    fun readTrackWayPoints(trackId: Long): List<WayPoint> {
+        val trackList = mutableListOf<WayPoint>()
+
+        val selectQuery = ("SELECT  * FROM " + TABLE_WAY_POINTS
+                + " WHERE " + KEY_TRACK_ID + " = " + trackId.toString()
+                + " ORDER BY " + KEY_WAY_POINT_NUMBER + " ASC")
+
+        val cursor = this.readableDatabase.rawQuery(selectQuery, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    val trackLocation = WayPoint(
+                        cursor.getDouble(3),
+                        cursor.getDouble(4),
+                        cursor.getLong(5),
+                        cursor.getLong(6)
+                    )
+                    trackList.add(trackLocation)
                 } while (cursor.moveToNext())
             }
             cursor.close()

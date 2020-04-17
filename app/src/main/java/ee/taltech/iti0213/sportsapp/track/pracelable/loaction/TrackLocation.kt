@@ -9,11 +9,11 @@ import java.sql.Timestamp
 class TrackLocation(
     val latitude: Double,
     val longitude: Double,
-    val timestamp: Long,
-    val elapsedTimestamp: Long,
-    val accuracy: Float,
     val altitude: Double,
-    val altitudeAccuracy: Float
+    val accuracy: Float,
+    val altitudeAccuracy: Float,
+    val timestamp: Long,
+    val elapsedTimestamp: Long
 ) : Parcelable {
 
     companion object CREATOR : Parcelable.Creator<TrackLocation> {
@@ -32,11 +32,11 @@ class TrackLocation(
             return TrackLocation(
                 location.latitude,
                 location.longitude,
-                location.time,
-                location.elapsedRealtimeNanos,
-                location.accuracy,
                 location.altitude,
-                verticalAccuracy
+                location.accuracy,
+                verticalAccuracy,
+                location.time,
+                location.elapsedRealtimeNanos
             )
         }
 
@@ -74,11 +74,11 @@ class TrackLocation(
     constructor(parcel: Parcel) : this(
         parcel.readDouble(),
         parcel.readDouble(),
-        parcel.readLong(),
-        parcel.readLong(),
-        parcel.readFloat(),
         parcel.readDouble(),
-        parcel.readFloat()
+        parcel.readFloat(),
+        parcel.readFloat(),
+        parcel.readLong(),
+        parcel.readLong()
     ) {
         currentCP = parcel.readParcelable(WayPoint::class.java.classLoader)
     }
@@ -86,11 +86,11 @@ class TrackLocation(
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
+        parcel.writeDouble(altitude)
+        parcel.writeFloat(accuracy)
+        parcel.writeFloat(altitudeAccuracy)
         parcel.writeLong(timestamp)
         parcel.writeLong(elapsedTimestamp)
-        parcel.writeFloat(accuracy)
-        parcel.writeDouble(altitude)
-        parcel.writeFloat(altitudeAccuracy)
         parcel.writeParcelable(currentCP, flags)
     }
 

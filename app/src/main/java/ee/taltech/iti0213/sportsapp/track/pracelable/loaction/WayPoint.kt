@@ -6,6 +6,10 @@ import android.os.Parcelable
 class WayPoint(val latitude: Double, val longitude: Double, val timeAdded: Long) : Parcelable {
     var timeRemoved: Long? = null
 
+    constructor(latitude: Double, longitude: Double, timeAdded: Long, timeRemoved: Long): this(latitude, longitude, timeAdded) {
+        this.timeRemoved = timeRemoved
+    }
+
     constructor(parcel: Parcel) : this(parcel.readDouble(), parcel.readDouble(), parcel.readLong()) {
         timeRemoved = parcel.readValue(Long::class.java.classLoader) as? Long
     }
