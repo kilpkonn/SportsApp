@@ -140,7 +140,7 @@ class DetailActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.slide_from_top,R.anim.slide_in_top);
+        overridePendingTransition(R.anim.slide_in_from_top,R.anim.slide_out_to_bottom);
     }
 
     // ======================================== FLING DETECTION =======================================
@@ -159,7 +159,7 @@ class DetailActivity : AppCompatActivity() {
     private fun onFlingLeft() {
         val intent = Intent(this, HistoryActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(R.anim.slide_into_right, R.anim.slide_out_right)
+        overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
