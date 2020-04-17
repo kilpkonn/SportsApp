@@ -298,7 +298,7 @@ class LocationService : Service() {
                     onTrackSyncRequest(intent.getLongExtra(C.TRACK_SYNC_REQUEST_TIME, 0L))
                 }
                 C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
-                C.TRACK_SAVE -> onTrackSave(intent)
+                C.TRACK_SAVE -> onTrackSave()
                 C.TRACK_RESET -> {
                     track = Track()
                     isAddingToTrack = false
@@ -322,7 +322,7 @@ class LocationService : Service() {
                 sendDetailedTrackData()
         }
 
-        private fun onTrackSave(intent: Intent) {
+        private fun onTrackSave() {
             if (track == null) return
             val trackId = databaseHelper.saveTrack(track!!)
 

@@ -56,12 +56,12 @@ class FlingDetector(context: Context) : GestureDetector.OnGestureListener {
         if (velocityX > flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
             // fling left
             Log.d(TAG, "fling left!")
-            onFlingLeft?.run()
+            onFlingRight?.run()
         }
         if (velocityX < -flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
             // fling right
             Log.d(TAG, "fling right!")
-            onFlingRight?.run()
+            onFlingLeft?.run()
         }
         if (velocityY > flingMinSpeedY && abs(distanceY) > flingMinDistanceY) {
             // fling down

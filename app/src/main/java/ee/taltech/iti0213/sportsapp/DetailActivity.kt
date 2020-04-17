@@ -64,6 +64,7 @@ class DetailActivity : AppCompatActivity() {
         txtViewCheckpoints = findViewById(R.id.checkpoints_count)
 
         flingDetector.onFlingDown = Runnable { onFlingDown() }
+        flingDetector.onFlingLeft = Runnable { onFlingLeft() }
     }
 
     // ============================================== ON CLICK CALLBACKS ==============================================
@@ -153,6 +154,12 @@ class DetailActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             finishAfterTransition();
         } else finish()
+    }
+
+    private fun onFlingLeft() {
+        val intent = Intent(this, HistoryActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(R.anim.slide_into_right, R.anim.slide_out_right)
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
