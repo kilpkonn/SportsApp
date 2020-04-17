@@ -6,12 +6,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="@dimen/padding_small">
 
-    <ImageView android:id="@+id/track_image"
+    <ee.taltech.iti0213.sportsapp.view.TrackIconImageView android:id="@+id/track_image"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/column_a"
-        android:background="#0FFFFF00"
         android:layout_height="100dp"
         android:layout_width="100dp"
         android:contentDescription="@string/track_image_description" />
