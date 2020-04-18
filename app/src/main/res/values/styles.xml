@@ -54,9 +54,24 @@
         <item name="android:textAlignment">center</item>
     </style>
 
+    <style name="HistoryEdit">
+
+    </style>
+
+    <style name="HistoryEditButton">
+        <item name="textAllCaps">true</item>
+        <item name="android:textColor">@color/text_light</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:minHeight">10dp</item>
+        <item name="android:minWidth">10dp</item>
+    </style>
+
     <style name="AppCompatAlertWarnDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/text_orange</item>
-        <item name="android:textColorPrimary">@color/text_danger</item>
+        <item name="android:textColorPrimary">@color/color_danger</item>
         <item name="android:background">@color/color_very_dark</item>
     </style>
 

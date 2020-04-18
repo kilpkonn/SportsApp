@@ -198,40 +198,88 @@
         android:visibility="gone">
 
         <Button
+            android:id="@+id/btn_delete"
+            android:text="DELETE"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            style="@style/HistoryEditButton"
+            android:background="@color/color_danger"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_rename"/>
+
+        <Button
+            android:id="@+id/btn_rename"
+            android:text="RENAME"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            style="@style/HistoryEditButton"
+            android:background="@color/color_ocean"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_delete"
+            app:layout_constraintEnd_toStartOf="@id/btn_blue"/>
+
+        <Button
             android:id="@+id/btn_blue"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/padding_small"
             android:background="@drawable/round_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintDimensionRatio="w,1:1"
+            app:layout_constraintEnd_toStartOf="@id/btn_green"
+            app:layout_constraintStart_toEndOf="@id/btn_rename"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
             android:id="@+id/btn_green"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/padding_small"
             android:background="@drawable/round_button"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/btn_orange"
             app:layout_constraintStart_toEndOf="@id/btn_blue"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
             android:id="@+id/btn_orange"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/padding_small"
             android:background="@drawable/round_button"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/btn_purple"
             app:layout_constraintStart_toEndOf="@id/btn_green"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
             android:id="@+id/btn_purple"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/padding_small"
             android:background="@drawable/round_button"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/btn_none"
             app:layout_constraintStart_toEndOf="@id/btn_orange"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <Button
+            android:id="@+id/btn_none"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="@dimen/padding_small"
+            android:background="@drawable/round_button"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_purple"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,7 @@ class TrackSummary(
     val type: Int,
     val startTimestamp: Long,
     val endTimestamp: Long,
-    val durationMovinng: Long,
+    val durationMoving: Long,
     val distance: Double,
     val drift: Double,
     val elevationGained: Double,

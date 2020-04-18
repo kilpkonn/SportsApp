@@ -44,7 +44,7 @@
         android:text="@string/save_track_text"
         android:onClick="buttonSaveOnClick"
         android:textColor="@color/text_intense_light"
-        android:background="#03245A"
+        android:background="@color/color_ocean"
         android:padding="@dimen/padding_small"
         android:layout_margin="@dimen/padding_small"
         app:layout_constraintBottom_toTopOf="@id/btn_reset"

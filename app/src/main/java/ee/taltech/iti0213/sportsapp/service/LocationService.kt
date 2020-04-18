@@ -156,6 +156,8 @@ class LocationService : Service() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
 
+        databaseHelper.close()
+
         //stop location updates
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
 
