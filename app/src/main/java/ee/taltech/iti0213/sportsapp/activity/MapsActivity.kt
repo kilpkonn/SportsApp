@@ -717,7 +717,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun setUpSpinners() {
         // Create an ArrayAdapters
         val displayOptionAdapter = ArrayAdapter(this,
-            R.layout.spinner_item, DisplayMode.OPTIONS)
+            R.layout.maps_spinner_item, DisplayMode.OPTIONS)
         spinnerDisplayMode.adapter = displayOptionAdapter
         spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -729,7 +729,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         }
 
         val compassOptionAdapter = ArrayAdapter(this,
-            R.layout.spinner_item, CompassMode.OPTIONS)
+            R.layout.maps_spinner_item, CompassMode.OPTIONS)
         spinnerCompassMode.adapter = compassOptionAdapter
         spinnerCompassMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -765,7 +765,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         }
 
         val rotationOptionAdapter = ArrayAdapter(this,
-            R.layout.spinner_item, RotationMode.OPTIONS)
+            R.layout.maps_spinner_item, RotationMode.OPTIONS)
         spinnerRotationMode.adapter = rotationOptionAdapter
         spinnerRotationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {

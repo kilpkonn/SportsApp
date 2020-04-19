@@ -4,13 +4,14 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.children
+import androidx.core.view.iterator
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
+import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
@@ -47,11 +48,8 @@ class HistoryActivity : AppCompatActivity() {
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
                 trackImage.track = databaseHelper.readTrackLocations(track.trackId)
 
-                trackView.findViewById<Button>(R.id.btn_blue).background.setTint(0xFF0000AC.toInt())
-                trackView.findViewById<Button>(R.id.btn_green).background.setTint(0xFF005200.toInt())
-                trackView.findViewById<Button>(R.id.btn_orange).background.setTint(0xFFCE4D00.toInt())
-                trackView.findViewById<Button>(R.id.btn_purple).background.setTint(0xFF5C0095.toInt())
-                trackView.findViewById<Button>(R.id.btn_none).background.setTint(0xFFAAAAAA.toInt())
+                val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
+                setUpReplaySpinner(replaySpinner)
 
                 val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
 
@@ -95,5 +93,20 @@ class HistoryActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             finishAfterTransition();
         } else finish()
+    }
+
+    // ================================= HELPER FUNCTION =================================
+
+    private fun setUpReplaySpinner(spinner: Spinner) {
+        val displayOptionAdapter = HistorySpinnerAdapter(this)
+
+        spinner.adapter = displayOptionAdapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // TODO: display track
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 }

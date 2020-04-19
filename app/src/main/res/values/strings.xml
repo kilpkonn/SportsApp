@@ -115,4 +115,5 @@
     <string name="history_elevation_gained_hint">Elev gain:</string>
     <string name="history_duration_hint">Duration:</string>
     <string name="history_distance_hint">Distance:</string>
+    <string name="replay_spinner_item_none">None</string>
 </resources>
