@@ -149,52 +149,69 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         trackValues.put(KEY_TRACK_ELEVATION_GAINED, track.elevationGained)
         trackValues.put(KEY_TRACK_MAX_SPEED, track.maxSpeed)
 
-        return this.writableDatabase.insert(TABLE_TRACKS, null, trackValues)
+        this.writableDatabase.beginTransaction()
+        val id = this.writableDatabase.insert(TABLE_TRACKS, null, trackValues)
+        this.writableDatabase.setTransactionSuccessful()
+        this.writableDatabase.endTransaction()
+        return id
     }
 
-    fun saveLocationToTrack(location: TrackLocation, locationNumber: Int, trackId: Long): Long {
-        val locationValues = ContentValues()
-        locationValues.put(KEY_TRACK_ID, trackId)
-        locationValues.put(KEY_LOCATION_NUMBER, locationNumber)
-        locationValues.put(KEY_LOCATION_LATITUDE, location.latitude)
-        locationValues.put(KEY_LOCATION_LONGITUDE, location.longitude)
-        locationValues.put(KEY_LOCATION_ALTITUDE, location.altitude)
-        locationValues.put(KEY_LOCATION_ACCURACY, location.accuracy)
-        locationValues.put(KEY_LOCATION_ALTITUDE_ACCURACY, location.altitudeAccuracy)
-        locationValues.put(KEY_LOCATION_TIME, location.timestamp)
-        locationValues.put(KEY_LOCATION_TIME_ELAPSED, location.elapsedTimestamp)
+    fun saveLocationToTrack(locations: List<TrackLocation>, trackId: Long) {
+        this.writableDatabase.beginTransaction()
+        locations.forEachIndexed { index, location ->
+            val locationValues = ContentValues()
+            locationValues.put(KEY_TRACK_ID, trackId)
+            locationValues.put(KEY_LOCATION_NUMBER, index)
+            locationValues.put(KEY_LOCATION_LATITUDE, location.latitude)
+            locationValues.put(KEY_LOCATION_LONGITUDE, location.longitude)
+            locationValues.put(KEY_LOCATION_ALTITUDE, location.altitude)
+            locationValues.put(KEY_LOCATION_ACCURACY, location.accuracy)
+            locationValues.put(KEY_LOCATION_ALTITUDE_ACCURACY, location.altitudeAccuracy)
+            locationValues.put(KEY_LOCATION_TIME, location.timestamp)
+            locationValues.put(KEY_LOCATION_TIME_ELAPSED, location.elapsedTimestamp)
+            this.writableDatabase.insert(TABLE_LOCATIONS, null, locationValues)
+        }
 
-        return this.writableDatabase.insert(TABLE_LOCATIONS, null, locationValues)
+        this.writableDatabase.setTransactionSuccessful()
+        this.writableDatabase.endTransaction()
     }
 
-    fun saveCheckpointToTrack(cp: Checkpoint, cpNumber: Int, trackId: Long): Long {
-        val cpValues = ContentValues()
-        cpValues.put(KEY_TRACK_ID, trackId)
-        cpValues.put(KEY_CHECKPOINT_NUMBER, cpNumber)
-        cpValues.put(KEY_CHECKPOINT_LATITUDE, cp.latitude)
-        cpValues.put(KEY_CHECKPOINT_LONGITUDE, cp.longitude)
-        cpValues.put(KEY_CHECKPOINT_ALTITUDE, cp.altitude)
-        cpValues.put(KEY_CHECKPOINT_ACCURACY, cp.accuracy)
-        cpValues.put(KEY_CHECKPOINT_ALTITUDE_ACCURACY, cp.altitudeAccuracy)
-        cpValues.put(KEY_CHECKPOINT_TIMESTAMP, cp.timestamp)
-        cpValues.put(KEY_CHECKPOINT_ELAPSED_TIMESTAMP, cp.elapsedTimestamp)
-        cpValues.put(KEY_CHECKPOINT_DRIFT_FROM_LAST_CP, cp.driftFromLastCP)
-        cpValues.put(KEY_CHECKPOINT_TIME_SINCE_LAST_CP, cp.timeSinceLastCP)
-        cpValues.put(KEY_CHECKPOINT_DIST_FROM_LAST_CP, cp.distanceFromLastCP)
-
-        return this.writableDatabase.insert(TABLE_CHECKPOINTS, null, cpValues)
+    fun saveCheckpointToTrack(checkpoints: List<Checkpoint>, trackId: Long) {
+        this.writableDatabase.beginTransaction()
+        checkpoints.forEachIndexed { index, cp ->
+            val cpValues = ContentValues()
+            cpValues.put(KEY_TRACK_ID, trackId)
+            cpValues.put(KEY_CHECKPOINT_NUMBER, index)
+            cpValues.put(KEY_CHECKPOINT_LATITUDE, cp.latitude)
+            cpValues.put(KEY_CHECKPOINT_LONGITUDE, cp.longitude)
+            cpValues.put(KEY_CHECKPOINT_ALTITUDE, cp.altitude)
+            cpValues.put(KEY_CHECKPOINT_ACCURACY, cp.accuracy)
+            cpValues.put(KEY_CHECKPOINT_ALTITUDE_ACCURACY, cp.altitudeAccuracy)
+            cpValues.put(KEY_CHECKPOINT_TIMESTAMP, cp.timestamp)
+            cpValues.put(KEY_CHECKPOINT_ELAPSED_TIMESTAMP, cp.elapsedTimestamp)
+            cpValues.put(KEY_CHECKPOINT_DRIFT_FROM_LAST_CP, cp.driftFromLastCP)
+            cpValues.put(KEY_CHECKPOINT_TIME_SINCE_LAST_CP, cp.timeSinceLastCP)
+            cpValues.put(KEY_CHECKPOINT_DIST_FROM_LAST_CP, cp.distanceFromLastCP)
+            this.writableDatabase.insert(TABLE_CHECKPOINTS, null, cpValues)
+        }
+        this.writableDatabase.setTransactionSuccessful()
+        this.writableDatabase.endTransaction()
     }
 
-    fun saveWayPointToTrack(wp: WayPoint, wpNumber: Int, trackId: Long): Long {
-        val wpValues = ContentValues()
-        wpValues.put(KEY_TRACK_ID, trackId)
-        wpValues.put(KEY_WAY_POINT_NUMBER, wpNumber)
-        wpValues.put(KEY_WAY_POINT_LATITUDE, wp.latitude)
-        wpValues.put(KEY_WAY_POINT_LONGITUDE, wp.longitude)
-        wpValues.put(KEY_WAY_POINT_ADDED_TIMESTAMP, wp.timeAdded)
-        wpValues.put(KEY_WAY_POINT_REMOVED_TIMESTAMP, wp.timeRemoved)
-
-        return this.writableDatabase.insert(TABLE_WAY_POINTS, null, wpValues)
+    fun saveWayPointToTrack(wayPoints: List<WayPoint>, trackId: Long) {
+        this.writableDatabase.beginTransaction()
+        wayPoints.forEachIndexed { index, wp ->
+            val wpValues = ContentValues()
+            wpValues.put(KEY_TRACK_ID, trackId)
+            wpValues.put(KEY_WAY_POINT_NUMBER, index)
+            wpValues.put(KEY_WAY_POINT_LATITUDE, wp.latitude)
+            wpValues.put(KEY_WAY_POINT_LONGITUDE, wp.longitude)
+            wpValues.put(KEY_WAY_POINT_ADDED_TIMESTAMP, wp.timeAdded)
+            wpValues.put(KEY_WAY_POINT_REMOVED_TIMESTAMP, wp.timeRemoved)
+            this.writableDatabase.insert(TABLE_WAY_POINTS, null, wpValues)
+        }
+        this.writableDatabase.setTransactionSuccessful()
+        this.writableDatabase.endTransaction()
     }
 
     fun readTracksSummary(startId: Long, endId: Long): List<TrackSummary> {
@@ -314,5 +331,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             cursor.close()
         }
         return trackList
+    }
+
+    fun deleteTrack(trackId: Long) {
+        this.writableDatabase.beginTransaction()
+        this.writableDatabase.delete(TABLE_TRACKS, "$KEY_ID = ?", arrayOf(trackId.toString()))
+        this.writableDatabase.setTransactionSuccessful()
+        this.writableDatabase.endTransaction()
     }
 }

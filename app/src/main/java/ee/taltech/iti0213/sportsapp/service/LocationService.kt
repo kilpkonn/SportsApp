@@ -237,7 +237,8 @@ class LocationService : Service() {
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
-        val builder = NotificationCompat.Builder(applicationContext,
+        val builder = NotificationCompat.Builder(
+            applicationContext,
             C.NOTIFICATION_CHANNEL
         )
             .setSmallIcon(R.drawable.baseline_gps_fixed_24)
@@ -334,16 +335,9 @@ class LocationService : Service() {
         private fun onTrackSave() {
             if (track == null) return
             val trackId = databaseHelper.saveTrack(track!!)
-
-            track!!.track.forEachIndexed { index, trackLocation ->
-                databaseHelper.saveLocationToTrack(trackLocation, index, trackId)
-            }
-            track!!.checkpoints.forEachIndexed { index, checkpoint ->
-                databaseHelper.saveCheckpointToTrack(checkpoint, index, trackId)
-            }
-            track!!.waypoints.forEachIndexed { index, wayPoint ->
-                databaseHelper.saveWayPointToTrack(wayPoint, index, trackId)
-            }
+            databaseHelper.saveLocationToTrack(track!!.track, trackId)
+            databaseHelper.saveCheckpointToTrack(track!!.checkpoints, trackId)
+            databaseHelper.saveWayPointToTrack(track!!.waypoints, trackId)
         }
     }
 }
