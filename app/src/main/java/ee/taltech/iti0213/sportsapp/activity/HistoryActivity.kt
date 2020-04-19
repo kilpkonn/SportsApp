@@ -5,19 +5,25 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
-import androidx.core.view.iterator
 import ee.taltech.iti0213.sportsapp.R
-import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
 
 class HistoryActivity : AppCompatActivity() {
+
+    companion object {
+        private const val ALERT_DELETE_TITLE = "Delete track?"
+        private const val ALERT_DELETE_TEXT = "Do you want to permanently delete track?"
+        private const val ALERT_DELETE_CANCEL_TEXT = "Cancel"
+        private const val ALERT_DELETE_DELETE_TEXT = "Delete"
+    }
 
     private val databaseHelper: DatabaseHelper = DatabaseHelper(this)
 
@@ -50,9 +56,7 @@ class HistoryActivity : AppCompatActivity() {
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
                 deleteButton.setOnClickListener {
-                    // Todo: ask confirmation
-                    databaseHelper.deleteTrack(track.trackId)
-                    linearLayoutScrollContent.removeView(trackView)
+                    onDeleteClicked(track, trackView)
                 }
 
                 val renameButton = trackView.findViewById<Button>(R.id.btn_rename)
@@ -117,5 +121,20 @@ class HistoryActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+    }
+
+    private fun onDeleteClicked(track: TrackSummary, trackView: View) {
+        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertWarnDialogStyle)
+            .setTitle(ALERT_DELETE_TITLE)
+            .setMessage(ALERT_DELETE_TEXT)
+            .setPositiveButton(ALERT_DELETE_DELETE_TEXT) { _, _ ->
+                run {
+                    databaseHelper.deleteTrack(track.trackId)
+                    linearLayoutScrollContent.removeView(trackView)
+                }
+            }
+            .setNegativeButton(ALERT_DELETE_CANCEL_TEXT, null)
+            .create()
+        alert.show()
     }
 }
