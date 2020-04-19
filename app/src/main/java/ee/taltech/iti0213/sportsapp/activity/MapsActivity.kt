@@ -81,6 +81,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val databaseHelper = DatabaseHelper(this)
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
+    private val trackStartTimeOffsets = hashMapOf<Long, Long>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
 
     private var locationServiceActive = false
@@ -94,6 +95,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var compassMode = CompassMode.IMAGE
     private var rotationMode = RotationMode.NORTH_UP
     private var lastUpdateTime = 0L
+    private var elapsedRunningTime = 0L
 
     private var isCameraIdle = true
 
@@ -658,6 +660,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             Log.d(TAG, "On set rabbit.")
             val rabbitName = intent.getStringExtra(C.TRACK_SET_RABBIT_NAME) ?: ReplaySpinnerItems.NONE
             val trackId = intent.getLongExtra(C.TRACK_SET_RABBIT_VALUE, -1L)
+            val rabbitStart = intent.getLongExtra(C.TRACK_SET_RABBIT_START_TIME, 0L)
+
+            trackStartTimeOffsets[trackId] = rabbitStart
 
             if (rabbitName == ReplaySpinnerItems.NONE) {
                 rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
@@ -728,6 +733,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 
             val trackData = intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+
+            elapsedRunningTime = trackData.totalTime
 
             textViewTotalDistance.text = Converter.distToString(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
@@ -834,9 +841,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val pointsToAdd = databaseHelper.readTrackLocations(
                 rabbit.value,
-                lastRabbitLoc?.elapsedTimestamp ?: 0L,
-                Long.MAX_VALUE //lastLocation?.elapsedTimestamp ?: 0L
-            ) // TODO: calculate relative time
+                lastRabbitLoc?.elapsedTimestamp ?: trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime,
+                (trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
+            )
+
             var lastLoc: LatLng? = null
 
             if (lastRabbitLoc != null) {

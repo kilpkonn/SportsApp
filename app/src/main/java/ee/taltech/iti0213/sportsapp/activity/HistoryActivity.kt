@@ -140,6 +140,7 @@ class HistoryActivity : AppCompatActivity() {
                 val intent = Intent(C.TRACK_SET_RABBIT)
                 intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
+                intent.putExtra(C.TRACK_SET_RABBIT_START_TIME, track.startTimestamp)
                 LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
             }
 
