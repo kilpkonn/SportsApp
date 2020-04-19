@@ -46,7 +46,9 @@ import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.service.LocationService
 import ee.taltech.iti0213.sportsapp.component.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
+import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -63,7 +65,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val FOCUSED_ZOOM_LEVEL = 17f
 
         private const val TRACK_COLOR_TRACKING = Color.RED
-        private const val TRACK_COLOR_IDLE = Color.BLUE
 
         private const val BUNDLE_LAST_UPDATE_TIME = "last_update_time"
         private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
@@ -72,11 +73,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_ROTATION_MODE = "rotation_mode"
         private const val BUNDLE_GPS_ACTIVE = "gps_active"
         private const val BUNDLE_TRACK_ACTIVE = "track_active"
+        private const val BUNDLE_RABBITS = "rabbits"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
+    private val databaseHelper = DatabaseHelper(this)
+    private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
 
     private var locationServiceActive = false
@@ -94,6 +98,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var isCameraIdle = true
 
     private var trackColor = TRACK_COLOR_TRACKING
+    private var rabbits = hashMapOf<String, Long>()
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -163,6 +168,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SET_RABBIT)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -176,7 +184,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         locationServiceActive = savedInstanceState?.getBoolean(BUNDLE_GPS_ACTIVE) ?: false
         isTracking = savedInstanceState?.getBoolean(BUNDLE_TRACK_ACTIVE) ?: false
 
-        trackColor = if (isTracking) TRACK_COLOR_TRACKING else TRACK_COLOR_IDLE
+        trackColor = TRACK_COLOR_TRACKING
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -325,7 +333,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         isSyncedWithService = false
     }
 
@@ -341,7 +348,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         sensorManager.unregisterListener(this, accelerometer)
         sensorManager.unregisterListener(this, magnetometer)
         isSyncedWithService = false
@@ -354,6 +360,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         super.onDestroy()
     }
 
@@ -371,6 +378,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putString(BUNDLE_ROTATION_MODE, rotationMode)
         outState.putBoolean(BUNDLE_GPS_ACTIVE, locationServiceActive)
         outState.putBoolean(BUNDLE_TRACK_ACTIVE, isTracking)
+        outState.putSerializable(BUNDLE_RABBITS, rabbits)
         super.onSaveInstanceState(outState)
     }
 
@@ -383,6 +391,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         rotationMode = savedInstanceState.getString(BUNDLE_ROTATION_MODE) ?: RotationMode.NORTH_UP
         locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
         isTracking = savedInstanceState.getBoolean(BUNDLE_TRACK_ACTIVE)
+        rabbits = savedInstanceState.getSerializable(BUNDLE_RABBITS) as HashMap<String, Long> ?: hashMapOf()
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
@@ -547,12 +556,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             // stopping the service
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_STOP))
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
-            trackColor = TRACK_COLOR_IDLE
         } else {
             startLocationService(true)
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
-            trackColor = TRACK_COLOR_TRACKING
         }
 
         isTracking = !isTracking
@@ -623,10 +630,22 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 C.NOTIFICATION_ACTION_ADD_WP -> onNotificationAddedWp(intent)
                 C.NOTIFICATION_ACTION_ADD_CP -> onNotificationAddCp(intent)
                 C.TRACK_RESET -> onTrackReset(intent)
+                C.TRACK_SET_RABBIT -> onSetTrackRabbit(intent)
             }
         }
 
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
+
+        private fun onSetTrackRabbit(intent: Intent) {
+            Log.d(TAG, "On set rabbit.")
+            val rabbitName = intent.getStringExtra(C.TRACK_SET_RABBIT_NAME) ?: ReplaySpinnerItems.NONE
+            val trackId = intent.getLongExtra(C.TRACK_SET_RABBIT_VALUE, -1L)
+
+            if (rabbits.containsKey(rabbitName) && rabbits[rabbitName] != trackId) {
+                syncMapData()
+            }
+            rabbits[rabbitName] = trackId
+        }
 
         private fun onTrackReset(intent: Intent) {
             mMap.clear()
@@ -636,7 +655,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             isSyncedWithService = false
             isTracking = false
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
-            trackColor = TRACK_COLOR_IDLE
         }
 
         private fun onNotificationAddCp(intent: Intent) {

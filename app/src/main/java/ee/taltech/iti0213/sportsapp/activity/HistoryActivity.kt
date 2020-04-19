@@ -1,5 +1,6 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
@@ -8,7 +9,10 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.TrackSummary
@@ -63,7 +67,7 @@ class HistoryActivity : AppCompatActivity() {
                 // TODO: rename
 
                 val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
-                setUpReplaySpinner(replaySpinner)
+                setUpReplaySpinner(replaySpinner, track)
 
                 val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
                 trackView.setOnClickListener {
@@ -110,13 +114,16 @@ class HistoryActivity : AppCompatActivity() {
 
     // ================================= HELPER FUNCTION =================================
 
-    private fun setUpReplaySpinner(spinner: Spinner) {
+    private fun setUpReplaySpinner(spinner: Spinner, track: TrackSummary) {
         val displayOptionAdapter = HistorySpinnerAdapter(this)
 
         spinner.adapter = displayOptionAdapter
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // TODO: display track
+                val intent = Intent(C.TRACK_SET_RABBIT)
+                intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
+                intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
+                LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
