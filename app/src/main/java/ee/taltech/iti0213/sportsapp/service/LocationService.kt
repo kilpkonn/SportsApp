@@ -181,8 +181,10 @@ class LocationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
 
-        // set counters and locations to 0/null
-        track = Track()
+        // set counters to 0 if fresh start
+        if (track == null) {
+            track = Track()
+        }
 
         showNotification(track?.getTrackData())
 
@@ -338,6 +340,10 @@ class LocationService : Service() {
             databaseHelper.saveLocationToTrack(track!!.track, trackId)
             databaseHelper.saveCheckpointToTrack(track!!.checkpoints, trackId)
             databaseHelper.saveWayPointToTrack(track!!.waypoints, trackId)
+            track = Track()
+            isAddingToTrack = false
+            showNotification(track!!.getTrackData())
+            stopForeground(false)
         }
     }
 }
