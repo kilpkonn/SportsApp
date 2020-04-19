@@ -246,11 +246,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return trackList
     }
 
-    fun readTrackLocations(trackId: Long): List<TrackLocation> {
+    fun readTrackLocations(trackId: Long, startTime: Long, endTime: Long): List<TrackLocation> {
         val trackList = mutableListOf<TrackLocation>()
 
         val selectQuery = ("SELECT  * FROM " + TABLE_LOCATIONS
                 + " WHERE " + KEY_TRACK_ID + " = " + trackId.toString()
+                + " AND " + KEY_LOCATION_TIME_ELAPSED + " BETWEEN " + startTime + " AND "+ endTime
                 + " ORDER BY " + KEY_LOCATION_NUMBER + " ASC")
 
         val cursor = this.readableDatabase.rawQuery(selectQuery, null)

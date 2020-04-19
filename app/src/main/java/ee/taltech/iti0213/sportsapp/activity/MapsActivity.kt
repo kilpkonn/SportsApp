@@ -99,6 +99,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var trackColor = TRACK_COLOR_TRACKING
     private var rabbits = hashMapOf<String, Long>()
+    private var rabbitsLastLocations = hashMapOf<String, TrackLocation>()
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -281,9 +282,12 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         val location = LatLng(trackLocation.latitude, trackLocation.longitude)
 
         if (lastLocation == null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,
-                DEFAULT_ZOOM_LEVEL
-            ))
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    location,
+                    DEFAULT_ZOOM_LEVEL
+                )
+            )
             isCameraIdle = false
         } else {
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
@@ -298,22 +302,25 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
             val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
 
-            val cameraLoc = when(displayMode) {
+            val cameraLoc = when (displayMode) {
                 DisplayMode.CENTERED -> lastLoc
                 else -> mMap.cameraPosition.target
             }
-            val cameraBearing = when(rotationMode) {
+            val cameraBearing = when (rotationMode) {
                 RotationMode.NORTH_UP -> 0f
                 RotationMode.USER_CHOSEN_UP -> mMap.cameraPosition.bearing
                 else -> TrackLocation.calcBearingBetween(lastLoc.latitude, lastLoc.longitude, location.latitude, location.longitude)
             }
             if (isCameraIdle) {
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition.builder()
-                        .bearing(cameraBearing)
-                        .target(cameraLoc)
-                        .zoom(cameraZoom)
-                        .tilt(cameraTilt)
-                        .build())
+                mMap.animateCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.builder()
+                            .bearing(cameraBearing)
+                            .target(cameraLoc)
+                            .zoom(cameraZoom)
+                            .tilt(cameraTilt)
+                            .build()
+                    )
                 )
             }
         }
@@ -323,6 +330,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
             marker.showInfoWindow()
         }
+
+        drawRabbits()
 
         lastLocation = trackLocation
         lastUpdateTime = trackLocation.elapsedTimestamp
@@ -416,10 +425,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 val degree = (toDegrees(orientation[0].toDouble()) + 360).toFloat() % 360
 
                 val rotateAnimation = RotateAnimation(
-                        currentDegree,
-                        -degree,
-                        RELATIVE_TO_SELF, 0.5f,
-                        RELATIVE_TO_SELF, 0.5f
+                    currentDegree,
+                    -degree,
+                    RELATIVE_TO_SELF, 0.5f,
+                    RELATIVE_TO_SELF, 0.5f
                 )
                 rotateAnimation.duration = 1000
                 rotateAnimation.fillAfter = true
@@ -447,7 +456,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 C.NOTIFICATION_CHANNEL,
-                C.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+                C.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+            )
 
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             //.setShowBadge(false).setSound(null, null);
@@ -468,41 +478,44 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun requestPermissions() {
         val shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                )
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.")
-            Snackbar.make(findViewById(R.id.activity_main),
-                C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
-                        // Request permission
-                        ActivityCompat.requestPermissions(this,
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                            C.REQUEST_PERMISSIONS_REQUEST_CODE
-                        )
-                    }
-                    .show()
+            Snackbar.make(
+                findViewById(R.id.activity_main),
+                C.SNAKBAR_REQUEST_FINE_LOCATION_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(C.SNAKBAR_REQUEST_FINE_LOCATION_CONFIRM_TEXT) {
+                    // Request permission
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        C.REQUEST_PERMISSIONS_REQUEST_CODE
+                    )
+                }
+                .show()
         } else {
             Log.i(TAG, "Requesting permission")
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 C.REQUEST_PERMISSIONS_REQUEST_CODE
             )
         }
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.i(TAG, "onRequestPermissionResult")
@@ -512,34 +525,40 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     // If user interaction was interrupted, the permission request is cancelled and
                     // you receive empty arrays.
                     Log.i(TAG, "User interaction was cancelled.")
-                    Toast.makeText(this,
-                        C.TOAST_USER_INTERACTION_CANCELLED_TEXT, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        C.TOAST_USER_INTERACTION_CANCELLED_TEXT, Toast.LENGTH_SHORT
+                    ).show()
                 }
                 grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
                     // Permission was granted.
                     Log.i(TAG, "Permission was granted")
-                    Toast.makeText(this,
-                        C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        C.TOAST_PERMISSION_GRANTED_TEXT, Toast.LENGTH_SHORT
+                    ).show()
                     isPermissionsGranted = true
                     if (::mMap.isInitialized) mMap.isMyLocationEnabled = true
                 }
                 else -> {
                     // Permission denied.
-                    Snackbar.make(findViewById(R.id.activity_main),
-                        C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE)
-                            .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
-                                // Build intent that displays the App settings screen.
-                                val intent = Intent()
-                                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                                val uri: Uri = Uri.fromParts(
-                                        "package",
-                                    BuildConfig.APPLICATION_ID, null
-                                )
-                                intent.data = uri
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                            }
-                            .show()
+                    Snackbar.make(
+                        findViewById(R.id.activity_main),
+                        C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
+                            // Build intent that displays the App settings screen.
+                            val intent = Intent()
+                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            val uri: Uri = Uri.fromParts(
+                                "package",
+                                BuildConfig.APPLICATION_ID, null
+                            )
+                            intent.data = uri
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
+                        }
+                        .show()
                 }
             }
         }
@@ -641,6 +660,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val rabbitName = intent.getStringExtra(C.TRACK_SET_RABBIT_NAME) ?: ReplaySpinnerItems.NONE
             val trackId = intent.getLongExtra(C.TRACK_SET_RABBIT_VALUE, -1L)
 
+            if (rabbitName == ReplaySpinnerItems.NONE) {
+                rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
+            }
+
             if (rabbits.containsKey(rabbitName) && rabbits[rabbitName] != trackId) {
                 syncMapData()
             }
@@ -676,7 +699,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA) ?: return
 
-            syncData.track.forEachIndexed{ i, trackPoint ->
+            syncData.track.forEachIndexed { i, trackPoint ->
                 updateLocation(trackPoint, !syncData.pauses.contains(i))
             }
 
@@ -734,8 +757,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private fun setUpSpinners() {
         // Create an ArrayAdapters
-        val displayOptionAdapter = ArrayAdapter(this,
-            R.layout.maps_spinner_item, DisplayMode.OPTIONS)
+        val displayOptionAdapter = ArrayAdapter(
+            this,
+            R.layout.maps_spinner_item, DisplayMode.OPTIONS
+        )
         spinnerDisplayMode.adapter = displayOptionAdapter
         spinnerDisplayMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -746,8 +771,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val compassOptionAdapter = ArrayAdapter(this,
-            R.layout.maps_spinner_item, CompassMode.OPTIONS)
+        val compassOptionAdapter = ArrayAdapter(
+            this,
+            R.layout.maps_spinner_item, CompassMode.OPTIONS
+        )
         spinnerCompassMode.adapter = compassOptionAdapter
         spinnerCompassMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -761,10 +788,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     CompassMode.NUMERIC -> {
                         imageVieWCompass.visibility = View.INVISIBLE
                         val animation = RotateAnimation(
-                                180f,
-                                0f,
-                                RELATIVE_TO_SELF, 0.5f,
-                                RELATIVE_TO_SELF, 0.5f
+                            180f,
+                            0f,
+                            RELATIVE_TO_SELF, 0.5f,
+                            RELATIVE_TO_SELF, 0.5f
                         )
                         animation.fillAfter = true
                         animation.duration = 1000
@@ -782,8 +809,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val rotationOptionAdapter = ArrayAdapter(this,
-            R.layout.maps_spinner_item, RotationMode.OPTIONS)
+        val rotationOptionAdapter = ArrayAdapter(
+            this,
+            R.layout.maps_spinner_item, RotationMode.OPTIONS
+        )
         spinnerRotationMode.adapter = rotationOptionAdapter
         spinnerRotationMode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -793,6 +822,41 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    private fun drawRabbits() {
+        rabbits.forEach { rabbit ->
+            val lastRabbitLoc = rabbitsLastLocations[rabbit.key]
+
+            val pointsToAdd = databaseHelper.readTrackLocations(
+                rabbit.value,
+                lastRabbitLoc?.elapsedTimestamp ?: 0L,
+                Long.MAX_VALUE //lastLocation?.elapsedTimestamp ?: 0L
+            ) // TODO: calculate relative time
+            var lastLoc: LatLng? = null
+
+            if (lastRabbitLoc != null) {
+                lastLoc = LatLng(lastRabbitLoc.latitude, lastRabbitLoc.longitude)
+            }
+
+            val color = ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt()
+
+            pointsToAdd.forEach { p ->
+                val location = LatLng(p.latitude, p.longitude)
+                if (lastLoc != null) {
+                    mMap.addPolyline(
+                        PolylineOptions()
+                            .add(lastLoc, location)
+                            .width(5f)
+                            .color(color)
+                    )
+                }
+                lastLoc = location
+            }
+            if (pointsToAdd.isNotEmpty()) {
+                lastRabbitLocations[rabbit.key] = pointsToAdd.last()
+            }
         }
     }
 }

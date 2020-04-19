@@ -56,7 +56,7 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
-                trackImage.track = databaseHelper.readTrackLocations(track.trackId)
+                trackImage.track = databaseHelper.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
                 deleteButton.setOnClickListener {
