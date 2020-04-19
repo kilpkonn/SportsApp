@@ -48,11 +48,20 @@ class HistoryActivity : AppCompatActivity() {
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
                 trackImage.track = databaseHelper.readTrackLocations(track.trackId)
 
+                val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
+                deleteButton.setOnClickListener {
+                    // Todo: ask confirmation
+                    databaseHelper.deleteTrack(track.trackId)
+                    linearLayoutScrollContent.removeView(trackView)
+                }
+
+                val renameButton = trackView.findViewById<Button>(R.id.btn_rename)
+                // TODO: rename
+
                 val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
                 setUpReplaySpinner(replaySpinner)
 
                 val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
-
                 trackView.setOnClickListener {
                     if (optionsView.visibility == View.GONE) {
                         optionsView.visibility = View.VISIBLE
