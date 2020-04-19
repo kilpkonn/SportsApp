@@ -3,6 +3,7 @@ package ee.taltech.iti0213.sportsapp.activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
@@ -23,6 +24,8 @@ import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
 class HistoryActivity : AppCompatActivity() {
 
     companion object {
+        private const val BUNDLE_SELECTED_REPLAYS = "selected_replays"
+
         private const val ALERT_DELETE_TITLE = "Delete track?"
         private const val ALERT_DELETE_TEXT = "Do you want to permanently delete track?"
         private const val ALERT_DELETE_CANCEL_TEXT = "Cancel"
@@ -30,6 +33,8 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private val databaseHelper: DatabaseHelper = DatabaseHelper(this)
+
+    private var selectedItems = hashMapOf<Long, Int>()
 
     private lateinit var flingDetector: FlingDetector
 
@@ -39,6 +44,8 @@ class HistoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
+
+        selectedItems = savedInstanceState?.getSerializable(BUNDLE_SELECTED_REPLAYS) as? HashMap<Long, Int> ?: hashMapOf()
 
         // scrollViewHistory = findViewById(R.id.scroll_history)
         linearLayoutScrollContent = findViewById(R.id.linear_scroll)
@@ -86,8 +93,8 @@ class HistoryActivity : AppCompatActivity() {
         flingDetector.onFlingRight = Runnable { onFlingRight() }
     }
 
-    override fun finish() {
-        super.finish()
+    override fun onBackPressed() {
+        super.onBackPressed()
         overridePendingTransition(
             R.anim.slide_in_from_left,
             R.anim.slide_out_to_right
@@ -99,6 +106,16 @@ class HistoryActivity : AppCompatActivity() {
         databaseHelper.close()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(BUNDLE_SELECTED_REPLAYS, selectedItems)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        selectedItems = savedInstanceState.getSerializable(BUNDLE_SELECTED_REPLAYS) as? HashMap<Long, Int> ?: hashMapOf()
+    }
+
     // ============================= FLING DETECTOR CALLBACKS ==========================
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -107,9 +124,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     fun onFlingRight() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAfterTransition();
-        } else finish()
+        moveTaskToBack(false)
     }
 
     // ================================= HELPER FUNCTION =================================
@@ -118,8 +133,10 @@ class HistoryActivity : AppCompatActivity() {
         val displayOptionAdapter = HistorySpinnerAdapter(this)
 
         spinner.adapter = displayOptionAdapter
+        spinner.setSelection(selectedItems[track.trackId] ?: 0)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedItems[track.trackId] = position
                 val intent = Intent(C.TRACK_SET_RABBIT)
                 intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)

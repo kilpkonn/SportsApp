@@ -99,7 +99,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var trackColor = TRACK_COLOR_TRACKING
     private var rabbits = hashMapOf<String, Long>()
-    private var rabbitsLastLocations = hashMapOf<String, TrackLocation>()
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -400,7 +399,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         rotationMode = savedInstanceState.getString(BUNDLE_ROTATION_MODE) ?: RotationMode.NORTH_UP
         locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
         isTracking = savedInstanceState.getBoolean(BUNDLE_TRACK_ACTIVE)
-        rabbits = savedInstanceState.getSerializable(BUNDLE_RABBITS) as HashMap<String, Long> ?: hashMapOf()
+        rabbits = savedInstanceState.getSerializable(BUNDLE_RABBITS) as HashMap<String, Long>
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
@@ -667,7 +666,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             if (rabbits.containsKey(rabbitName) && rabbits[rabbitName] != trackId) {
                 syncMapData()
             }
-            rabbits[rabbitName] = trackId
+            if (rabbitName != ReplaySpinnerItems.NONE) {
+                rabbits[rabbitName] = trackId
+            }
         }
 
         private fun onTrackReset(intent: Intent) {
@@ -752,6 +753,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         lastLocation = null
         mMap.clear()
         wpMarkers.clear()
+        lastRabbitLocations.clear()
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
@@ -826,8 +828,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun drawRabbits() {
-        rabbits.forEach { rabbit ->
-            val lastRabbitLoc = rabbitsLastLocations[rabbit.key]
+        rabbits.filter { r -> r.key != ReplaySpinnerItems.NONE }
+            .forEach { rabbit ->
+            val lastRabbitLoc = lastRabbitLocations[rabbit.key]
 
             val pointsToAdd = databaseHelper.readTrackLocations(
                 rabbit.value,

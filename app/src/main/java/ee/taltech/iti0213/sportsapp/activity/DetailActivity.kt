@@ -140,8 +140,8 @@ class DetailActivity : AppCompatActivity() {
         super.onRestart()
     }
 
-    override fun finish() {
-        super.finish()
+    override fun onBackPressed() {
+        super.onBackPressed()
         overridePendingTransition(
             R.anim.slide_in_from_top,
             R.anim.slide_out_to_bottom
@@ -156,9 +156,7 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun onFlingDown() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAfterTransition();
-        } else finish()
+        moveTaskToBack(false)
     }
 
     private fun onFlingLeft() {
