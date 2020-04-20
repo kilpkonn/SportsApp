@@ -195,7 +195,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <Button
             android:id="@+id/btn_delete"

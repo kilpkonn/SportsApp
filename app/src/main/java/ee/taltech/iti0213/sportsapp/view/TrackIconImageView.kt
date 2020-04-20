@@ -16,6 +16,7 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
         const val PADDING = 0.05f
     }
 
+    var color: Int = Color.RED
     var track: List<TrackLocation>? = null
 
     override fun onDrawForeground(canvas: Canvas?) {
@@ -33,7 +34,7 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
         val lngDelta = maxLng - minLng
 
         val paint = Paint()
-        paint.color = Color.RED
+        paint.color = color
 
         val paddedWidth = width * (1 - PADDING * 2)
 

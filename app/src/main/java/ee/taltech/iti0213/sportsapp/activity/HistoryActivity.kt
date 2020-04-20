@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -74,7 +75,7 @@ class HistoryActivity : AppCompatActivity() {
                 // TODO: rename
 
                 val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
-                setUpReplaySpinner(replaySpinner, track)
+                setUpReplaySpinner(replaySpinner, track, trackImage)
 
                 val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
                 trackView.setOnClickListener {
@@ -129,7 +130,7 @@ class HistoryActivity : AppCompatActivity() {
 
     // ================================= HELPER FUNCTION =================================
 
-    private fun setUpReplaySpinner(spinner: Spinner, track: TrackSummary) {
+    private fun setUpReplaySpinner(spinner: Spinner, track: TrackSummary, trackIcon: TrackIconImageView) {
         val displayOptionAdapter = HistorySpinnerAdapter(this)
 
         spinner.adapter = displayOptionAdapter
@@ -141,6 +142,12 @@ class HistoryActivity : AppCompatActivity() {
                 intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
                 intent.putExtra(C.TRACK_SET_RABBIT_START_TIME, track.startTimestamp)
+                if (ReplaySpinnerItems.OPTIONS[position] != ReplaySpinnerItems.NONE) {
+                    trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
+                } else {
+                    trackIcon.color = Color.RED
+                }
+                trackIcon.invalidate()
                 LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
             }
 
