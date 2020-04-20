@@ -9,9 +9,10 @@ import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
+import java.util.concurrent.atomic.AtomicInteger
 
 
-class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "SportsApp"
@@ -69,6 +70,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val KEY_WAY_POINT_LONGITUDE = "longitude"
         const val KEY_WAY_POINT_ADDED_TIMESTAMP = "added_timestamp"
         const val KEY_WAY_POINT_REMOVED_TIMESTAMP = "removed_timestamp"
+
+        private var instance: DatabaseHelper? = null
+        private var instanceCount: AtomicInteger = AtomicInteger(0)
+
+        @Synchronized
+        fun getInstance(context: Context): DatabaseHelper {
+            if (instance == null) {
+                instance = DatabaseHelper(context)
+            }
+            instanceCount.incrementAndGet()
+            return instance!!
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -138,5 +151,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         TODO("Not yet implemented")
+    }
+
+    override fun close() {
+        instanceCount.decrementAndGet()
+        if (instanceCount.get() <= 0) {
+            super.close()
+        }
     }
 }

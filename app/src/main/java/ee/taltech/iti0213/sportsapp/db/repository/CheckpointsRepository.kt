@@ -13,7 +13,7 @@ class CheckpointsRepository private constructor(context: Context): IRepository {
         }
     }
 
-    private val databaseHelper: DatabaseHelper = DatabaseHelper(context)
+    private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun saveCheckpointToTrack(checkpoints: List<Checkpoint>, trackId: Long) {
         databaseHelper.writableDatabase.beginTransaction()

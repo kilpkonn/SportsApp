@@ -14,8 +14,7 @@ class TrackSummaryRepository private constructor(context: Context): IRepository 
         }
     }
 
-    private val databaseHelper: DatabaseHelper =
-        DatabaseHelper(context)
+    private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
 
     fun saveTrack(track: Track): Long {

@@ -13,7 +13,7 @@ class WayPointsRepository private constructor(context: Context): IRepository {
         }
     }
 
-    private val databaseHelper: DatabaseHelper = DatabaseHelper(context)
+    private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun saveWayPointToTrack(wayPoints: List<WayPoint>, trackId: Long) {
         databaseHelper.writableDatabase.beginTransaction()

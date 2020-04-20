@@ -13,7 +13,7 @@ class TrackLocationsRepository private constructor(context: Context): IRepositor
         }
     }
 
-    private val databaseHelper: DatabaseHelper = DatabaseHelper(context)
+    private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun saveLocationToTrack(locations: List<TrackLocation>, trackId: Long) {
         databaseHelper.writableDatabase.beginTransaction()
