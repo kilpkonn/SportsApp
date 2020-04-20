@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.provider.BaseColumns
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
@@ -23,7 +24,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val TABLE_WAY_POINTS = "way_points"
 
         // ---------------------------------- Common Columns names ---------------------------
-        private const val KEY_ID = "id"
+        private const val KEY_ID = BaseColumns._ID
         private const val KEY_TRACK_ID = "track_id"
 
         // ------------------------------- Tracks table column names ----------------------------
@@ -37,6 +38,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val KEY_TRACK_DRIFT = "drift"
         private const val KEY_TRACK_ELEVATION_GAINED = "elevation_gained"
         private const val KEY_TRACK_MAX_SPEED = "max_speed"
+        private const val KEY_TRACK_MIN_SPEED = "min_speed"
 
         // ------------------------------ Locations table column names ---------------------------
         private const val KEY_LOCATION_NUMBER = "nr"
@@ -80,7 +82,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 + KEY_TRACK_DISTANCE + " REAL NOT NULL,"
                 + KEY_TRACK_DRIFT + " REAL NOT NULL,"
                 + KEY_TRACK_ELEVATION_GAINED + " REAL NOT NULL,"
-                + KEY_TRACK_MAX_SPEED + " REAL NOT NULL" + ")")
+                + KEY_TRACK_MAX_SPEED + " REAL NOT NULL,"
+                + KEY_TRACK_MIN_SPEED + " REAL NOT NULL"+ ")")
 
         db?.execSQL(createTracksTable)
 

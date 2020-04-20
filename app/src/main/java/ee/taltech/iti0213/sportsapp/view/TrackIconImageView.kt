@@ -35,6 +35,7 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
 
         val paint = Paint()
         paint.color = color
+        paint.strokeWidth = 3f
 
         val paddedWidth = width * (1 - PADDING * 2)
 

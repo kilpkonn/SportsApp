@@ -586,6 +586,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun startLocationService(force: Boolean = false) {
+        if (!isPermissionsGranted) return
         if (locationServiceActive && !force) return
         if (Build.VERSION.SDK_INT >= 26) {
             // starting the FOREGROUND service
