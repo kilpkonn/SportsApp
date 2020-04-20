@@ -26,6 +26,7 @@ class Track {
     var lastAltitude = 0.0
 
     var maxSpeed = 0.0
+    var minSpeed = 0.0
 
     var lastLocation: TrackLocation? = null
 
@@ -64,6 +65,9 @@ class Track {
                 // No funny stuff with pauses
                 if (1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) > maxSpeed) {
                     maxSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000
+                }
+                if (1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) < minSpeed) {
+                    minSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000
                 }
             }
         }

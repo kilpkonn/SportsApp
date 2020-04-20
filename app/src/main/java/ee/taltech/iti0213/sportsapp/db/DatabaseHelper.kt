@@ -151,6 +151,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         trackValues.put(KEY_TRACK_DRIFT, track.getDrift())
         trackValues.put(KEY_TRACK_ELEVATION_GAINED, track.elevationGained)
         trackValues.put(KEY_TRACK_MAX_SPEED, track.maxSpeed)
+        trackValues.put(KEY_TRACK_MIN_SPEED, track.minSpeed)
 
         this.writableDatabase.beginTransaction()
         val id = this.writableDatabase.insert(TABLE_TRACKS, null, trackValues)
@@ -239,7 +240,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                         cursor.getDouble(6),
                         cursor.getDouble(7),
                         cursor.getDouble(8),
-                        cursor.getDouble(9)
+                        cursor.getDouble(9),
+                        cursor.getDouble(10)
                     )
                     trackList.add(trackSummary)
                 } while (cursor.moveToNext())

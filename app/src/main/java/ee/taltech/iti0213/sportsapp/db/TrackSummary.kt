@@ -10,7 +10,8 @@ class TrackSummary(
     val distance: Double,
     val drift: Double,
     val elevationGained: Double,
-    val maxSpeed: Double
+    val maxSpeed: Double,
+    val minSpeed: Double
 ) {
 
 }
