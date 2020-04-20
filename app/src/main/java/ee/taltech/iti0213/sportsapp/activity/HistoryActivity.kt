@@ -18,6 +18,8 @@ import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.TrackSummary
+import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
@@ -33,7 +35,8 @@ class HistoryActivity : AppCompatActivity() {
         private const val ALERT_DELETE_DELETE_TEXT = "Delete"
     }
 
-    private val databaseHelper: DatabaseHelper = DatabaseHelper(this)
+    private val trackSummaryRepository = TrackSummaryRepository.open(this)
+    private val trackLocationsRepository = TrackLocationsRepository.open(this)
 
     private var selectedItems = hashMapOf<Long, Int>()
 
@@ -51,7 +54,7 @@ class HistoryActivity : AppCompatActivity() {
         // scrollViewHistory = findViewById(R.id.scroll_history)
         linearLayoutScrollContent = findViewById(R.id.linear_scroll)
 
-        databaseHelper.readTracksSummary(0, 999).forEach { track ->
+        trackSummaryRepository.readTracksSummary(0, 999).forEach { track ->
             run {
                 val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent, false)
                 trackView.findViewById<TextView>(R.id.track_name).text = track.name
@@ -64,7 +67,7 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
-                trackImage.track = databaseHelper.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)
+                trackImage.track = trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
                 deleteButton.setOnClickListener {
@@ -104,7 +107,8 @@ class HistoryActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        databaseHelper.close()
+        trackSummaryRepository.close()
+        trackLocationsRepository.close()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -161,7 +165,7 @@ class HistoryActivity : AppCompatActivity() {
             .setMessage(ALERT_DELETE_TEXT)
             .setPositiveButton(ALERT_DELETE_DELETE_TEXT) { _, _ ->
                 run {
-                    databaseHelper.deleteTrack(track.trackId)
+                    trackSummaryRepository.deleteTrack(track.trackId)
                     linearLayoutScrollContent.removeView(trackView)
                 }
             }

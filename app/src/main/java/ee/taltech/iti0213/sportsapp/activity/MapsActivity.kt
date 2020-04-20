@@ -49,6 +49,7 @@ import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -79,7 +80,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
-    private val databaseHelper = DatabaseHelper(this)
+    private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
     private val trackStartTimeOffsets = hashMapOf<Long, Long>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
@@ -370,8 +371,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        trackLocationsRepository.close()
     }
 
     override fun onRestart() {
@@ -840,7 +842,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             .forEach { rabbit ->
             val lastRabbitLoc = lastRabbitLocations[rabbit.key]
 
-            val pointsToAdd = databaseHelper.readTrackLocations(
+            val pointsToAdd = trackLocationsRepository.readTrackLocations(
                 rabbit.value,
                 lastRabbitLoc?.elapsedTimestamp ?: trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime,
                 (trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE

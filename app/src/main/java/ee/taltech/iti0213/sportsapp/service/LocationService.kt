@@ -19,6 +19,10 @@ import com.google.android.gms.location.*
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.repository.CheckpointsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
+import ee.taltech.iti0213.sportsapp.db.repository.WayPointsRepository
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
@@ -40,7 +44,10 @@ class LocationService : Service() {
 
     private val mLocationRequest: LocationRequest = LocationRequest()
 
-    private val databaseHelper: DatabaseHelper = DatabaseHelper(this)
+    private val trackSummaryRepository = TrackSummaryRepository.open(this)
+    private val trackLocationsRepository = TrackLocationsRepository.open(this)
+    private val checkpointsRepository = CheckpointsRepository.open(this)
+    private val wayPointsRepository = WayPointsRepository.open(this)
 
     private var mLocationCallback: LocationCallback? = null
 
@@ -156,7 +163,10 @@ class LocationService : Service() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
 
-        databaseHelper.close()
+        trackSummaryRepository.close()
+        trackLocationsRepository.close()
+        checkpointsRepository.close()
+        wayPointsRepository.close()
 
         //stop location updates
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
@@ -336,10 +346,10 @@ class LocationService : Service() {
 
         private fun onTrackSave() {
             if (track == null) return
-            val trackId = databaseHelper.saveTrack(track!!)
-            databaseHelper.saveLocationToTrack(track!!.track, trackId)
-            databaseHelper.saveCheckpointToTrack(track!!.checkpoints, trackId)
-            databaseHelper.saveWayPointToTrack(track!!.waypoints, trackId)
+            val trackId = trackSummaryRepository.saveTrack(track!!)
+            trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
+            checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
+            wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
             track = Track()
             isAddingToTrack = false
             showNotification(track!!.getTrackData())
