@@ -54,6 +54,13 @@ class HistoryActivity : AppCompatActivity() {
         // scrollViewHistory = findViewById(R.id.scroll_history)
         linearLayoutScrollContent = findViewById(R.id.linear_scroll)
 
+        flingDetector = FlingDetector(this)
+        flingDetector.onFlingRight = Runnable { onFlingRight() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        linearLayoutScrollContent.removeAllViews()
         trackSummaryRepository.readTracksSummary(0, 999).forEach { track ->
             run {
                 val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent, false)
@@ -92,9 +99,6 @@ class HistoryActivity : AppCompatActivity() {
                 linearLayoutScrollContent.addView(trackView)
             }
         }
-
-        flingDetector = FlingDetector(this)
-        flingDetector.onFlingRight = Runnable { onFlingRight() }
     }
 
     override fun onBackPressed() {
@@ -145,7 +149,6 @@ class HistoryActivity : AppCompatActivity() {
                 val intent = Intent(C.TRACK_SET_RABBIT)
                 intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
-                intent.putExtra(C.TRACK_SET_RABBIT_START_TIME, track.startTimestamp)
                 if (ReplaySpinnerItems.OPTIONS[position] != ReplaySpinnerItems.NONE) {
                     trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
                 } else {

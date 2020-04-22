@@ -6,7 +6,7 @@ import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.track.Track
 
-class TrackSummaryRepository private constructor(context: Context): IRepository {
+class TrackSummaryRepository private constructor(context: Context) : IRepository {
 
     companion object {
         fun open(context: Context): TrackSummaryRepository {
@@ -35,6 +35,36 @@ class TrackSummaryRepository private constructor(context: Context): IRepository 
         databaseHelper.writableDatabase.setTransactionSuccessful()
         databaseHelper.writableDatabase.endTransaction()
         return id
+    }
+
+    fun readTrackSummary(id: Long): TrackSummary {
+
+        val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
+                + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
+                + " LIMIT 1 ")
+
+        val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)
+        var track: TrackSummary? = null
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                track = TrackSummary(
+                    cursor.getLong(0),
+                    cursor.getString(1),
+                    cursor.getInt(2),
+                    cursor.getLong(3),
+                    cursor.getLong(4),
+                    cursor.getLong(5),
+                    cursor.getDouble(6),
+                    cursor.getDouble(7),
+                    cursor.getDouble(8),
+                    cursor.getDouble(9),
+                    cursor.getDouble(10)
+                )
+            }
+            cursor.close()
+        }
+        return track!!
     }
 
     fun readTracksSummary(startId: Long, endId: Long): List<TrackSummary> {
@@ -72,7 +102,11 @@ class TrackSummaryRepository private constructor(context: Context): IRepository 
 
     fun deleteTrack(trackId: Long) {
         databaseHelper.writableDatabase.beginTransaction()
-        databaseHelper.writableDatabase.delete(DatabaseHelper.TABLE_TRACKS, "${DatabaseHelper.KEY_ID} = ?", arrayOf(trackId.toString()))
+        databaseHelper.writableDatabase.delete(
+            DatabaseHelper.TABLE_TRACKS,
+            "${DatabaseHelper.KEY_ID} = ?",
+            arrayOf(trackId.toString())
+        )
         databaseHelper.writableDatabase.setTransactionSuccessful()
         databaseHelper.writableDatabase.endTransaction()
     }

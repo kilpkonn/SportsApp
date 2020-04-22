@@ -48,8 +48,9 @@ import ee.taltech.iti0213.sportsapp.component.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
-import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -80,9 +81,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
+    private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
-    private val trackStartTimeOffsets = hashMapOf<Long, Long>()
+    private val rabbitTracks = hashMapOf<Long, TrackSummary>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
 
     private var locationServiceActive = false
@@ -373,6 +375,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onDestroy")
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        trackSummaryRepository.close()
         trackLocationsRepository.close()
     }
 
@@ -663,9 +666,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             Log.d(TAG, "On set rabbit.")
             val rabbitName = intent.getStringExtra(C.TRACK_SET_RABBIT_NAME) ?: ReplaySpinnerItems.NONE
             val trackId = intent.getLongExtra(C.TRACK_SET_RABBIT_VALUE, -1L)
-            val rabbitStart = intent.getLongExtra(C.TRACK_SET_RABBIT_START_TIME, 0L)
 
-            trackStartTimeOffsets[trackId] = rabbitStart
+            rabbitTracks[trackId] = trackSummaryRepository.readTrackSummary(trackId)
 
             if (rabbitName == ReplaySpinnerItems.NONE) {
                 rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
@@ -844,8 +846,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val pointsToAdd = trackLocationsRepository.readTrackLocations(
                 rabbit.value,
-                lastRabbitLoc?.elapsedTimestamp ?: trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime,
-                (trackStartTimeOffsets[rabbit.value] ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
+                lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime,
+                (rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
             )
 
             var lastLoc: LatLng? = null
