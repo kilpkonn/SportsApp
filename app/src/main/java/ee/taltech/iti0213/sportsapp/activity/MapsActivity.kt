@@ -58,6 +58,8 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import java.lang.Math.toDegrees
+import kotlin.math.min
+import kotlin.math.pow
 
 
 class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallback {
@@ -77,6 +79,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_GPS_ACTIVE = "gps_active"
         private const val BUNDLE_TRACK_ACTIVE = "track_active"
         private const val BUNDLE_RABBITS = "rabbits"
+
+        private val argbEvaluator = ArgbEvaluator()
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
@@ -860,12 +864,19 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 pointsToAdd.forEach { p ->
                     val location = LatLng(p.latitude, p.longitude)
                     if (lastLoc != null) {
-                        val relSpeed = TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
-                                ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp ?: p.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) /
-                                (rabbitTracks[rabbit.value]?.maxSpeed ?: 1.0)
+                        val relSpeed = min(
+                            1.0, TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
+                                    ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp
+                                        ?: p.elapsedTimestamp) + 1) / 1_000_000_000 / 3.6) /
+                                    (rabbitTracks[rabbit.value]?.maxSpeed ?: 1.0)
+                        )
 
                         Log.d(TAG, "Relspeed $relSpeed")
-                        val color = ArgbEvaluator().evaluate(relSpeed.toFloat(), ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt(), ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()) as Int
+                        val color = argbEvaluator.evaluate(
+                            relSpeed.toFloat().pow(2),
+                            ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt(),
+                            ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()
+                        ) as Int
 
                         mMap.addPolyline(
                             PolylineOptions()

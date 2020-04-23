@@ -1,23 +1,28 @@
 package ee.taltech.iti0213.sportsapp.view
 
+import android.animation.ArgbEvaluator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.*
 
 class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageView(context, attrs) {
 
     companion object {
         const val PADDING = 0.05f
+
+        val argbEvaluator = ArgbEvaluator()
     }
 
     var color: Int = Color.RED
+    var colorMax: Int = Color.RED
     var track: List<TrackLocation>? = null
+    var maxSpeed = 99.99
 
     override fun onDrawForeground(canvas: Canvas?) {
         super.onDrawForeground(canvas)
@@ -41,10 +46,15 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
 
         var last = track?.first()
         for (location in track!!) {
+            val relSpeed = min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
+                    ((location.elapsedTimestamp - (last.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) / maxSpeed)
+
+            paint.color = argbEvaluator.evaluate(relSpeed.pow(2.0).toFloat(), color, colorMax) as Int
+
             canvas?.drawLine(
                 width * PADDING + ((location.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
                 height * (1 - PADDING) - ((location.latitude - minLat) / latDelta * paddedWidth).toFloat(),
-                width * PADDING + ((last!!.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
+                width * PADDING + ((last.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
                 height * (1 - PADDING) - ((last.latitude - minLat) / latDelta * paddedWidth).toFloat(),
                 paint
             )

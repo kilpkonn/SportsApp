@@ -75,6 +75,7 @@ class HistoryActivity : AppCompatActivity() {
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
                 trackImage.track = trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)
+                trackImage.maxSpeed = track.maxSpeed
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
                 deleteButton.setOnClickListener {
@@ -151,8 +152,10 @@ class HistoryActivity : AppCompatActivity() {
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
                 if (ReplaySpinnerItems.OPTIONS[position] != ReplaySpinnerItems.NONE) {
                     trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
+                    trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
                 } else {
                     trackIcon.color = Color.RED
+                    trackIcon.colorMax = Color.WHITE
                 }
                 trackIcon.invalidate()
                 LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
