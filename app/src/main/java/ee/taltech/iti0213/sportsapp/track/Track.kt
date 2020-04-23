@@ -63,11 +63,11 @@ class Track {
                 movingTime += location.elapsedTimestamp - currentTime
 
                 // No funny stuff with pauses
-                if (1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) > maxSpeed) {
-                    maxSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000
+                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) > maxSpeed) {
+                    maxSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000 * 3.6
                 }
-                if (1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) < minSpeed) {
-                    minSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000
+                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) < minSpeed) {
+                    minSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000 * 3.6
                 }
             }
         }

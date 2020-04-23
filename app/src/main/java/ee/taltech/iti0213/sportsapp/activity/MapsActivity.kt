@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.Manifest
+import android.animation.ArgbEvaluator
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -842,37 +843,42 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun drawRabbits() {
         rabbits.filter { r -> r.key != ReplaySpinnerItems.NONE }
             .forEach { rabbit ->
-            val lastRabbitLoc = lastRabbitLocations[rabbit.key]
+                val lastRabbitLoc = lastRabbitLocations[rabbit.key]
 
-            val pointsToAdd = trackLocationsRepository.readTrackLocations(
-                rabbit.value,
-                lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime,
-                (rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
-            )
+                val pointsToAdd = trackLocationsRepository.readTrackLocations(
+                    rabbit.value,
+                    lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime,
+                    (rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
+                )
 
-            var lastLoc: LatLng? = null
+                var lastLoc: LatLng? = null
 
-            if (lastRabbitLoc != null) {
-                lastLoc = LatLng(lastRabbitLoc.latitude, lastRabbitLoc.longitude)
-            }
-
-            val color = ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt()
-
-            pointsToAdd.forEach { p ->
-                val location = LatLng(p.latitude, p.longitude)
-                if (lastLoc != null) {
-                    mMap.addPolyline(
-                        PolylineOptions()
-                            .add(lastLoc, location)
-                            .width(5f)
-                            .color(color)
-                    )
+                if (lastRabbitLoc != null) {
+                    lastLoc = LatLng(lastRabbitLoc.latitude, lastRabbitLoc.longitude)
                 }
-                lastLoc = location
+
+                pointsToAdd.forEach { p ->
+                    val location = LatLng(p.latitude, p.longitude)
+                    if (lastLoc != null) {
+                        val relSpeed = TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
+                                ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp ?: p.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) /
+                                (rabbitTracks[rabbit.value]?.maxSpeed ?: 1.0)
+
+                        Log.d(TAG, "Relspeed $relSpeed")
+                        val color = ArgbEvaluator().evaluate(relSpeed.toFloat(), ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt(), ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()) as Int
+
+                        mMap.addPolyline(
+                            PolylineOptions()
+                                .add(lastLoc, location)
+                                .width(5f)
+                                .color(color)
+                        )
+                    }
+                    lastLoc = location
+                }
+                if (pointsToAdd.isNotEmpty()) {
+                    lastRabbitLocations[rabbit.key] = pointsToAdd.last()
+                }
             }
-            if (pointsToAdd.isNotEmpty()) {
-                lastRabbitLocations[rabbit.key] = pointsToAdd.last()
-            }
-        }
     }
 }
