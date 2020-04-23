@@ -79,6 +79,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_GPS_ACTIVE = "gps_active"
         private const val BUNDLE_TRACK_ACTIVE = "track_active"
         private const val BUNDLE_RABBITS = "rabbits"
+        private const val BUNDLE_RABBIT_TRACKS = "rabbit_tracks"
 
         private val argbEvaluator = ArgbEvaluator()
     }
@@ -89,7 +90,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
-    private val rabbitTracks = hashMapOf<Long, TrackSummary>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
 
     private var locationServiceActive = false
@@ -109,6 +109,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var trackColor = TRACK_COLOR_TRACKING
     private var rabbits = hashMapOf<String, Long>()
+    private var rabbitTracks = hashMapOf<Long, TrackSummary>()
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -399,6 +400,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putBoolean(BUNDLE_GPS_ACTIVE, locationServiceActive)
         outState.putBoolean(BUNDLE_TRACK_ACTIVE, isTracking)
         outState.putSerializable(BUNDLE_RABBITS, rabbits)
+        outState.putSerializable(BUNDLE_RABBIT_TRACKS, rabbitTracks)
         super.onSaveInstanceState(outState)
     }
 
@@ -412,6 +414,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         locationServiceActive = savedInstanceState.getBoolean(BUNDLE_GPS_ACTIVE)
         isTracking = savedInstanceState.getBoolean(BUNDLE_TRACK_ACTIVE)
         rabbits = savedInstanceState.getSerializable(BUNDLE_RABBITS) as HashMap<String, Long>
+        rabbitTracks = savedInstanceState.getSerializable(BUNDLE_RABBIT_TRACKS) as HashMap<Long, TrackSummary>
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
@@ -689,6 +692,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private fun onTrackReset(intent: Intent) {
             mMap.clear()
             wpMarkers.clear()
+            lastRabbitLocations.clear()
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
@@ -851,8 +855,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
                 val pointsToAdd = trackLocationsRepository.readTrackLocations(
                     rabbit.value,
-                    lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime,
-                    (rabbitTracks[rabbit.value]?.startTimestamp ?: lastUpdateTime) + elapsedRunningTime // Long.MAX_VALUE
+                    lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: 0L,
+                    (rabbitTracks[rabbit.value]?.startTimestamp ?: 0L) + elapsedRunningTime // Long.MAX_VALUE
                 )
 
                 var lastLoc: LatLng? = null
