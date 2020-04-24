@@ -852,7 +852,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun drawRabbits() {
         rabbits.filter { r -> r.key != ReplaySpinnerItems.NONE }
             .forEach { rabbit ->
-                val lastRabbitLoc = lastRabbitLocations[rabbit.key]
+                var lastRabbitLoc = lastRabbitLocations[rabbit.key]
 
                 val pointsToAdd = trackLocationsRepository.readTrackLocations(
                     rabbit.value,
@@ -872,7 +872,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         val relSpeed = min(
                             1.0, TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
                                     ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp
-                                        ?: p.elapsedTimestamp) + 1) / 1_000_000_000 / 3.6) /
+                                        ?: p.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6) /
                                     (rabbitTracks[rabbit.value]?.maxSpeed ?: 1.0)
                         )
 
@@ -890,6 +890,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                                 .color(color)
                         )
                     }
+                    lastRabbitLoc = p
                     lastLoc = location
                 }
                 if (pointsToAdd.isNotEmpty()) {
