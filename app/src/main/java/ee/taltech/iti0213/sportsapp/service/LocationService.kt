@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
+import android.os.Parcelable
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -122,7 +123,7 @@ class LocationService : Service() {
 
         // broadcast new location to UI
         val locationIntent = Intent(C.LOCATION_UPDATE_ACTION)
-        locationIntent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location))
+        locationIntent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location) as Parcelable)
         LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent)
         LocalBroadcastManager.getInstance(this).sendBroadcast(trackDataIntent)
 
@@ -224,7 +225,7 @@ class LocationService : Service() {
                 WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.elapsedTimestamp)
             intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
 
-            intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation)
+            intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation as Parcelable)
         }
 
         val notifyView = RemoteViews(packageName, R.layout.track_control)

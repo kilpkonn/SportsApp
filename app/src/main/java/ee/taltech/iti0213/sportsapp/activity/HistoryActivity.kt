@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.textfield.TextInputLayout
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
@@ -87,7 +88,7 @@ class HistoryActivity : AppCompatActivity() {
                 }
 
                 val renameButton = trackView.findViewById<Button>(R.id.btn_rename)
-                // TODO: rename
+                renameButton.setOnClickListener { onRenameClicked(track, trackView) }
 
                 val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
                 setUpReplaySpinner(replaySpinner, track, trackImage)
@@ -166,6 +167,13 @@ class HistoryActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+        if (ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0] != ReplaySpinnerItems.NONE) {
+            trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
+        } else {
+            trackIcon.color = Color.RED
+        }
+        trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
+        trackIcon.invalidate()
     }
 
     private fun onDeleteClicked(track: TrackSummary, trackView: View) {
@@ -180,6 +188,29 @@ class HistoryActivity : AppCompatActivity() {
             }
             .setNegativeButton(ALERT_DELETE_CANCEL_TEXT, null)
             .create()
+        alert.show()
+    }
+
+    private fun onRenameClicked(track: TrackSummary, trackView: View) {
+        val textInputLayout = TextInputLayout(this)
+        textInputLayout.setPadding(19, 0, 19, 0)
+        val input = EditText(this)
+        input.setTextColor(0xFFb8e7ff.toInt())
+        textInputLayout.addView(input)
+
+        val alert = AlertDialog.Builder(this, R.style.AppCompatAlertInfoDialogStyle)
+            .setTitle("Rename track")
+            .setView(textInputLayout)
+            .setPositiveButton("Rename") { dialog, _ ->
+                // do some thing with input.text
+                track.name = input.text.toString()
+                trackView.findViewById<TextView>(R.id.track_name).text = track.name
+                trackSummaryRepository.updateTrackName(track)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }.create()
+
         alert.show()
     }
 }

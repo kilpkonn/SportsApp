@@ -22,6 +22,7 @@ import android.hardware.SensorManager.SENSOR_DELAY_GAME
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
@@ -632,7 +633,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         addCP(latLng)
 
         val intent = Intent(C.TRACK_ACTION_ADD_CP)
-        intent.putExtra(C.TRACK_ACTION_ADD_CP_DATA, lastLocation)
+        intent.putExtra(C.TRACK_ACTION_ADD_CP_DATA, lastLocation as Parcelable)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 

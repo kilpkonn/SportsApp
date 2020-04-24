@@ -4,6 +4,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import java.io.Serializable
 import java.sql.Timestamp
 
 class TrackLocation(
@@ -14,7 +15,7 @@ class TrackLocation(
     val altitudeAccuracy: Float,
     val timestamp: Long,
     val elapsedTimestamp: Long
-) : Parcelable {
+) : Parcelable, Serializable {
 
     companion object CREATOR : Parcelable.Creator<TrackLocation> {
         override fun createFromParcel(parcel: Parcel): TrackLocation {

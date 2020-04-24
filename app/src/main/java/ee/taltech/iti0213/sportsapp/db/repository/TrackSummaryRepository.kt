@@ -37,6 +37,17 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         return id
     }
 
+    fun updateTrackName(track: TrackSummary) {
+        val contentValues = ContentValues()
+        contentValues.put(DatabaseHelper.KEY_TRACK_NAME, track.name)
+        databaseHelper.writableDatabase.update(
+            DatabaseHelper.TABLE_TRACKS,
+            contentValues,
+            "${DatabaseHelper.KEY_ID}=${track.trackId}",
+            null
+        )
+    }
+
     fun readTrackSummary(id: Long): TrackSummary {
 
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
