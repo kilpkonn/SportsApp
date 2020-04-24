@@ -20,7 +20,7 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
     }
 
     var color: Int = Color.RED
-    var colorMax: Int = Color.RED
+    var colorMax: Int = 0xFFff9e9e.toInt()
     var track: List<TrackLocation>? = null
     var maxSpeed = 99.99
 

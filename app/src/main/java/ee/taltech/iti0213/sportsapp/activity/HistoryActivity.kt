@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
@@ -21,6 +22,7 @@ import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
 
@@ -65,6 +67,8 @@ class HistoryActivity : AppCompatActivity() {
             run {
                 val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent, false)
                 trackView.findViewById<TextView>(R.id.track_name).text = track.name
+                trackView.findViewById<ImageView>(R.id.track_type_icon)
+                    .setImageResource(TrackTypeIcons.getIcon(TrackType.fromInt(track.type)!!))
                 trackView.findViewById<TextView>(R.id.distance).text = Converter.distToString(track.distance)
                 trackView.findViewById<TextView>(R.id.duration).text = Converter.longToHhMmSs(track.durationMoving)
                 trackView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(track.elevationGained)
@@ -152,11 +156,10 @@ class HistoryActivity : AppCompatActivity() {
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
                 if (ReplaySpinnerItems.OPTIONS[position] != ReplaySpinnerItems.NONE) {
                     trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
-                    trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
                 } else {
                     trackIcon.color = Color.RED
-                    trackIcon.colorMax = Color.WHITE
                 }
+                trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
                 trackIcon.invalidate()
                 LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
             }

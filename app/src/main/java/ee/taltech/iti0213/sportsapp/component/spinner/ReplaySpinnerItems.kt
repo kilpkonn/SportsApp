@@ -24,7 +24,7 @@ class ReplaySpinnerItems {
         )
 
         val COLORS_MAX_SPEED = hashMapOf(
-            NONE to 0xFFFFFFFF,
+            NONE to 0xFFff9e9e,
             BLUE to 0xFFc7d8ff,
             GREEN to 0xFFb8ffad,
             ORANGE to 0xFFffce47,
