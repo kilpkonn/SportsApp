@@ -1,21 +1,29 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.content.*
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
+import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
+import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
+import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
+import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
 
 class DetailActivity : AppCompatActivity() {
     companion object {
@@ -47,6 +55,7 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var txtViewDistance: TextView
     private lateinit var txtViewElevation: TextView
     private lateinit var txtViewCheckpoints: TextView
+    private lateinit var spinnerTrackType: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +73,8 @@ class DetailActivity : AppCompatActivity() {
         txtViewDistance = findViewById(R.id.total_distance)
         txtViewElevation = findViewById(R.id.avg_elevation)
         txtViewCheckpoints = findViewById(R.id.checkpoints_count)
+        spinnerTrackType = findViewById(R.id.spinner_track_type)
+        setUpTypeSpinner(spinnerTrackType)
 
         flingDetector.onFlingDown = Runnable { onFlingDown() }
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
@@ -196,5 +207,21 @@ class DetailActivity : AppCompatActivity() {
         val intent = Intent(C.TRACK_DETAIL_REQUEST)
         intent.putExtra(C.TRACK_DETAIL_REQUEST_DATA, keepBroadcasting)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    }
+
+    private fun setUpTypeSpinner(spinner: Spinner) {
+        val displayOptionAdapter = TrackTypeSpinnerAdapter(this)
+
+        spinner.adapter = displayOptionAdapter
+        spinner.setSelection(0)
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val intent = Intent(C.TRACK_SET_TYPE)
+                intent.putExtra(C.TRACK_SET_TYPE_DATA, position)
+                LocalBroadcastManager.getInstance(this@DetailActivity).sendBroadcast(intent)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 }

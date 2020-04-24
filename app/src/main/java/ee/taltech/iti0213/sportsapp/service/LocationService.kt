@@ -25,6 +25,7 @@ import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.db.repository.WayPointsRepository
 import ee.taltech.iti0213.sportsapp.track.Track
+import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
@@ -75,6 +76,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_SAVE)
         broadcastReceiverIntentFilter.addAction(C.TRACK_START)
         broadcastReceiverIntentFilter.addAction(C.TRACK_STOP)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SET_TYPE)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
@@ -335,6 +337,7 @@ class LocationService : Service() {
                     showNotification(track!!.getTrackData()) // <- This is somehow needed
                     stopForeground(false)
                 }
+                C.TRACK_SET_TYPE -> track?.type = TrackType.fromInt(intent.getIntExtra(C.TRACK_SET_TYPE_DATA, 0))!!
             }
         }
 

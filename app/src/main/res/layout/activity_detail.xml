@@ -21,21 +21,31 @@
 
     <include layout="@layout/detail_column_a"
         android:id="@+id/column_a"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/column_b"
         app:layout_constraintTop_toBottomOf="@id/duration"
-        app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
+        />
 
     <include layout="@layout/detail_column_b"
         android:id="@+id/column_b"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         app:layout_constraintStart_toEndOf="@id/column_a"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/duration"
-        app:layout_constraintBottom_toTopOf="@id/btn_reset"/>
+        />
+
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/spinner_track_type"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/column_a"
+        android:layout_margin="@dimen/padding_small"/>
 
     <Button
         android:id="@+id/btn_save"

@@ -12,6 +12,15 @@ class TrackTypeIcons {
             UNKNOWN, RUNNING, CYCLING
         )
 
+        fun getTrackType(string: String): TrackType {
+            return when(string) {
+                UNKNOWN -> TrackType.UNKNOWN
+                RUNNING -> TrackType.RUNNING
+                CYCLING -> TrackType.CYCLING
+                else -> TrackType.UNKNOWN
+            }
+        }
+
         fun getIcon(trackType: TrackType): Int {
             return when (trackType) {
                 TrackType.UNKNOWN -> R.drawable.ic_activity_24px
