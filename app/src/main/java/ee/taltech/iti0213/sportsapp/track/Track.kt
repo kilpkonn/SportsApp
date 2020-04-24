@@ -6,12 +6,13 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
+import ee.taltech.iti0213.sportsapp.util.TrackUtils
 import kotlin.math.max
 
 class Track {
 
-    var name: String = "Track" // TODO: Custom names
-    var type: TrackType = TrackType.UNKNOWN // TODO: Select type
+    var name: String = TrackUtils.generateNameIfNeeded("", TrackType.UNKNOWN)
+    var type: TrackType = TrackType.UNKNOWN
 
     val track = mutableListOf<TrackLocation>()
     val waypoints = mutableListOf<WayPoint>()
@@ -163,7 +164,7 @@ class Track {
     fun getDetailedTrackData(): DetailedTrackData {
         val avgElevation = track.map { p -> p.altitude }.filter { a -> a != 0.0 }.average()
         val drift = if (track.size > 1) TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble() else 0.0
-        return DetailedTrackData(getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
+        return DetailedTrackData(name, type.value, getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {

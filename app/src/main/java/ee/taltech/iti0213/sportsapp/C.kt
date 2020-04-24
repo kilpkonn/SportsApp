@@ -34,6 +34,7 @@ class C {
         const val TRACK_SET_RABBIT_VALUE = "ee.taltech.iti0213.sportsapp.rabbit.value"
 
         const val TRACK_SET_NAME = "ee.taltech.iti0213.sportsapp.track.set_name"
+        const val TRACK_SET_NAME_DATA = "ee.taltech.iti0213.sportsapp.track.set_name.data"
         const val TRACK_SET_TYPE = "ee.taltech.iti0213.sportsapp.track.set_type"
         const val TRACK_SET_TYPE_DATA = "ee.taltech.iti0213.sportsapp.track.set_type.data"
 

@@ -4,6 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class DetailedTrackData(
+    val name: String,
+    val type: Int,
     val duration: Long,
     val distance: Double,
     val elevationGained: Double,
@@ -12,6 +14,8 @@ class DetailedTrackData(
     val checkpointsCount: Int
 ): Parcelable {
     constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        parcel.readInt(),
         parcel.readLong(),
         parcel.readDouble(),
         parcel.readDouble(),
@@ -31,6 +35,8 @@ class DetailedTrackData(
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(name)
+        parcel.writeInt(type)
         parcel.writeLong(duration)
         parcel.writeDouble(distance)
         parcel.writeDouble(elevationGained)

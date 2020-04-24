@@ -1,29 +1,29 @@
 package ee.taltech.iti0213.sportsapp.activity
 
-import android.content.*
-import android.graphics.Color
-import android.os.Build
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.AdapterView
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.TextView
+import android.view.View.OnFocusChangeListener
+import android.view.Window
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
-import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
-import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
-import ee.taltech.iti0213.sportsapp.db.TrackSummary
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
-import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
+
 
 class DetailActivity : AppCompatActivity() {
     companion object {
@@ -38,10 +38,14 @@ class DetailActivity : AppCompatActivity() {
         private const val ALERT_SAVE_TEXT = "After saving current session will be cleared! Do you want to continue?"
         private const val ALERT_SAVE_CANCEL_TEXT = "Cancel"
         private const val ALERT_SAVE_RESET_TEXT = "Save"
+
+        private const val BUNDLE_TRACK_TYPE = "track_type"
     }
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
+
+    private var trackType = 0
 
     private lateinit var flingDetector: FlingDetector
 
@@ -56,9 +60,16 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var txtViewElevation: TextView
     private lateinit var txtViewCheckpoints: TextView
     private lateinit var spinnerTrackType: Spinner
+    private lateinit var textEditTrackName: EditText
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window.requestFeature(Window.FEATURE_NO_TITLE)
+        actionBar?.hide()
+        supportActionBar?.hide()
+
         setContentView(R.layout.activity_detail)
         flingDetector = FlingDetector(this)
         broadcastReceiverIntentFilter.addAction(C.TRACK_DETAIL_RESPONSE)  // Remove?
@@ -74,7 +85,17 @@ class DetailActivity : AppCompatActivity() {
         txtViewElevation = findViewById(R.id.avg_elevation)
         txtViewCheckpoints = findViewById(R.id.checkpoints_count)
         spinnerTrackType = findViewById(R.id.spinner_track_type)
+        textEditTrackName = findViewById(R.id.track_name)
         setUpTypeSpinner(spinnerTrackType)
+
+        textEditTrackName.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                hideKeyboard(v)
+            }
+            val intent = Intent(C.TRACK_SET_NAME)
+            intent.putExtra(C.TRACK_SET_NAME_DATA, textEditTrackName.text.toString())
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        }
 
         flingDetector.onFlingDown = Runnable { onFlingDown() }
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
@@ -156,13 +177,24 @@ class DetailActivity : AppCompatActivity() {
         overridePendingTransition(
             R.anim.slide_in_from_top,
             R.anim.slide_out_to_bottom
-        );
+        )
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        trackType = savedInstanceState.getInt(BUNDLE_TRACK_TYPE)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(BUNDLE_TRACK_TYPE, trackType)
+        super.onSaveInstanceState(outState)
     }
 
     // ======================================== FLING DETECTION =======================================
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         flingDetector.update(ev)
+        textEditTrackName.clearFocus()
         return super.dispatchTouchEvent(ev)
     }
 
@@ -192,6 +224,9 @@ class DetailActivity : AppCompatActivity() {
         // ----------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------
         private fun onTrackDetailResponse(intent: Intent) {
             val data: DetailedTrackData = intent.getParcelableExtra(C.TRACK_DETAIL_DATA) ?: return
+            if (!textEditTrackName.isFocused) {
+                textEditTrackName.setText(data.name)
+            }
             txtViewDuration.text = Converter.longToHhMmSs(data.duration);
             txtViewAverageSpeed.text = Converter.speedToString(data.getSpeed())
             txtViewElevationGained.text = Converter.elevationToString(data.elevationGained)
@@ -213,15 +248,21 @@ class DetailActivity : AppCompatActivity() {
         val displayOptionAdapter = TrackTypeSpinnerAdapter(this)
 
         spinner.adapter = displayOptionAdapter
-        spinner.setSelection(0)
+        spinner.setSelection(trackType)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val intent = Intent(C.TRACK_SET_TYPE)
                 intent.putExtra(C.TRACK_SET_TYPE_DATA, position)
                 LocalBroadcastManager.getInstance(this@DetailActivity).sendBroadcast(intent)
+                trackType = position
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+    }
+
+    private fun hideKeyboard(view: View) {
+        val inputMethodManager: InputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

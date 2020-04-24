@@ -6,7 +6,23 @@
     android:layout_height="match_parent"
     android:background="@color/color_very_dark"
     tools:context=".activity.DetailActivity"
-    android:id="@+id/activity_detail">
+    android:id="@+id/activity_detail"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <EditText
+        android:id="@+id/track_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/DetailInfoName"
+        android:background="@drawable/rounded_corners_light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/duration"
+        android:inputType="text"
+        android:importantForAutofill="no"
+        tools:ignore="LabelFor" />
 
     <TextView
         android:id="@+id/duration"
@@ -17,7 +33,7 @@
         android:text="@string/stats_time_default_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/track_name" />
 
     <include layout="@layout/detail_column_a"
         android:id="@+id/column_a"
