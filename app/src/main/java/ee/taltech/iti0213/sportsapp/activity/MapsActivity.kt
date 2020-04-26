@@ -44,6 +44,7 @@ import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.BuildConfig
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.service.LocationService
 import ee.taltech.iti0213.sportsapp.component.spinner.CompassMode
@@ -70,6 +71,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val DEFAULT_ZOOM_LEVEL = 14f
         private const val FOCUSED_ZOOM_LEVEL = 17f
 
+        private const val TRACK_COLOR_SLOW = Color.RED
+        private const val TRACK_COLOR_FAST = 0xFFff9e9e.toInt()
+
         private const val TRACK_COLOR_TRACKING = Color.RED
 
         private const val BUNDLE_LAST_UPDATE_TIME = "last_update_time"
@@ -81,6 +85,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val BUNDLE_TRACK_ACTIVE = "track_active"
         private const val BUNDLE_RABBITS = "rabbits"
         private const val BUNDLE_RABBIT_TRACKS = "rabbit_tracks"
+        private const val BUNDLE_MIN_SPEED = "min_speed"
+        private const val BUNDLE_MAX_SPEED = "max_speed"
 
         private val argbEvaluator = ArgbEvaluator()
     }
@@ -108,7 +114,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var isCameraIdle = true
 
-    private var trackColor = TRACK_COLOR_TRACKING
+    private var minSpeed = 0.0
+    private var maxSpeed = 0.0
     private var rabbits = hashMapOf<String, Long>()
     private var rabbitTracks = hashMapOf<Long, TrackSummary>()
 
@@ -195,8 +202,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         locationServiceActive = savedInstanceState?.getBoolean(BUNDLE_GPS_ACTIVE) ?: false
         isTracking = savedInstanceState?.getBoolean(BUNDLE_TRACK_ACTIVE) ?: false
-
-        trackColor = TRACK_COLOR_TRACKING
 
         btnAddWP.setOnClickListener { btnWPOnClick() }
         btnAddCP.setOnClickListener { btnCPOnClick() }
@@ -301,13 +306,31 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             )
             isCameraIdle = false
         } else {
+            val currentSpeed = TrackLocation.calcDistanceBetween(lastLocation!!, trackLocation) /
+                    ((trackLocation.elapsedTimestamp - (lastLocation!!.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6)
+
+            if (currentSpeed > maxSpeed) {
+                maxSpeed = currentSpeed
+            } else if (currentSpeed < minSpeed) {
+                minSpeed = currentSpeed
+            }
+
+            val relSpeed = min(1.0, (currentSpeed - minSpeed) / (maxSpeed - minSpeed))
+
+            Log.d(TAG, "Relspeed $relSpeed")
+            val color = argbEvaluator.evaluate(
+                relSpeed.toFloat().pow(2),
+                TRACK_COLOR_SLOW,
+                TRACK_COLOR_FAST
+            ) as Int
+
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
             if (drawLine) {
                 mMap.addPolyline(
                     PolylineOptions()
                         .add(lastLoc, location)
                         .width(5f)
-                        .color(trackColor)
+                        .color(color)
                 )
             }
             val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
@@ -402,6 +425,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         outState.putBoolean(BUNDLE_TRACK_ACTIVE, isTracking)
         outState.putSerializable(BUNDLE_RABBITS, rabbits)
         outState.putSerializable(BUNDLE_RABBIT_TRACKS, rabbitTracks)
+        outState.putDouble(BUNDLE_MIN_SPEED, minSpeed)
+        outState.putDouble(BUNDLE_MAX_SPEED, maxSpeed)
         super.onSaveInstanceState(outState)
     }
 
@@ -416,6 +441,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         isTracking = savedInstanceState.getBoolean(BUNDLE_TRACK_ACTIVE)
         rabbits = savedInstanceState.getSerializable(BUNDLE_RABBITS) as HashMap<String, Long>
         rabbitTracks = savedInstanceState.getSerializable(BUNDLE_RABBIT_TRACKS) as HashMap<Long, TrackSummary>
+        minSpeed = savedInstanceState.getDouble(BUNDLE_MIN_SPEED, 0.0)
+        maxSpeed = savedInstanceState.getDouble(BUNDLE_MAX_SPEED, 0.0)
     }
 
     // ================================================= COMPASS CALLBACKS ======================================================
