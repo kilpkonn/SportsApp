@@ -7,9 +7,15 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
+import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter
 import kotlin.math.max
 
 class Track {
+    companion object {
+        private const val FILTER_LENGTH = 5
+    }
+    private val speedFilter = SimpleFilter(FILTER_LENGTH)
+    private val altitudeFilter = SimpleFilter(FILTER_LENGTH)
 
     var name: String = TrackUtils.generateNameIfNeeded("", TrackType.UNKNOWN)
     var type: TrackType = TrackType.UNKNOWN
@@ -57,7 +63,7 @@ class Track {
                 if (lastAltitude != 0.0)
                     elevationGained += max(
                         0.0,
-                        location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f) / 2
+                        altitudeFilter.process(location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f)) / 2
                     )
                 lastAltitude = location.altitude
             }
@@ -66,11 +72,12 @@ class Track {
                 movingTime += location.elapsedTimestamp - currentTimeElapsed
 
                 // No funny stuff with pauses
-                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed) > maxSpeed) {
-                    maxSpeed = (distance / (location.elapsedTimestamp - currentTimeElapsed)).toDouble() * 1_000_000_000 * 3.6
+                val currSpeed = speedFilter.process(3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed))
+                if (currSpeed > maxSpeed) {
+                    maxSpeed = currSpeed
                 }
-                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed) < minSpeed) {
-                    minSpeed = (distance / (location.elapsedTimestamp - currentTimeElapsed)).toDouble() * 1_000_000_000 * 3.6
+                if (currSpeed < minSpeed) {
+                    minSpeed = currSpeed
                 }
             }
         }
