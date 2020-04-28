@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.db
+package ee.taltech.iti0213.sportsapp.db.domain
 
 import android.os.Parcel
 import android.os.Parcelable

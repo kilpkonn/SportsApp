@@ -3,7 +3,7 @@ package ee.taltech.iti0213.sportsapp.db.repository
 import android.content.ContentValues
 import android.content.Context
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
-import ee.taltech.iti0213.sportsapp.db.TrackSummary
+import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.track.Track
 
 class TrackSummaryRepository private constructor(context: Context) : IRepository {

@@ -1,14 +1,9 @@
 package ee.taltech.iti0213.sportsapp.db
 
-import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
-import ee.taltech.iti0213.sportsapp.track.Track
-import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
-import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
-import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -23,6 +18,7 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
         const val TABLE_LOCATIONS = "locations"
         const val TABLE_CHECKPOINTS = "checkpoints"
         const val TABLE_WAY_POINTS = "way_points"
+        const val TABLE_USERS = "table_users"
 
         // ---------------------------------- Common Columns names ---------------------------
         const val KEY_ID = BaseColumns._ID
@@ -72,6 +68,16 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
         const val KEY_WAY_POINT_LONGITUDE = "longitude"
         const val KEY_WAY_POINT_ADDED_TIMESTAMP = "added_timestamp"
         const val KEY_WAY_POINT_REMOVED_TIMESTAMP = "removed_timestamp"
+
+        // -------------------------------- Way points table column names ----------------------------
+        const val KEY_USER_USERNAME = "username"
+        const val KEY_USER_EMAIL = "email"
+        const val KEY_USER_PASSWORD = "password"
+        const val KEY_USER_FIRST_NAME = "first_name"
+        const val KEY_USER_LAST_NAME = "last_name"
+        const val KEY_USER_SPEED_MODE = "speed_mode"
+        const val KEY_USER_DEFAULT_ACTIVITY = "default_activity"
+        const val KEY_USER_AUTO_SYNC = "auto_sync"
 
         private var instance: DatabaseHelper? = null
         private var instanceCount: AtomicInteger = AtomicInteger(0)
@@ -151,6 +157,17 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
 
         db?.execSQL(createWayPointsTable)
+
+        val createUsersTable = ("CREATE TABLE " + TABLE_USERS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_USER_USERNAME + " TEXT NOT NULL,"
+                + KEY_USER_EMAIL + " TEXT NOT NULL,"
+                + KEY_USER_PASSWORD + " TEXT NOT NULL,"
+                + KEY_USER_FIRST_NAME + " TEXT NOT NULL,"
+                + KEY_USER_LAST_NAME + " TEXT NOT NULL,"
+                + KEY_USER_SPEED_MODE + " INTEGER NOT NULL,"
+                + KEY_USER_DEFAULT_ACTIVITY + " INTEGER NULL,"
+                + KEY_USER_AUTO_SYNC + " INTEGER NOT NULL" + ")")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

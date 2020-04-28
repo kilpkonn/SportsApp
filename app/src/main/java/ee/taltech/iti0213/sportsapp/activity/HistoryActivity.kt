@@ -2,9 +2,7 @@ package ee.taltech.iti0213.sportsapp.activity
 
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
@@ -18,8 +16,7 @@ import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
-import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
-import ee.taltech.iti0213.sportsapp.db.TrackSummary
+import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector

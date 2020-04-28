@@ -44,14 +44,13 @@ import com.google.maps.android.ui.IconGenerator
 import ee.taltech.iti0213.sportsapp.BuildConfig
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
-import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.service.LocationService
 import ee.taltech.iti0213.sportsapp.component.spinner.CompassMode
 import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
-import ee.taltech.iti0213.sportsapp.db.TrackSummary
+import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
