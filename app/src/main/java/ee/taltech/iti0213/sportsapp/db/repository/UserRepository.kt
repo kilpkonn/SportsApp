@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.domain.User
+import ee.taltech.iti0213.sportsapp.track.TrackType
 
 class UserRepository(context: Context): IRepository {
 
@@ -31,6 +32,33 @@ class UserRepository(context: Context): IRepository {
         databaseHelper.writableDatabase.setTransactionSuccessful()
         databaseHelper.writableDatabase.endTransaction()
         return id
+    }
+
+    fun readUser(id: Long): User {
+
+        val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_USERS
+                + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
+                + " LIMIT 1 ")
+
+        val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)
+        var user: User? = null
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                user = User(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getInt(6) == 1,
+                    TrackType.fromInt(cursor.getInt(7))!!,
+                    cursor.getInt(8) == 1
+                )
+            }
+            cursor.close()
+        }
+        return user!!
     }
 
     override fun close() {
