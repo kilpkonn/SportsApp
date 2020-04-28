@@ -355,7 +355,7 @@ class LocationService : Service() {
         }
 
         private fun onTrackSave() {
-            if (track == null) return
+            if (track == null || track!!.track.size < 2) return
             val trackId = trackSummaryRepository.saveTrack(track!!)
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)

@@ -883,8 +883,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
                 val pointsToAdd = trackLocationsRepository.readTrackLocations(
                     rabbit.value,
-                    lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimestamp ?: 0L,
-                    (rabbitTracks[rabbit.value]?.startTimestamp ?: 0L) + elapsedRunningTime // Long.MAX_VALUE
+                    lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L,
+                    (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime // Long.MAX_VALUE
                 )
 
                 var lastLoc: LatLng? = null

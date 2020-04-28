@@ -22,7 +22,9 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         trackValues.put(DatabaseHelper.KEY_TRACK_NAME, track.name)
         trackValues.put(DatabaseHelper.KEY_TRACK_TYPE, track.type.value)
         trackValues.put(DatabaseHelper.KEY_TRACK_START_STAMP, track.startTime)
-        trackValues.put(DatabaseHelper.KEY_TRACK_END_STAMP, track.currentTime)
+        trackValues.put(DatabaseHelper.KEY_TRACK_START_ELAPSED, track.startTimeElapsed)
+        trackValues.put(DatabaseHelper.KEY_TRACK_END_STAMP, track.lastLocation!!.timestamp)
+        trackValues.put(DatabaseHelper.KEY_TRACK_END_ELAPSED, track.currentTimeElapsed)
         trackValues.put(DatabaseHelper.KEY_TRACK_DURATION_MOVING, track.movingTime)
         trackValues.put(DatabaseHelper.KEY_TRACK_DISTANCE, track.runningDistance)
         trackValues.put(DatabaseHelper.KEY_TRACK_DRIFT, track.getDrift())
@@ -66,11 +68,13 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
                     cursor.getLong(3),
                     cursor.getLong(4),
                     cursor.getLong(5),
-                    cursor.getDouble(6),
-                    cursor.getDouble(7),
+                    cursor.getLong(6),
+                    cursor.getLong(7),
                     cursor.getDouble(8),
                     cursor.getDouble(9),
-                    cursor.getDouble(10)
+                    cursor.getDouble(10),
+                    cursor.getDouble(11),
+                    cursor.getDouble(12)
                 )
             }
             cursor.close()
@@ -97,11 +101,13 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
                         cursor.getLong(3),
                         cursor.getLong(4),
                         cursor.getLong(5),
-                        cursor.getDouble(6),
-                        cursor.getDouble(7),
+                        cursor.getLong(6),
+                        cursor.getLong(7),
                         cursor.getDouble(8),
                         cursor.getDouble(9),
-                        cursor.getDouble(10)
+                        cursor.getDouble(10),
+                        cursor.getDouble(11),
+                        cursor.getDouble(12)
                     )
                     trackList.add(trackSummary)
                 } while (cursor.moveToNext())

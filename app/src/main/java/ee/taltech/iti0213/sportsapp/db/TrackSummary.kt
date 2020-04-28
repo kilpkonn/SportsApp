@@ -8,7 +8,9 @@ class TrackSummary(
     var name: String,
     var type: Int,
     val startTimestamp: Long,
+    val startTimeElapsed: Long,
     val endTimestamp: Long,
+    val endTimesElapsed: Long,
     val durationMoving: Long,
     val distance: Double,
     val drift: Double,
@@ -20,6 +22,8 @@ class TrackSummary(
         parcel.readLong(),
         parcel.readString() ?: "",
         parcel.readInt(),
+        parcel.readLong(),
+        parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
@@ -36,7 +40,9 @@ class TrackSummary(
         parcel.writeString(name)
         parcel.writeInt(type)
         parcel.writeLong(startTimestamp)
+        parcel.writeLong(startTimeElapsed)
         parcel.writeLong(endTimestamp)
+        parcel.writeLong(endTimesElapsed)
         parcel.writeLong(durationMoving)
         parcel.writeDouble(distance)
         parcel.writeDouble(drift)

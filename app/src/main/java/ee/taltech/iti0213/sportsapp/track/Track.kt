@@ -32,14 +32,16 @@ class Track {
     var lastLocation: TrackLocation? = null
 
     var startTime = 0L
+    var startTimeElapsed = 0L
     var lastCPTime = 0L
     var lastWPTime = 0L
-    var currentTime = 0L
+    var currentTimeElapsed = 0L
     var movingTime = 0L
 
     fun update(location: TrackLocation) {
         if (lastLocation == null) {
-            startTime = location.elapsedTimestamp
+            startTime = location.timestamp
+            startTimeElapsed = location.elapsedTimestamp
         } else {
             val distance = TrackLocation.calcDistanceBetween(
                 lastLocation!!.latitude,
@@ -61,18 +63,18 @@ class Track {
             }
 
             if (pauses.isEmpty() || pauses.last() != track.size) {
-                movingTime += location.elapsedTimestamp - currentTime
+                movingTime += location.elapsedTimestamp - currentTimeElapsed
 
                 // No funny stuff with pauses
-                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) > maxSpeed) {
-                    maxSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000 * 3.6
+                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed) > maxSpeed) {
+                    maxSpeed = (distance / (location.elapsedTimestamp - currentTimeElapsed)).toDouble() * 1_000_000_000 * 3.6
                 }
-                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTime) < minSpeed) {
-                    minSpeed = (distance / (location.elapsedTimestamp - currentTime)).toDouble() * 1_000_000_000 * 3.6
+                if (3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed) < minSpeed) {
+                    minSpeed = (distance / (location.elapsedTimestamp - currentTimeElapsed)).toDouble() * 1_000_000_000 * 3.6
                 }
             }
         }
-        currentTime = location.elapsedTimestamp
+        currentTimeElapsed = location.elapsedTimestamp
         lastLocation = location
         track.add(location)
     }
@@ -104,15 +106,15 @@ class Track {
     }
 
     fun getTimeSinceStart(): Long {
-        return currentTime - startTime
+        return currentTimeElapsed - startTimeElapsed
     }
 
     fun getTimeSinceLastCP(): Long {
-        return currentTime - lastCPTime
+        return currentTimeElapsed - lastCPTime
     }
 
     fun getTimeSinceLastWP(): Long {
-        return currentTime - lastWPTime
+        return currentTimeElapsed - lastWPTime
     }
 
     fun getDriftLastCP(): Float {
