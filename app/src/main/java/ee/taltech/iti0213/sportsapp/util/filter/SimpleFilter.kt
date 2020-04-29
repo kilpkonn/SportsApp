@@ -13,6 +13,6 @@ class SimpleFilter(val length: Int): IFilter<Double> {
         for (item in data) {
             avg += item
         }
-        return avg
+        return avg / data.size
     }
 }
