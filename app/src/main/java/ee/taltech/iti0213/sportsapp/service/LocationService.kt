@@ -46,13 +46,12 @@ class LocationService : Service() {
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
     private val mLocationRequest: LocationRequest = LocationRequest()
+    private var mLocationCallback: LocationCallback? = null
 
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val checkpointsRepository = CheckpointsRepository.open(this)
     private val wayPointsRepository = WayPointsRepository.open(this)
-
-    private var mLocationCallback: LocationCallback? = null
 
     private var track: Track? = null
     private var isAddingToTrack = false
