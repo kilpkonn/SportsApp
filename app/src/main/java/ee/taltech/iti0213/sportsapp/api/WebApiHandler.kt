@@ -22,6 +22,8 @@ class WebApiHandler private constructor(var context: Context) {
         }
     }
 
+    var jwt: String? = null
+
     private var requestQueue: RequestQueue? = null
         get() {
             if (field == null) {
@@ -30,15 +32,9 @@ class WebApiHandler private constructor(var context: Context) {
             return field
         }
 
-    fun <T> addToRequestQueue(request: Request<T>, tag: String) {
+    fun <T> addToRequestQueue(request: Request<T>, tag: String = TAG) {
         Log.d(TAG, request.url)
-        request.tag = if (TextUtils.isEmpty(tag)) TAG else tag
-        requestQueue?.add(request)
-    }
-
-    fun <T> addToRequestQueue(request: Request<T>) {
-        Log.d(TAG, request.url)
-        request.tag = TAG
+        request.tag = tag
         requestQueue?.add(request)
     }
 
