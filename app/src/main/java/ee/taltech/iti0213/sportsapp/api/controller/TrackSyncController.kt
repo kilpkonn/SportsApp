@@ -11,6 +11,7 @@ import ee.taltech.iti0213.sportsapp.api.WebApiHandler
 import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 
 class TrackSyncController private constructor(val context: Context) {
@@ -37,7 +38,7 @@ class TrackSyncController private constructor(val context: Context) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
-            "${BASE_URL}v${API_VERSION}/register",
+            "${BASE_URL}v${API_VERSION}/account/register",
             JSONObject(mapper.writeValueAsString(registerDto)),
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
@@ -47,6 +48,7 @@ class TrackSyncController private constructor(val context: Context) {
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
+                Log.d("", String(error.networkResponse.data, Charset.defaultCharset()))
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             }
         )
