@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.api.service
+package ee.taltech.iti0213.sportsapp.api.controller
 
 import android.content.Context
 import android.util.Log
@@ -8,8 +8,8 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
-import ee.taltech.iti0213.sportsapp.api.domain.LoginResponseDto
-import ee.taltech.iti0213.sportsapp.api.domain.RegisterDto
+import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
+import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import org.json.JSONObject
 
 
@@ -18,8 +18,8 @@ class TrackSyncController private constructor(val context: Context) {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
 
-        private val BASE_URL = "https://sportmap.akaver.com/api/"
-        private val API_VERSION = 1.0
+        private const val BASE_URL = "https://sportmap.akaver.com/api/"
+        private const val API_VERSION = 1.0
 
         private var instance: TrackSyncController? = null
         private val mapper = ObjectMapper()

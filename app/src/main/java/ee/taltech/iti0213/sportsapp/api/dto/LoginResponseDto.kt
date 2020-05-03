@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.api.domain
+package ee.taltech.iti0213.sportsapp.api.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
