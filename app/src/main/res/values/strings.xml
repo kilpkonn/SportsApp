@@ -118,4 +118,9 @@
     <string name="replay_spinner_item_none">None</string>
     <string name="track_type_icon_alt">track type icon</string>
     <string name="txt_register">Register</string>
+    <string name="register_title">Register</string>
+    <string name="lbl_email">Email:</string>
+    <string name="lbl_password">Password:</string>
+    <string name="lbl_first_name">First name:</string>
+    <string name="lbl_last_name">Last name:</string>
 </resources>
