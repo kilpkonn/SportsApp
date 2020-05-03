@@ -80,6 +80,7 @@ class LocationService : Service() {
         broadcastReceiverIntentFilter.addAction(C.TRACK_SET_NAME)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -180,6 +181,7 @@ class LocationService : Service() {
 
         // don't forget to unregister broadcast receiver!!!!
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        unregisterReceiver(broadcastReceiver)
 
         // broadcast stop to UI
         val intent = Intent(C.LOCATION_UPDATE_ACTION)

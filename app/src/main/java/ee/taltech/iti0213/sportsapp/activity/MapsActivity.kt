@@ -187,6 +187,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.TRACK_SET_RABBIT)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
+        registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
 
         // Obtain the SupportMapFragment and get notified when the activity_maps is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -404,6 +405,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onDestroy")
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
+        unregisterReceiver(broadcastReceiver)
         trackSummaryRepository.close()
         trackLocationsRepository.close()
     }
