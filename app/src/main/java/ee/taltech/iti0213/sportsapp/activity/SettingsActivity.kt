@@ -23,10 +23,15 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        overridePendingTransition(
+            R.anim.slide_in_from_left,
+            R.anim.slide_out_to_right
+        )
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+    override fun onPause() {
+        super.onPause()
         overridePendingTransition(
             R.anim.slide_in_from_right,
             R.anim.slide_out_to_left

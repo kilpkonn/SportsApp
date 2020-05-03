@@ -60,6 +60,12 @@ class HistoryActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        overridePendingTransition(
+            R.anim.slide_in_from_right,
+            R.anim.slide_out_to_left
+        )
+
         linearLayoutScrollContent.removeAllViews()
         trackSummaryRepository.readTracksSummary(0, 999).forEach { track ->
             run {
@@ -104,18 +110,18 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(
-            R.anim.slide_in_from_left,
-            R.anim.slide_out_to_right
-        )
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         trackSummaryRepository.close()
         trackLocationsRepository.close()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        overridePendingTransition(
+            R.anim.slide_in_from_left,
+            R.anim.slide_out_to_right
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

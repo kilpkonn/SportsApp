@@ -684,18 +684,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private fun onFlingLeft() {
         val intent = Intent(this, HistoryActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(
-            R.anim.slide_in_from_right,
-            R.anim.slide_out_to_left
-        )
     }
     private fun onFlingRight() {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(
-            R.anim.slide_in_from_left,
-            R.anim.slide_out_to_right
-        )
     }
 
     // ============================================== BROADCAST RECEIVER =============================================

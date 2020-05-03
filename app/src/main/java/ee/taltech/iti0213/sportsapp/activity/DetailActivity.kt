@@ -152,6 +152,10 @@ class DetailActivity : AppCompatActivity() {
     override fun onPause() {
         Log.d(TAG, "onPause")
         super.onPause()
+        overridePendingTransition(
+            R.anim.slide_in_from_top,
+            R.anim.slide_out_to_bottom
+        )
     }
 
 
@@ -170,14 +174,6 @@ class DetailActivity : AppCompatActivity() {
     override fun onRestart() {
         Log.d(TAG, "onRestart")
         super.onRestart()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(
-            R.anim.slide_in_from_top,
-            R.anim.slide_out_to_bottom
-        )
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -205,10 +201,6 @@ class DetailActivity : AppCompatActivity() {
     private fun onFlingLeft() {
         val intent = Intent(this, HistoryActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(
-            R.anim.slide_in_from_right,
-            R.anim.slide_out_to_left
-        )
     }
 
     // ====================================== BROADCAST RECEIVER ======================================
