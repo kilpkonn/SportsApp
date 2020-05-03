@@ -226,6 +226,7 @@ class DetailActivity : AppCompatActivity() {
             txtViewDistance.text = Converter.distToString(data.distance)
             txtViewElevation.text = Converter.elevationToString(data.averageElevation)
             txtViewCheckpoints.text = data.checkpointsCount.toString()
+            spinnerTrackType.setSelection(data.type) // TODO: Validate
         }
     }
 
