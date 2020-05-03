@@ -12,7 +12,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <uses-feature android:name="android.hardware.wifi" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -22,7 +25,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.HistoryActivity" />
+
+        <activity android:name=".activity.SettingsActivity"
+            android:launchMode="singleInstance"/>
+        <activity android:name=".activity.HistoryActivity"
+            android:launchMode="singleInstance"/>
         <activity
             android:name=".activity.DetailActivity"
             android:launchMode="singleInstance" />

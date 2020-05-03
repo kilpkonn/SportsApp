@@ -136,7 +136,7 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     fun onFlingRight() {
-        moveTaskToBack(false)
+        moveTaskToBack(true)
     }
 
     // ================================= HELPER FUNCTION =================================

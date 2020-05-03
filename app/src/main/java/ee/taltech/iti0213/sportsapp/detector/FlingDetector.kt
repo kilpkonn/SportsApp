@@ -11,7 +11,7 @@ class FlingDetector(context: Context) : GestureDetector.OnGestureListener {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
-    private val detector: GestureDetector
+    private val detector: GestureDetector = GestureDetector(context, this)
 
     var onFlingUp: Runnable? = null
     var onFlingDown: Runnable? = null
@@ -22,10 +22,6 @@ class FlingDetector(context: Context) : GestureDetector.OnGestureListener {
     var flingMinSpeedY = 2000f
     var flingMinDistanceX = 50f
     var flingMinDistanceY = 60f
-
-    init {
-        this.detector = GestureDetector(context, this)
-    }
 
 
     fun update(event: MotionEvent?) {
@@ -54,13 +50,13 @@ class FlingDetector(context: Context) : GestureDetector.OnGestureListener {
         val time: Long = e2.downTime - e1.downTime
 
         if (velocityX > flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
-            // fling left
-            Log.d(TAG, "fling left!")
+            // fling right
+            Log.d(TAG, "fling right!")
             onFlingRight?.run()
         }
         if (velocityX < -flingMinSpeedX && abs(distanceX) > flingMinDistanceX) {
-            // fling right
-            Log.d(TAG, "fling right!")
+            // fling left
+            Log.d(TAG, "fling left!")
             onFlingLeft?.run()
         }
         if (velocityY > flingMinSpeedY && abs(distanceY) > flingMinDistanceY) {

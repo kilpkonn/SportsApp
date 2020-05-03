@@ -224,6 +224,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
 
         flingDetector.onFlingUp = Runnable { onFlingUp() }
+        flingDetector.onFlingLeft = Runnable { onFlingLeft() }
+        flingDetector.onFlingRight = Runnable { onFlingRight() }
+
         startLocationService()
     }
     // ================================================ MAPS CALLBACKS ===============================================
@@ -316,7 +319,6 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val relSpeed = min(1.0, (currentSpeed - minSpeed) / (maxSpeed - minSpeed))
 
-            Log.d(TAG, "Relspeed $relSpeed")
             val color = argbEvaluator.evaluate(
                 relSpeed.toFloat().pow(2),
                 TRACK_COLOR_SLOW,
@@ -677,6 +679,22 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         overridePendingTransition(
             R.anim.slide_in_from_bottom,
             R.anim.slide_out_to_top
+        )
+    }
+    private fun onFlingLeft() {
+        val intent = Intent(this, HistoryActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(
+            R.anim.slide_in_from_right,
+            R.anim.slide_out_to_left
+        )
+    }
+    private fun onFlingRight() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(
+            R.anim.slide_in_from_left,
+            R.anim.slide_out_to_right
         )
     }
 
