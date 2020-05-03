@@ -117,4 +117,5 @@
     <string name="history_distance_hint">Distance:</string>
     <string name="replay_spinner_item_none">None</string>
     <string name="track_type_icon_alt">track type icon</string>
+    <string name="txt_register">Register</string>
 </resources>
