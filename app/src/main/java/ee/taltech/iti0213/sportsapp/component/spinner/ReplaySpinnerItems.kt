@@ -17,17 +17,17 @@ class ReplaySpinnerItems {
 
         val COLORS = hashMapOf(
             NONE to 0xFFFFFFFF,
-            BLUE to 0xFF001c5c,
-            GREEN to 0xFF073800,
+            BLUE to 0xFF004eff,
+            GREEN to 0xFF0f7a00,
             ORANGE to 0xFF521000,
-            PURPLE to 0xFF2e0052
+            PURPLE to 0xFF50008f
         )
 
         val COLORS_MAX_SPEED = hashMapOf(
-            NONE to 0xFFff9e9e,
+            NONE to 0xFFffc9c9,
             BLUE to 0xFFc7d8ff,
             GREEN to 0xFFb8ffad,
-            ORANGE to 0xFFffce47,
+            ORANGE to 0xFFfcce4e,
             PURPLE to 0xFFffc2ff
         )
     }

@@ -71,9 +71,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private const val FOCUSED_ZOOM_LEVEL = 17f
 
         private const val TRACK_COLOR_SLOW = Color.RED
-        private const val TRACK_COLOR_FAST = 0xFFff9e9e.toInt()
-
-        private const val TRACK_COLOR_TRACKING = Color.RED
+        private const val TRACK_COLOR_FAST = 0xFFffc9c9.toInt()
 
         private const val BUNDLE_LAST_UPDATE_TIME = "last_update_time"
         private const val BUNDLE_IS_ADDING_WP = "is_adding_wp"
@@ -730,6 +728,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             mMap.clear()
             wpMarkers.clear()
             lastRabbitLocations.clear()
+            maxSpeed = 0.0
+            minSpeed = 0.0
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
