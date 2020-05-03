@@ -81,13 +81,28 @@ class SettingsActivity : AppCompatActivity() {
     // ====================================== REGISTER LOGIC ===========================================
 
     private fun onRegister() {
-        if (editTextEmail.text.length < 3 || editTextPassword.text.length < 6 || editTextFirstName.text.isEmpty() || editTextLastName.text.isEmpty()) {
-            Snackbar.make(findViewById(R.id.activity_settings), "Invalid credentials!", Snackbar.LENGTH_LONG).show()
+        if (editTextEmail.text.length < 3 || !editTextEmail.text.contains('@')) {
+            Snackbar.make(findViewById(R.id.activity_settings), "Invalid email!", Snackbar.LENGTH_LONG).show()
+            return
+        }
+        if (editTextPassword.text.length < 8
+            || editTextPassword.text.toString().matches(Regex("^[a-zA-Z0-9]*$"))
+            || !editTextPassword.text.toString().matches(Regex("[a-z]+"))
+            || !editTextPassword.text.toString().matches(Regex("[A-Z]+"))) {
+            Snackbar.make(findViewById(R.id.activity_settings), "Invalid password!", Snackbar.LENGTH_LONG).show()
+            return
+        }
+        if (editTextLastName.text.isEmpty()) {
+            Snackbar.make(findViewById(R.id.activity_settings), "First name is required!", Snackbar.LENGTH_LONG).show()
+            return
+        }
+        if (editTextFirstName.text.isEmpty()) {
+            Snackbar.make(findViewById(R.id.activity_settings), "Last name is required!", Snackbar.LENGTH_LONG).show()
             return
         }
         val registerDto = RegisterDto(
             editTextEmail.text.toString(),
-            HashUtils.md5(editTextPassword.text.toString()) + "-",
+            HashUtils.md5(editTextPassword.text.toString()) + "-A",
             editTextFirstName.text.toString(),
             editTextLastName.text.toString()
         )
