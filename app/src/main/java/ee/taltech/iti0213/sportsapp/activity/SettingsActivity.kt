@@ -86,6 +86,11 @@ class SettingsActivity : AppCompatActivity() {
         )
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        userRepository.close()
+    }
+
     // ======================================== FLING DETECTION =======================================
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -128,7 +133,7 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         val user = User(
-            "username", // TODO: Add username thingy
+            editTextUsername.text.toString(),
             registerDto.email,
             HashUtils.md5(editTextPassword.text.toString()),
             registerDto.firstName,
