@@ -53,11 +53,13 @@ import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
 import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
+import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
+import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter
 import java.lang.Math.toDegrees
 import kotlin.math.min
 import kotlin.math.pow
@@ -69,6 +71,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private const val DEFAULT_ZOOM_LEVEL = 14f
         private const val FOCUSED_ZOOM_LEVEL = 17f
+
+        private const val FILTER_LENGTH = 5
 
         private const val TRACK_COLOR_SLOW = Color.RED
         private const val TRACK_COLOR_FAST = 0xFFffc9c9.toInt()
@@ -87,6 +91,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
         private val argbEvaluator = ArgbEvaluator()
     }
+
+    private val speedFilter = SimpleFilter(FILTER_LENGTH)
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -307,8 +313,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             )
             isCameraIdle = false
         } else {
-            val currentSpeed = TrackLocation.calcDistanceBetween(lastLocation!!, trackLocation) /
-                    ((trackLocation.elapsedTimestamp - (lastLocation!!.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6)
+            val currentSpeed = speedFilter.process(TrackLocation.calcDistanceBetween(lastLocation!!, trackLocation) /
+                    ((trackLocation.elapsedTimestamp - (lastLocation!!.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6))
 
             if (currentSpeed > maxSpeed) {
                 maxSpeed = currentSpeed
