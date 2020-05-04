@@ -8,9 +8,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
-import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
-import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
-import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
+import ee.taltech.iti0213.sportsapp.api.dto.*
 import org.json.JSONObject
 import java.nio.charset.Charset
 
@@ -35,16 +33,15 @@ class TrackSyncController private constructor(val context: Context) {
         }
     }
 
-    fun createNewSession(registerDto: RegisterDto, onSuccess: (r: LoginResponseDto) -> Unit) {
+    fun createNewSession(registerDto: RegisterDto, onSuccess: (r: GpsSessionDto) -> Unit) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
-            "${BASE_URL}v${API_VERSION}/account/register",
+            "${BASE_URL}v${API_VERSION}/GpsSessions",
             JSONObject(mapper.writeValueAsString(registerDto)),
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
-                val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
-                handler.jwt = responseDto.token
+                val responseDto = mapper.readValue(response.toString(), GpsSessionDto::class.java)
                 onSuccess(responseDto)
             },
             Response.ErrorListener {error ->
@@ -56,15 +53,14 @@ class TrackSyncController private constructor(val context: Context) {
         handler.addToRequestQueue(httpRequest)
     }
 
-    fun login(loginDto: LoginDto) {
+    fun addLocationToSession(gpsLocationDto: GpsLocationDto) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
-            "${BASE_URL}v${API_VERSION}/account/login",
-            JSONObject(mapper.writeValueAsString(loginDto)),
+            "${BASE_URL}v${API_VERSION}/GpsLocations",
+            JSONObject(mapper.writeValueAsString(gpsLocationDto)),
             Response.Listener { response ->
-                val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
-                handler.jwt = responseDto.token
+                Log.d(TAG, response.toString())
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
