@@ -1,4 +1,4 @@
-package ee.taltech.iti0213.sportsapp.view
+package ee.taltech.iti0213.sportsapp.component.view
 
 import android.animation.ArgbEvaluator
 import android.content.Context
@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
-import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import kotlin.math.*
 

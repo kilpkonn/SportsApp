@@ -22,7 +22,7 @@ import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
-import ee.taltech.iti0213.sportsapp.view.TrackIconImageView
+import ee.taltech.iti0213.sportsapp.component.view.TrackIconImageView
 
 class HistoryActivity : AppCompatActivity() {
 
