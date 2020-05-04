@@ -35,7 +35,7 @@ class TrackSyncController private constructor(val context: Context) {
         }
     }
 
-    fun createAccount(registerDto: RegisterDto, onSuccess: (r: LoginResponseDto) -> Unit) {
+    fun createNewSession(registerDto: RegisterDto, onSuccess: (r: LoginResponseDto) -> Unit) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
