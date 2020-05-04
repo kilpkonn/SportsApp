@@ -10,7 +10,7 @@
 
     <include layout="@layout/layout_register"
         android:id="@+id/layout_register"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

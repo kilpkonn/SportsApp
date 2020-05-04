@@ -35,7 +35,7 @@ class UserRepository(context: Context): IRepository {
         return id
     }
 
-    fun readUser(): User {
+    fun readUser(): User? {
 
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_USERS
                 // + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
@@ -59,7 +59,7 @@ class UserRepository(context: Context): IRepository {
             }
             cursor.close()
         }
-        return user!!
+        return user
     }
 
     override fun close() {

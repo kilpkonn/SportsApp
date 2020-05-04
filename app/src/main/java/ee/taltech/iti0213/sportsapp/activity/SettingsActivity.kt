@@ -1,13 +1,12 @@
 package ee.taltech.iti0213.sportsapp.activity
 
-import android.opengl.Visibility
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.R
@@ -27,6 +26,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var flingDetector: FlingDetector
 
+    private lateinit var editTextUsername: EditText
     private lateinit var editTextEmail: EditText
     private lateinit var editTextPassword: EditText
     private lateinit var editTextFirstName: EditText
@@ -48,6 +48,7 @@ class SettingsActivity : AppCompatActivity() {
 
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
 
+        editTextUsername = findViewById(R.id.txt_username)
         editTextEmail = findViewById(R.id.txt_email)
         editTextPassword = findViewById(R.id.txt_password)
         editTextFirstName = findViewById(R.id.txt_first_name)

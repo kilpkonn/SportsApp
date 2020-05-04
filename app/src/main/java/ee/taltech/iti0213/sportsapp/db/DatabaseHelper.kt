@@ -168,6 +168,7 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 + KEY_USER_SPEED_MODE + " INTEGER NOT NULL,"
                 + KEY_USER_DEFAULT_ACTIVITY + " INTEGER NULL,"
                 + KEY_USER_AUTO_SYNC + " INTEGER NOT NULL" + ")")
+        db?.execSQL(createUsersTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

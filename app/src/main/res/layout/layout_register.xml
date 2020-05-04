@@ -18,6 +18,30 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/txt_username_lbl"
+        style="@style/SettingsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lbl_username"
+        app:layout_constraintEnd_toStartOf="@id/txt_username"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_title"
+        android:labelFor="@id/txt_username" />
+
+    <EditText
+        android:id="@+id/txt_username"
+        style="@style/SettingsEditText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toBottomOf="@id/txt_username_lbl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/txt_username_lbl"
+        app:layout_constraintTop_toTopOf="@id/txt_username_lbl"
+        android:importantForAutofill="no" />
+
+    <TextView
         android:id="@+id/txt_email_lbl"
         style="@style/SettingsLabel"
         android:layout_width="wrap_content"
@@ -25,7 +49,7 @@
         android:text="@string/lbl_email"
         app:layout_constraintEnd_toStartOf="@id/txt_email"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txt_title"
+        app:layout_constraintTop_toBottomOf="@id/txt_username_lbl"
         android:labelFor="@id/txt_email" />
 
     <EditText
