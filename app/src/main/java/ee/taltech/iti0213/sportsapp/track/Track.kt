@@ -63,7 +63,7 @@ class Track {
                 if (lastAltitude != 0.0)
                     elevationGained += max(
                         0.0,
-                        altitudeFilter.process(location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f)) / 2
+                        altitudeFilter.process(location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f) / 2)
                     )
                 lastAltitude = location.altitude
             }
