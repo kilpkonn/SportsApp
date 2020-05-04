@@ -124,4 +124,6 @@
     <string name="lbl_first_name">First name:</string>
     <string name="lbl_last_name">Last name:</string>
     <string name="lbl_username">Username:</string>
+    <string name="txt_sync_tracks">Sync tracks</string>
+    <string name="settings_title">Settings</string>
 </resources>
