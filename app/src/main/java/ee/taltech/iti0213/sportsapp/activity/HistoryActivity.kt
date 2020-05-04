@@ -67,7 +67,7 @@ class HistoryActivity : AppCompatActivity() {
         )
 
         linearLayoutScrollContent.removeAllViews()
-        trackSummaryRepository.readTracksSummary(0, 999).forEach { track ->
+        trackSummaryRepository.readTrackSummaries(0, 999).forEach { track ->
             run {
                 val trackView = layoutInflater.inflate(R.layout.track_history_item, linearLayoutScrollContent, false)
                 trackView.findViewById<TextView>(R.id.track_name).text = track.name

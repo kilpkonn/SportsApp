@@ -9,7 +9,7 @@ class User(
     val firstName: String,
     val lastName: String,
     val speedMode: Boolean = true,
-    val defaultActivityType: TrackType,
+    val defaultActivityType: TrackType = TrackType.UNKNOWN,
     val autoSync: Boolean = true
 ) {
 }

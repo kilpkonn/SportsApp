@@ -1,21 +1,29 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
+import ee.taltech.iti0213.sportsapp.db.domain.User
+import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.util.HashUtils
 
 class SettingsActivity : AppCompatActivity() {
 
     private val trackSyncController = TrackSyncController.getInstance(this)
+    private val userRepository = UserRepository.open(this)
+
+    private var user: User? = null
 
     private lateinit var flingDetector: FlingDetector
 
@@ -23,6 +31,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editTextPassword: EditText
     private lateinit var editTextFirstName: EditText
     private lateinit var editTextLastName: EditText
+    private lateinit var layoutRegister: ConstraintLayout
 
     private lateinit var buttonRegister: Button
 
@@ -44,8 +53,17 @@ class SettingsActivity : AppCompatActivity() {
         editTextFirstName = findViewById(R.id.txt_first_name)
         editTextLastName = findViewById(R.id.txt_last_name)
         buttonRegister = findViewById(R.id.btn_register)
+        layoutRegister = findViewById(R.id.layout_register)
 
         buttonRegister.setOnClickListener { onRegister() }
+
+        user = userRepository.readUser()
+
+        if (user == null) {
+            layoutRegister.visibility = View.VISIBLE
+        } else {
+            layoutRegister.visibility = View.GONE
+        }
     }
 
     // ======================================= LIFECYCLE CALLBACKS ====================================
@@ -88,7 +106,8 @@ class SettingsActivity : AppCompatActivity() {
         if (editTextPassword.text.length < 8
             || editTextPassword.text.toString().matches(Regex("^[a-zA-Z0-9]*$"))
             || !editTextPassword.text.toString().matches(Regex("[a-z]+"))
-            || !editTextPassword.text.toString().matches(Regex("[A-Z]+"))) {
+            || !editTextPassword.text.toString().matches(Regex("[A-Z]+"))
+        ) {
             Snackbar.make(findViewById(R.id.activity_settings), "Invalid password!", Snackbar.LENGTH_LONG).show()
             return
         }
@@ -107,6 +126,17 @@ class SettingsActivity : AppCompatActivity() {
             editTextLastName.text.toString()
         )
 
-        trackSyncController.createAccount(registerDto)
+        val user = User(
+            "username", // TODO: Add username thingy
+            registerDto.email,
+            HashUtils.md5(editTextPassword.text.toString()),
+            registerDto.firstName,
+            registerDto.lastName
+        )
+
+        trackSyncController.createAccount(registerDto) { userRepository.saveUser(user) }
     }
+
+    // ========================================== HELPER FUNCTIONS =========================================
+
 }

@@ -3,6 +3,7 @@ package ee.taltech.iti0213.sportsapp.db.repository
 import android.content.ContentValues
 import android.content.Context
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.track.TrackType
 
@@ -34,10 +35,10 @@ class UserRepository(context: Context): IRepository {
         return id
     }
 
-    fun readUser(id: Long): User {
+    fun readUser(): User {
 
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_USERS
-                + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
+                // + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
                 + " LIMIT 1 ")
 
         val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)

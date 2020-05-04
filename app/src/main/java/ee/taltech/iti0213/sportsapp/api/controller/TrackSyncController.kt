@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
 import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
+import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import org.json.JSONObject
 import java.nio.charset.Charset
 
@@ -34,7 +35,7 @@ class TrackSyncController private constructor(val context: Context) {
         }
     }
 
-    fun createAccount(registerDto: RegisterDto) {
+    fun createAccount(registerDto: RegisterDto, onSuccess: (r: LoginResponseDto) -> Unit) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
@@ -45,6 +46,7 @@ class TrackSyncController private constructor(val context: Context) {
 
                 val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
                 handler.jwt = responseDto.token
+                onSuccess(responseDto)
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())

@@ -82,7 +82,7 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         return track!!
     }
 
-    fun readTracksSummary(startId: Long, endId: Long): List<TrackSummary> {
+    fun readTrackSummaries(startId: Long, endId: Long): List<TrackSummary> {
         val trackList = mutableListOf<TrackSummary>()
 
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
