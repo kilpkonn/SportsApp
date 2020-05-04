@@ -18,7 +18,8 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
         const val TABLE_LOCATIONS = "locations"
         const val TABLE_CHECKPOINTS = "checkpoints"
         const val TABLE_WAY_POINTS = "way_points"
-        const val TABLE_USERS = "table_users"
+        const val TABLE_USERS = "users"
+        const val TABLE_OFFLINE_SESSIONS = "offline_sessions"
 
         // ---------------------------------- Common Columns names ---------------------------
         const val KEY_ID = BaseColumns._ID
@@ -169,6 +170,14 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 + KEY_USER_DEFAULT_ACTIVITY + " INTEGER NULL,"
                 + KEY_USER_AUTO_SYNC + " INTEGER NOT NULL" + ")")
         db?.execSQL(createUsersTable)
+
+        val createOfflineSessionsTable = ("CREATE TABLE " + TABLE_OFFLINE_SESSIONS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRACK_ID + " INTEGER NOT NULL,"
+                + " FOREIGN KEY (" + KEY_TRACK_ID
+                + ") REFERENCES " + TABLE_TRACKS + "(" + KEY_ID + ") ON UPDATE CASCADE ON DELETE CASCADE" + ")")
+
+        db?.execSQL(createOfflineSessionsTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
