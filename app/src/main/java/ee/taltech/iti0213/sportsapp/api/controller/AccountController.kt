@@ -8,14 +8,14 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
+import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
-import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import org.json.JSONObject
 import java.nio.charset.Charset
 
 
-class TrackSyncController private constructor(val context: Context) {
+class AccountController private constructor(val context: Context) {
 
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
@@ -23,13 +23,13 @@ class TrackSyncController private constructor(val context: Context) {
         private const val BASE_URL = "https://sportmap.akaver.com/api/"
         private const val API_VERSION = 1.0
 
-        private var instance: TrackSyncController? = null
+        private var instance: AccountController? = null
         private val mapper = ObjectMapper()
 
         @Synchronized
-        fun getInstance(context: Context): TrackSyncController {
+        fun getInstance(context: Context): AccountController {
             if (instance == null) {
-                instance = TrackSyncController(context)
+                instance = AccountController(context)
             }
             return instance!!
         }
@@ -43,10 +43,28 @@ class TrackSyncController private constructor(val context: Context) {
             JSONObject(mapper.writeValueAsString(registerDto)),
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
-
                 val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
                 handler.jwt = responseDto.token
                 onSuccess(responseDto)
+            },
+            Response.ErrorListener {error ->
+                Log.e(TAG, error.toString())
+                Log.d("", String(error.networkResponse.data, Charset.defaultCharset()))
+                Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
+            }
+        )
+        handler.addToRequestQueue(httpRequest)
+    }
+
+    fun login(loginDto: LoginDto) {
+        val handler = WebApiHandler.getInstance(context)
+        val httpRequest = JsonObjectRequest(
+            Request.Method.POST,
+            "${BASE_URL}v${API_VERSION}/account/login",
+            JSONObject(mapper.writeValueAsString(loginDto)),
+            Response.Listener { response ->
+                val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
+                handler.jwt = responseDto.token
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())

@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.R
-import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
+import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
@@ -19,7 +19,7 @@ import ee.taltech.iti0213.sportsapp.util.HashUtils
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val trackSyncController = TrackSyncController.getInstance(this)
+    private val trackSyncController = AccountController.getInstance(this)
     private val userRepository = UserRepository.open(this)
 
     private var user: User? = null
