@@ -1,16 +1,18 @@
 package ee.taltech.iti0213.sportsapp.api.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
-import java.time.LocalDateTime
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class GpsLocationDto(
     @JsonProperty("id")
     val id: String?,
     @JsonProperty("recordedAt")
-    val recordedAt: LocalDateTime?,
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="GMT")
+    val recordedAt: Date,
     @JsonProperty("latitude")
     val latitude: Double,
     @JsonProperty("longitude")
@@ -33,7 +35,7 @@ class GpsLocationDto(
         fun fromTrackLocation(location: TrackLocation, gpsSessionId: String): GpsLocationDto {
             return GpsLocationDto(
                 id = null,
-                recordedAt = null,
+                recordedAt = Date(location.timestamp),
                 latitude = location.latitude,
                 longitude = location.longitude,
                 accuracy = location.accuracy.toDouble(),

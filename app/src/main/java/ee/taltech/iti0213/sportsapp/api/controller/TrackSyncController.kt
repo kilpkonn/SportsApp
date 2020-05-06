@@ -3,18 +3,14 @@ package ee.taltech.iti0213.sportsapp.api.controller
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.android.volley.Request
 import com.android.volley.Request.Method.POST
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
-import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
 import org.json.JSONObject
-import java.lang.reflect.Method
 import java.nio.charset.Charset
 
 
@@ -40,9 +36,10 @@ class TrackSyncController private constructor(val context: Context) {
 
     fun createNewSession(gpsSessionDto: GpsSessionDto, onSuccess: (r: GpsSessionDto) -> Unit) {
         val handler = WebApiHandler.getInstance(context)
+        Log.d(TAG, mapper.writeValueAsString(gpsSessionDto))
 
        val httpRequest = object : JsonObjectRequest(
-            Request.Method.POST,
+            POST,
             "${BASE_URL}v${API_VERSION}/GpsSessions",
             JSONObject(mapper.writeValueAsString(gpsSessionDto)),
             Response.Listener { response ->
@@ -72,7 +69,7 @@ class TrackSyncController private constructor(val context: Context) {
     fun addLocationToSession(gpsLocationDto: GpsLocationDto) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = object : JsonObjectRequest(
-            Method.POST,
+            POST,
             "${BASE_URL}v${API_VERSION}/GpsLocations",
             JSONObject(mapper.writeValueAsString(gpsLocationDto)),
             Response.Listener { response ->

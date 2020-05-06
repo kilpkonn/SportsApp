@@ -26,6 +26,8 @@ import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.HashUtils
+import java.time.LocalDateTime
+import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -186,7 +188,9 @@ class SettingsActivity : AppCompatActivity() {
             val session = trackSummaryRepository.readTrackSummary(sessionId.trackId)
             val locations = trackLocationsRepository.readTrackLocations(sessionId.trackId, 0L, Long.MAX_VALUE)
             val sessionDto = GpsSessionDto(
-                name = session.name
+                name = session.name,
+                description = session.name,
+                recordedAt = Date(session.startTimestamp)
             )
             trackSyncController.createNewSession(sessionDto) { resp ->
                 locations.forEach { location ->
