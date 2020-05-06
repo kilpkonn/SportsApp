@@ -23,6 +23,7 @@ import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.HashUtils
+import ee.taltech.iti0213.sportsapp.util.TrackUtils
 import java.time.LocalDateTime
 import java.util.*
 
@@ -183,38 +184,14 @@ class SettingsActivity : AppCompatActivity() {
     // ========================================== HELPER FUNCTIONS =========================================
 
     private fun onTrackSync() {
-        val sessionsToSync = offlineSessionsRepository.readOfflineSessions()
-
-        sessionsToSync.forEach { sessionId ->
-            val session = trackSummaryRepository.readTrackSummary(sessionId.trackId)
-            val locations = trackLocationsRepository.readTrackLocations(sessionId.trackId, 0L, Long.MAX_VALUE)
-            val checkpoints = checkpointsRepository.readTrackCheckpoints(sessionId.trackId)
-            val wayPoints = wayPointsRepository.readTrackWayPoints(sessionId.trackId)
-
-            val sessionDto = GpsSessionDto(
-                name = session.name,
-                description = session.name,
-                recordedAt = Date(session.startTimestamp)
-            )
-            trackSyncController.createNewSession(sessionDto) { resp ->
-                locations.forEach { location ->
-                    val locationDto = GpsLocationDto.fromTrackLocation(location, resp.id!!)
-                    trackSyncController.addLocationToSession(locationDto)
-                }
-
-                checkpoints.forEach { cp ->
-                    val cpDto = GpsLocationDto.fromCheckpoint(cp, resp.id!!)
-                    trackSyncController.addLocationToSession(cpDto)
-                }
-
-                wayPoints.forEach { wp ->
-                    val wpDto = GpsLocationDto.fromWayPoint(wp, resp.id!!)
-                    trackSyncController.addLocationToSession(wpDto)
-                }
-
-                offlineSessionsRepository.deleteOfflineSession(sessionId.id)
-            }
-        }
+        TrackUtils.syncTracks(
+            offlineSessionsRepository,
+            trackSummaryRepository,
+            trackLocationsRepository,
+            checkpointsRepository,
+            wayPointsRepository,
+            trackSyncController
+        )
     }
 
 }

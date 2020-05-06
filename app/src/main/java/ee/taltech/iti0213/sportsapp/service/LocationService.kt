@@ -351,7 +351,8 @@ class LocationService : Service() {
                     track?.type = TrackType.fromInt(intent.getIntExtra(C.TRACK_SET_TYPE_DATA, 0))!!
                     track?.name = TrackUtils.generateNameIfNeeded(track!!.name, track!!.type)
                 }
-                C.TRACK_SET_NAME -> track?.name = TrackUtils.generateNameIfNeeded(intent.getStringExtra(C.TRACK_SET_NAME_DATA) ?: "", track!!.type)
+                C.TRACK_SET_NAME -> track?.name =
+                    TrackUtils.generateNameIfNeeded(intent.getStringExtra(C.TRACK_SET_NAME_DATA) ?: "", track!!.type)
             }
         }
 
@@ -368,15 +369,18 @@ class LocationService : Service() {
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
             wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
+            offlineSessionsRepository.saveOfflineSession(trackId)
 
             val user = userRepository.readUser()
             if (user != null && user.autoSync) {
-                /*accountController.login(LoginDto(user.email, user.password + "-A"), {resp ->
-                    trackSyncController.createNewSession()
-                })*/ // TODO
-                offlineSessionsRepository.saveOfflineSession(trackId)
-            } else {
-                offlineSessionsRepository.saveOfflineSession(trackId)
+                TrackUtils.syncTracks(
+                    offlineSessionsRepository,
+                    trackSummaryRepository,
+                    trackLocationsRepository,
+                    checkpointsRepository,
+                    wayPointsRepository,
+                    trackSyncController
+                )
             }
             track = Track()
             isAddingToTrack = false
