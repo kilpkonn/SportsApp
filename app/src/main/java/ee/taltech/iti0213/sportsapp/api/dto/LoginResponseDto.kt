@@ -6,5 +6,9 @@ class LoginResponseDto(
     @JsonProperty("token")
     var token: String,
     @JsonProperty("status")
-    var status: String
+    var status: String,
+    @JsonProperty("firstName")
+    var firstName: String,
+    @JsonProperty("lastName")
+    var lastName: String
 )

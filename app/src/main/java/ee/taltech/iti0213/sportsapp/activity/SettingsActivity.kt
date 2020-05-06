@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
@@ -10,17 +11,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.api.WebApiHandler
 import ee.taltech.iti0213.sportsapp.api.controller.AccountController
+import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
+import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
+import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
+import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import ee.taltech.iti0213.sportsapp.db.domain.User
+import ee.taltech.iti0213.sportsapp.db.repository.OfflineSessionsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.HashUtils
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val trackSyncController = AccountController.getInstance(this)
+    private val accountController = AccountController.getInstance(this)
+    private val trackSyncController = TrackSyncController.getInstance(this)
+
     private val userRepository = UserRepository.open(this)
+    private val offlineSessionsRepository = OfflineSessionsRepository.open(this)
+    private val trackSummaryRepository = TrackSummaryRepository.open(this)
+    private val trackLocationsRepository = TrackLocationsRepository.open(this)
 
     private var user: User? = null
 
@@ -31,9 +46,12 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editTextPassword: EditText
     private lateinit var editTextFirstName: EditText
     private lateinit var editTextLastName: EditText
+
     private lateinit var layoutRegister: ConstraintLayout
+    private lateinit var layoutSettings: ConstraintLayout
 
     private lateinit var buttonRegister: Button
+    private lateinit var buttonSyncTrack: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,16 +72,25 @@ class SettingsActivity : AppCompatActivity() {
         editTextFirstName = findViewById(R.id.txt_first_name)
         editTextLastName = findViewById(R.id.txt_last_name)
         buttonRegister = findViewById(R.id.btn_register)
+
         layoutRegister = findViewById(R.id.layout_register)
+        layoutSettings = findViewById(R.id.layout_settings)
+
+        buttonSyncTrack = findViewById(R.id.btn_sync_track)
 
         buttonRegister.setOnClickListener { onRegister() }
+        buttonSyncTrack.setOnClickListener { onTrackSync() }
 
         user = userRepository.readUser()
 
         if (user == null) {
             layoutRegister.visibility = View.VISIBLE
+            layoutSettings.visibility = View.GONE
         } else {
             layoutRegister.visibility = View.GONE
+            layoutSettings.visibility = View.VISIBLE
+
+            accountController.login(LoginDto(user!!.email, user!!.password + "-A"))
         }
     }
 
@@ -89,6 +116,9 @@ class SettingsActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         userRepository.close()
+        offlineSessionsRepository.close()
+        trackSummaryRepository.close()
+        trackSummaryRepository.close()
     }
 
     // ======================================== FLING DETECTION =======================================
@@ -111,8 +141,8 @@ class SettingsActivity : AppCompatActivity() {
         }
         if (editTextPassword.text.length < 8
             || editTextPassword.text.toString().matches(Regex("^[a-zA-Z0-9]*$"))
-            || !editTextPassword.text.toString().matches(Regex("[a-z]+"))
-            || !editTextPassword.text.toString().matches(Regex("[A-Z]+"))
+            || !editTextPassword.text.toString().matches(Regex(".*[a-z].*"))
+            || !editTextPassword.text.toString().matches(Regex(".*[A-Z].*"))
         ) {
             Snackbar.make(findViewById(R.id.activity_settings), "Invalid password!", Snackbar.LENGTH_LONG).show()
             return
@@ -140,9 +170,31 @@ class SettingsActivity : AppCompatActivity() {
             registerDto.lastName
         )
 
-        trackSyncController.createAccount(registerDto) { userRepository.saveUser(user) }
+        accountController.createAccount(registerDto) {
+            userRepository.saveUser(user)
+            layoutRegister.visibility = View.GONE
+            layoutSettings.visibility = View.VISIBLE
+        }
     }
 
     // ========================================== HELPER FUNCTIONS =========================================
+
+    private fun onTrackSync() {
+        val sessionsToSync = offlineSessionsRepository.readOfflineSessions()
+
+        sessionsToSync.forEach { sessionId ->
+            val session = trackSummaryRepository.readTrackSummary(sessionId.trackId)
+            val locations = trackLocationsRepository.readTrackLocations(sessionId.trackId, 0L, Long.MAX_VALUE)
+            val sessionDto = GpsSessionDto(
+                name = session.name
+            )
+            trackSyncController.createNewSession(sessionDto) { resp ->
+                locations.forEach { location ->
+                    val locationDto = GpsLocationDto.fromTrackLocation(location, resp.id!!)
+                    trackSyncController.addLocationToSession(locationDto)
+                }
+            }
+        }
+    }
 
 }

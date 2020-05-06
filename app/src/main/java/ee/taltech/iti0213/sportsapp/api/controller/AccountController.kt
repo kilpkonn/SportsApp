@@ -44,7 +44,7 @@ class AccountController private constructor(val context: Context) {
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
                 val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
-                handler.jwt = responseDto.token
+                handler.jwt.set(responseDto.token)
                 onSuccess(responseDto)
             },
             Response.ErrorListener {error ->
@@ -64,7 +64,7 @@ class AccountController private constructor(val context: Context) {
             JSONObject(mapper.writeValueAsString(loginDto)),
             Response.Listener { response ->
                 val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
-                handler.jwt = responseDto.token
+                handler.jwt.set(responseDto.token)
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())

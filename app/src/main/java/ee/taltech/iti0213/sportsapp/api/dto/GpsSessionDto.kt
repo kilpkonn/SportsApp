@@ -11,9 +11,9 @@ class GpsSessionDto(
     @JsonProperty("name")
     val name: String,
     @JsonProperty("description")
-    val description: String,
+    val description: String = "",
     @JsonProperty("recordedAt")
-    val recordedAt: Timestamp? = null,
+    val recordedAt: Timestamp? = Timestamp(0),
     @JsonProperty("duration")
     val duration: Long = 0,
     @JsonProperty("speed")
@@ -29,7 +29,7 @@ class GpsSessionDto(
     @JsonProperty("paceMax")
     val paceMax: Double = 0.0,
     @JsonProperty("gpsSessionTypeId")
-    val gpsSessionTypeId: String? = null,
+    val gpsSessionTypeId: String? = "00000000-0000-0000-0000-000000000001",
     @JsonProperty("appUserId")
     val appUserId: String? = null
 )

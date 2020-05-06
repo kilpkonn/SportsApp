@@ -20,10 +20,7 @@ import com.google.android.gms.location.*
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
-import ee.taltech.iti0213.sportsapp.db.repository.CheckpointsRepository
-import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
-import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
-import ee.taltech.iti0213.sportsapp.db.repository.WayPointsRepository
+import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
@@ -48,6 +45,7 @@ class LocationService : Service() {
     private val mLocationRequest: LocationRequest = LocationRequest()
     private var mLocationCallback: LocationCallback? = null
 
+    private val offlineSessionsRepository = OfflineSessionsRepository.open(this)
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val checkpointsRepository = CheckpointsRepository.open(this)
@@ -168,6 +166,7 @@ class LocationService : Service() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
 
+        offlineSessionsRepository.close()
         trackSummaryRepository.close()
         trackLocationsRepository.close()
         checkpointsRepository.close()
@@ -361,6 +360,7 @@ class LocationService : Service() {
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
             wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
+            offlineSessionsRepository.saveOfflineSession(trackId)
             track = Track()
             isAddingToTrack = false
             showNotification(track!!.getTrackData())

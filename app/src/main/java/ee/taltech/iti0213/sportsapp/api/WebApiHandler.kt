@@ -6,23 +6,24 @@ import android.util.Log
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
+import java.util.concurrent.atomic.AtomicReference
 
 
 class WebApiHandler private constructor(var context: Context) {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
-        private var instance: WebApiHandler? = null
+        private var instance: AtomicReference<WebApiHandler?> = AtomicReference()
 
         @Synchronized
         fun getInstance(context: Context): WebApiHandler {
-            if (instance == null) {
-                instance = WebApiHandler(context)
+            if (instance.get() == null) {
+                instance.set(WebApiHandler(context))
             }
-            return instance!!
+            return instance.get()!!
         }
     }
 
-    var jwt: String? = null
+    var jwt: AtomicReference<String?> = AtomicReference()
 
     private var requestQueue: RequestQueue? = null
         get() {
@@ -32,12 +33,14 @@ class WebApiHandler private constructor(var context: Context) {
             return field
         }
 
+    @Synchronized
     fun <T> addToRequestQueue(request: Request<T>, tag: String = TAG) {
         Log.d(TAG, request.url)
         request.tag = tag
         requestQueue?.add(request)
     }
 
+    @Synchronized
     fun cancelPendingRequest(tag: String) {
         if (requestQueue != null) {
             requestQueue!!.cancelAll(if (TextUtils.isEmpty(tag)) TAG else tag)
