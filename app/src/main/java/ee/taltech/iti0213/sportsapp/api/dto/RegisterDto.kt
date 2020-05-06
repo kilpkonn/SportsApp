@@ -9,8 +9,8 @@ class RegisterDto(
     var email: String,
     @JsonProperty("password")
     var password: String,
-    @JsonProperty("lastName")
-    var lastName: String,
     @JsonProperty("firstName")
-    var firstName: String
+    var firstName: String,
+    @JsonProperty("lastName")
+    var lastName: String
 )
