@@ -19,6 +19,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.api.controller.AccountController
+import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
+import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
@@ -50,6 +53,10 @@ class LocationService : Service() {
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
     private val checkpointsRepository = CheckpointsRepository.open(this)
     private val wayPointsRepository = WayPointsRepository.open(this)
+    private val userRepository = UserRepository.open(this)
+
+    private val accountController = AccountController.getInstance(this)
+    private val trackSyncController = TrackSyncController.getInstance(this)
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -171,6 +178,7 @@ class LocationService : Service() {
         trackLocationsRepository.close()
         checkpointsRepository.close()
         wayPointsRepository.close()
+        userRepository.close()
 
         //stop location updates
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
@@ -360,7 +368,16 @@ class LocationService : Service() {
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
             wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
-            offlineSessionsRepository.saveOfflineSession(trackId)
+
+            val user = userRepository.readUser()
+            if (user != null && user.autoSync) {
+                /*accountController.login(LoginDto(user.email, user.password + "-A"), {resp ->
+                    trackSyncController.createNewSession()
+                })*/ // TODO
+                offlineSessionsRepository.saveOfflineSession(trackId)
+            } else {
+                offlineSessionsRepository.saveOfflineSession(trackId)
+            }
             track = Track()
             isAddingToTrack = false
             showNotification(track!!.getTrackData())

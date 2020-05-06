@@ -8,6 +8,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
+import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginResponseDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
@@ -39,7 +40,7 @@ class AccountController private constructor(val context: Context) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
-            "${BASE_URL}v${API_VERSION}/account/register",
+            "${BASE_URL}v${API_VERSION}/Account/Register",
             JSONObject(mapper.writeValueAsString(registerDto)),
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
@@ -49,26 +50,27 @@ class AccountController private constructor(val context: Context) {
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
-                Log.d("", String(error.networkResponse.data, Charset.defaultCharset()))
+                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             }
         )
         handler.addToRequestQueue(httpRequest)
     }
 
-    fun login(loginDto: LoginDto) {
+    fun login(loginDto: LoginDto, onSuccess: (r: LoginResponseDto) -> Unit = { }) {
         val handler = WebApiHandler.getInstance(context)
         val httpRequest = JsonObjectRequest(
             Request.Method.POST,
-            "${BASE_URL}v${API_VERSION}/account/login",
+            "${BASE_URL}v${API_VERSION}/Account/Login",
             JSONObject(mapper.writeValueAsString(loginDto)),
             Response.Listener { response ->
                 val responseDto = mapper.readValue(response.toString(), LoginResponseDto::class.java)
                 handler.jwt.set(responseDto.token)
+                onSuccess(responseDto)
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
-                Log.d("", String(error.networkResponse.data, Charset.defaultCharset()))
+                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             }
         )
