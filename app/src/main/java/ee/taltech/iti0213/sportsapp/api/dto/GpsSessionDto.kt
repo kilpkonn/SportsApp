@@ -17,21 +17,21 @@ class GpsSessionDto(
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="GMT")
     val recordedAt: Date,
     @JsonProperty("duration")
-    val duration: Long = 0,
+    val duration: Long? = null,
     @JsonProperty("speed")
-    val speed: Double = 0.0,
+    val speed: Double? = null,
     @JsonProperty("distance")
-    val distance: Double = 0.0,
+    val distance: Double? = null,
     @JsonProperty("climb")
-    val climb: Double = 0.0,
+    val climb: Double? = null,
     @JsonProperty("descent")
-    val descent: Double = 0.0,
+    val descent: Double? = null,
     @JsonProperty("paceMin")
-    val paceMin: Double = 60.0,
+    val paceMin: Double? = 60.0,
     @JsonProperty("paceMax")
-    val paceMax: Double = 120.0,
+    val paceMax: Double? = 61.0,
     @JsonProperty("gpsSessionTypeId")
-    val gpsSessionTypeId: String? = "00000000-0000-0000-0000-000000000001",
+    val gpsSessionTypeId: String? = null,
     @JsonProperty("appUserId")
     val appUserId: String? = null
 )

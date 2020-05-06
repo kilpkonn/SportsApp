@@ -19,10 +19,7 @@ import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import ee.taltech.iti0213.sportsapp.db.domain.User
-import ee.taltech.iti0213.sportsapp.db.repository.OfflineSessionsRepository
-import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
-import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
-import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
+import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.HashUtils
@@ -38,6 +35,8 @@ class SettingsActivity : AppCompatActivity() {
     private val offlineSessionsRepository = OfflineSessionsRepository.open(this)
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
+    private val checkpointsRepository = CheckpointsRepository.open(this)
+    private val wayPointsRepository = WayPointsRepository.open(this)
 
     private var user: User? = null
 
@@ -121,6 +120,8 @@ class SettingsActivity : AppCompatActivity() {
         offlineSessionsRepository.close()
         trackSummaryRepository.close()
         trackSummaryRepository.close()
+        checkpointsRepository.close()
+        wayPointsRepository.close()
     }
 
     // ======================================== FLING DETECTION =======================================
@@ -187,6 +188,9 @@ class SettingsActivity : AppCompatActivity() {
         sessionsToSync.forEach { sessionId ->
             val session = trackSummaryRepository.readTrackSummary(sessionId.trackId)
             val locations = trackLocationsRepository.readTrackLocations(sessionId.trackId, 0L, Long.MAX_VALUE)
+            val checkpoints = checkpointsRepository.readTrackCheckpoints(sessionId.trackId)
+            val wayPoints = wayPointsRepository.readTrackWayPoints(sessionId.trackId)
+
             val sessionDto = GpsSessionDto(
                 name = session.name,
                 description = session.name,
@@ -197,6 +201,18 @@ class SettingsActivity : AppCompatActivity() {
                     val locationDto = GpsLocationDto.fromTrackLocation(location, resp.id!!)
                     trackSyncController.addLocationToSession(locationDto)
                 }
+
+                checkpoints.forEach { cp ->
+                    val cpDto = GpsLocationDto.fromCheckpoint(cp, resp.id!!)
+                    trackSyncController.addLocationToSession(cpDto)
+                }
+
+                wayPoints.forEach { wp ->
+                    val wpDto = GpsLocationDto.fromWayPoint(wp, resp.id!!)
+                    trackSyncController.addLocationToSession(wpDto)
+                }
+
+                offlineSessionsRepository.deleteOfflineSession(sessionId.id)
             }
         }
     }

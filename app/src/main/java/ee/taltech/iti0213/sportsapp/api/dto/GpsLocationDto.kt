@@ -3,7 +3,9 @@ package ee.taltech.iti0213.sportsapp.api.dto
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -44,6 +46,36 @@ class GpsLocationDto(
                 appUserId = null,
                 gpsSessionId = gpsSessionId,
                 gpsLocationTypeId = "00000000-0000-0000-0000-000000000001"
+            )
+        }
+
+        fun fromCheckpoint(cp: Checkpoint, gpsSessionId: String): GpsLocationDto {
+            return GpsLocationDto(
+                id = null,
+                recordedAt = Date(cp.timestamp),
+                latitude = cp.latitude,
+                longitude = cp.longitude,
+                accuracy = cp.accuracy,
+                altitude = cp.altitude,
+                verticalAccuracy = cp.altitudeAccuracy,
+                appUserId = null,
+                gpsSessionId = gpsSessionId,
+                gpsLocationTypeId = "00000000-0000-0000-0000-000000000003"
+            )
+        }
+
+        fun fromWayPoint(wp: WayPoint, gpsSessionId: String): GpsLocationDto {
+            return GpsLocationDto(
+                id = null,
+                recordedAt = Date(wp.timeAdded),
+                latitude = wp.latitude,
+                longitude = wp.longitude,
+                accuracy = 0.0,
+                altitude = 0.0,
+                verticalAccuracy = 0.0,
+                appUserId = null,
+                gpsSessionId = gpsSessionId,
+                gpsLocationTypeId = "00000000-0000-0000-0000-000000000002"
             )
         }
     }
