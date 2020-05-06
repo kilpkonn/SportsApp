@@ -126,4 +126,5 @@
     <string name="lbl_username">Username:</string>
     <string name="txt_sync_tracks">Sync tracks</string>
     <string name="settings_title">Settings</string>
+    <string name="txt_toggle_register">Log in instead</string>
 </resources>

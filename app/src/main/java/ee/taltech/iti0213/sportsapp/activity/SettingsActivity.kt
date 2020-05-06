@@ -1,31 +1,25 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import ee.taltech.iti0213.sportsapp.R
-import ee.taltech.iti0213.sportsapp.api.WebApiHandler
 import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
-import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
-import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
-import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.HashUtils
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
-import java.time.LocalDateTime
-import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -40,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
     private val wayPointsRepository = WayPointsRepository.open(this)
 
     private var user: User? = null
+    private var isRegister = false
 
     private lateinit var flingDetector: FlingDetector
 
@@ -49,11 +44,18 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editTextFirstName: EditText
     private lateinit var editTextLastName: EditText
 
+    private lateinit var textUsernameLbl: TextView
+    private lateinit var editTextEmailLbl: TextView
+    private lateinit var editTextPasswordLbl: TextView
+    private lateinit var textFirstNameLbl: TextView
+    private lateinit var textLastNameLbl: TextView
+
     private lateinit var layoutRegister: ConstraintLayout
     private lateinit var layoutSettings: ConstraintLayout
 
     private lateinit var buttonRegister: Button
     private lateinit var buttonSyncTrack: Button
+    private lateinit var buttonToggleRegister: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +76,10 @@ class SettingsActivity : AppCompatActivity() {
         editTextFirstName = findViewById(R.id.txt_first_name)
         editTextLastName = findViewById(R.id.txt_last_name)
         buttonRegister = findViewById(R.id.btn_register)
+        textUsernameLbl = findViewById(R.id.txt_username_lbl)
+        textFirstNameLbl = findViewById(R.id.txt_first_name_lbl)
+        textLastNameLbl = findViewById(R.id.txt_last_name_lbl)
+        buttonToggleRegister = findViewById(R.id.toggle_register)
 
         layoutRegister = findViewById(R.id.layout_register)
         layoutSettings = findViewById(R.id.layout_settings)
@@ -81,6 +87,7 @@ class SettingsActivity : AppCompatActivity() {
         buttonSyncTrack = findViewById(R.id.btn_sync_track)
 
         buttonRegister.setOnClickListener { onRegister() }
+        buttonToggleRegister.setOnClickListener { onToggleRegister() }
         buttonSyncTrack.setOnClickListener { onTrackSync() }
 
         user = userRepository.readUser()
@@ -137,6 +144,29 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     // ====================================== REGISTER LOGIC ===========================================
+
+    private fun onToggleRegister() {
+        isRegister = !isRegister
+        if (isRegister) {
+            buttonRegister.text = "Log in"
+            buttonToggleRegister.text = "Register instead"
+            editTextUsername.visibility = View.GONE
+            editTextFirstName.visibility = View.GONE
+            editTextLastName.visibility = View.GONE
+            textUsernameLbl.visibility = View.GONE
+            textFirstNameLbl.visibility = View.GONE
+            textLastNameLbl.visibility = View.GONE
+        } else {
+            buttonRegister.text = "Register"
+            buttonToggleRegister.text = "Log in instead"
+            editTextUsername.visibility = View.VISIBLE
+            editTextFirstName.visibility = View.VISIBLE
+            editTextLastName.visibility = View.VISIBLE
+            textUsernameLbl.visibility = View.VISIBLE
+            textFirstNameLbl.visibility = View.VISIBLE
+            textLastNameLbl.visibility = View.VISIBLE
+        }
+    }
 
     private fun onRegister() {
         if (editTextEmail.text.length < 3 || !editTextEmail.text.contains('@')) {
