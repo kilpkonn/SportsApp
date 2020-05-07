@@ -127,4 +127,8 @@
     <string name="txt_sync_tracks">Sync tracks</string>
     <string name="settings_logout">Log out</string>
     <string name="txt_toggle_register">Log in instead</string>
+    <string name="log_in">Log in</string>
+    <string name="register">Register</string>
+    <string name="register_instead">Register instead</string>
+    <string name="login_instead">Log in instead</string>
 </resources>

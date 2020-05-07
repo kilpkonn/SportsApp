@@ -24,7 +24,7 @@ import ee.taltech.iti0213.sportsapp.util.TrackUtils
 class SettingsActivity : AppCompatActivity() {
 
     companion object {
-        private val BUNDLE_IS_REGISTER = "toggle_register"
+        private const val BUNDLE_IS_REGISTER = "toggle_register"
     }
 
     private val accountController = AccountController.getInstance(this)
@@ -174,9 +174,9 @@ class SettingsActivity : AppCompatActivity() {
     private fun onToggleRegister() {
         isRegister = !isRegister
         if (isRegister) {
-            buttonRegister.text = "Log in"
-            buttonToggleRegister.text = "Register instead"
-            textTitle.text = "Log in"
+            buttonRegister.text = getString(R.string.log_in)
+            buttonToggleRegister.text = getString(R.string.register_instead)
+            textTitle.text = getString(R.string.log_in)
             editTextUsername.visibility = View.GONE
             editTextFirstName.visibility = View.GONE
             editTextLastName.visibility = View.GONE
@@ -184,9 +184,9 @@ class SettingsActivity : AppCompatActivity() {
             textFirstNameLbl.visibility = View.GONE
             textLastNameLbl.visibility = View.GONE
         } else {
-            buttonRegister.text = "Register"
-            buttonToggleRegister.text = "Log in instead"
-            textTitle.text = "Register"
+            buttonRegister.text = getString(R.string.register)
+            buttonToggleRegister.text = getString(R.string.login_instead)
+            textTitle.text = getString(R.string.register)
             editTextUsername.visibility = View.VISIBLE
             editTextFirstName.visibility = View.VISIBLE
             editTextLastName.visibility = View.VISIBLE
@@ -251,5 +251,4 @@ class SettingsActivity : AppCompatActivity() {
             trackSyncController
         )
     }
-
 }
