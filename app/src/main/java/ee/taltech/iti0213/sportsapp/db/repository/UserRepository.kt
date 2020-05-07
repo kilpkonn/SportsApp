@@ -62,6 +62,13 @@ class UserRepository(context: Context): IRepository {
         return user
     }
 
+    fun deleteUsers() {
+        databaseHelper.writableDatabase.beginTransaction()
+        databaseHelper.writableDatabase.delete(DatabaseHelper.TABLE_USERS, null, null)
+        databaseHelper.writableDatabase.setTransactionSuccessful()
+        databaseHelper.writableDatabase.endTransaction()
+    }
+
     override fun close() {
         databaseHelper.close()
     }

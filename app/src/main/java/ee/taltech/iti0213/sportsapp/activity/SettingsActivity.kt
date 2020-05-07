@@ -23,6 +23,10 @@ import ee.taltech.iti0213.sportsapp.util.TrackUtils
 
 class SettingsActivity : AppCompatActivity() {
 
+    companion object {
+        private val BUNDLE_IS_REGISTER = "toggle_register"
+    }
+
     private val accountController = AccountController.getInstance(this)
     private val trackSyncController = TrackSyncController.getInstance(this)
 
@@ -44,6 +48,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var editTextFirstName: EditText
     private lateinit var editTextLastName: EditText
 
+    private lateinit var textTitle: TextView
     private lateinit var textUsernameLbl: TextView
     private lateinit var editTextEmailLbl: TextView
     private lateinit var editTextPasswordLbl: TextView
@@ -56,6 +61,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var buttonRegister: Button
     private lateinit var buttonSyncTrack: Button
     private lateinit var buttonToggleRegister: Button
+    private lateinit var buttonLogOut: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +76,7 @@ class SettingsActivity : AppCompatActivity() {
 
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
 
+        textTitle = findViewById(R.id.txt_title)
         editTextUsername = findViewById(R.id.txt_username)
         editTextEmail = findViewById(R.id.txt_email)
         editTextPassword = findViewById(R.id.txt_password)
@@ -85,10 +92,12 @@ class SettingsActivity : AppCompatActivity() {
         layoutSettings = findViewById(R.id.layout_settings)
 
         buttonSyncTrack = findViewById(R.id.btn_sync_track)
+        buttonLogOut = findViewById(R.id.btn_logout)
 
         buttonRegister.setOnClickListener { onRegister() }
         buttonToggleRegister.setOnClickListener { onToggleRegister() }
         buttonSyncTrack.setOnClickListener { onTrackSync() }
+        buttonLogOut.setOnClickListener { onLogout() }
 
         user = userRepository.readUser()
 
@@ -132,6 +141,17 @@ class SettingsActivity : AppCompatActivity() {
         wayPointsRepository.close()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(BUNDLE_IS_REGISTER, isRegister)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        isRegister = !savedInstanceState.getBoolean(BUNDLE_IS_REGISTER)
+        onToggleRegister()
+    }
+
     // ======================================== FLING DETECTION =======================================
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -145,11 +165,18 @@ class SettingsActivity : AppCompatActivity() {
 
     // ====================================== REGISTER LOGIC ===========================================
 
+    private fun onLogout() {
+        userRepository.deleteUsers()
+        layoutSettings.visibility = View.GONE
+        layoutRegister.visibility = View.VISIBLE
+    }
+
     private fun onToggleRegister() {
         isRegister = !isRegister
         if (isRegister) {
             buttonRegister.text = "Log in"
             buttonToggleRegister.text = "Register instead"
+            textTitle.text = "Log in"
             editTextUsername.visibility = View.GONE
             editTextFirstName.visibility = View.GONE
             editTextLastName.visibility = View.GONE
@@ -159,6 +186,7 @@ class SettingsActivity : AppCompatActivity() {
         } else {
             buttonRegister.text = "Register"
             buttonToggleRegister.text = "Log in instead"
+            textTitle.text = "Register"
             editTextUsername.visibility = View.VISIBLE
             editTextFirstName.visibility = View.VISIBLE
             editTextLastName.visibility = View.VISIBLE
