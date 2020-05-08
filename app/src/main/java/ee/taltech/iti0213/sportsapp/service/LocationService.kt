@@ -41,7 +41,7 @@ class LocationService : Service() {
         private val TAG = this::class.java.declaringClass!!.simpleName
 
         // The desired intervals for location updates. Inexact. Updates may be more or less frequent.
-        private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000
+        private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000L
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
 
