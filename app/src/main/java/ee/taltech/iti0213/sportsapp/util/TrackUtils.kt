@@ -44,25 +44,26 @@ class TrackUtils {
                     description = session.name,
                     recordedAt = Date(session.startTimestamp)
                 )
-                trackSyncController.createNewSession(sessionDto) { resp ->
+                trackSyncController.createNewSession(sessionDto, { resp ->
                     locations.forEach { location ->
                         val locationDto = GpsLocationDto.fromTrackLocation(location, resp.id!!)
-                        trackSyncController.addLocationToSession(locationDto)
+                        trackSyncController.addLocationToSession(locationDto) { }
                     }
 
                     checkpoints.forEach { cp ->
                         val cpDto = GpsLocationDto.fromCheckpoint(cp, resp.id!!)
-                        trackSyncController.addLocationToSession(cpDto)
+                        trackSyncController.addLocationToSession(cpDto) { }
                     }
 
                     wayPoints.forEach { wp ->
                         val wpDto = GpsLocationDto.fromWayPoint(wp, resp.id!!)
-                        trackSyncController.addLocationToSession(wpDto)
+                        trackSyncController.addLocationToSession(wpDto) { }
                     }
 
                     offlineSessionsRepository.deleteOfflineSession(sessionId.id)
                     // Check for failure?
-                }
+                }, { }
+                )
             }
         }
     }

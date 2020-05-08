@@ -26,6 +26,7 @@ class UserRepository(context: Context): IRepository {
         userValues.put(DatabaseHelper.KEY_USER_SPEED_MODE, user.speedMode)
         userValues.put(DatabaseHelper.KEY_USER_DEFAULT_ACTIVITY, user.defaultActivityType.value)
         userValues.put(DatabaseHelper.KEY_USER_AUTO_SYNC, user.autoSync)
+        userValues.put(DatabaseHelper.KEY_USER_SYNC_INTERVAL, user.syncInterval)
 
         databaseHelper.writableDatabase.beginTransaction()
         val id = databaseHelper.writableDatabase.insert(DatabaseHelper.TABLE_USERS, null, userValues)
@@ -53,7 +54,8 @@ class UserRepository(context: Context): IRepository {
                     cursor.getString(5),
                     cursor.getInt(6) == 1,
                     TrackType.fromInt(cursor.getInt(7))!!,
-                    cursor.getInt(8) == 1
+                    cursor.getInt(8) == 1,
+                    cursor.getLong(9)
                 )
             }
             cursor.close()
@@ -71,6 +73,7 @@ class UserRepository(context: Context): IRepository {
         userValues.put(DatabaseHelper.KEY_USER_SPEED_MODE, user.speedMode)
         userValues.put(DatabaseHelper.KEY_USER_DEFAULT_ACTIVITY, user.defaultActivityType.value)
         userValues.put(DatabaseHelper.KEY_USER_AUTO_SYNC, user.autoSync)
+        userValues.put(DatabaseHelper.KEY_USER_SYNC_INTERVAL, user.syncInterval)
 
         databaseHelper.writableDatabase.beginTransaction()
         databaseHelper.writableDatabase.update(DatabaseHelper.TABLE_USERS, userValues, "${DatabaseHelper.KEY_ID} = ?", arrayOf(user.userId.toString()))

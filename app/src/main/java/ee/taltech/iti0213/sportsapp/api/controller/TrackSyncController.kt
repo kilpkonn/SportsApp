@@ -28,7 +28,7 @@ class TrackSyncController private constructor(val context: Context) {
         }
     }
 
-    fun createNewSession(gpsSessionDto: GpsSessionDto, onSuccess: (r: GpsSessionDto) -> Unit) {
+    fun createNewSession(gpsSessionDto: GpsSessionDto, onSuccess: (r: GpsSessionDto) -> Unit, onError: () -> Unit) {
         val handler = WebApiHandler.getInstance(context)
         Log.d(TAG, mapper.writeValueAsString(gpsSessionDto))
 
@@ -43,6 +43,7 @@ class TrackSyncController private constructor(val context: Context) {
             { error ->
                 Log.e(TAG, error.toString())
                 Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                onError()
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             })
     }

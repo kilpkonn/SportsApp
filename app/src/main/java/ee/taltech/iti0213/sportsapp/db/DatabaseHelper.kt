@@ -79,6 +79,7 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
         const val KEY_USER_SPEED_MODE = "speed_mode"
         const val KEY_USER_DEFAULT_ACTIVITY = "default_activity"
         const val KEY_USER_AUTO_SYNC = "auto_sync"
+        const val KEY_USER_SYNC_INTERVAL = "sync_interval"
 
         private var instance: DatabaseHelper? = null
         private var instanceCount: AtomicInteger = AtomicInteger(0)
@@ -168,7 +169,8 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 + KEY_USER_LAST_NAME + " TEXT NOT NULL,"
                 + KEY_USER_SPEED_MODE + " INTEGER NOT NULL,"
                 + KEY_USER_DEFAULT_ACTIVITY + " INTEGER NULL,"
-                + KEY_USER_AUTO_SYNC + " INTEGER NOT NULL" + ")")
+                + KEY_USER_AUTO_SYNC + " INTEGER NOT NULL,"
+                + KEY_USER_SYNC_INTERVAL + " INTEGER NOT NULL" + ")")
         db?.execSQL(createUsersTable)
 
         val createOfflineSessionsTable = ("CREATE TABLE " + TABLE_OFFLINE_SESSIONS + "("

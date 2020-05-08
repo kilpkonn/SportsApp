@@ -11,6 +11,6 @@ class User(
     val lastName: String,
     var speedMode: Boolean = true,
     var defaultActivityType: TrackType = TrackType.UNKNOWN,
-    var autoSync: Boolean = true
-) {
-}
+    var autoSync: Boolean = true,
+    var syncInterval: Long = 30 * 1000L
+)

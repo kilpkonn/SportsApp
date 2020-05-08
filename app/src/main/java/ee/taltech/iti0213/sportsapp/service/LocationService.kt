@@ -23,8 +23,6 @@ import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
-import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
-import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
@@ -34,6 +32,7 @@ import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
+import java.util.*
 
 
 class LocationService : Service() {
@@ -44,6 +43,8 @@ class LocationService : Service() {
         private const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 2000L
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
+
+    private val gpsLocationsToUpload = mutableListOf<GpsLocationDto>()
 
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
@@ -63,6 +64,7 @@ class LocationService : Service() {
 
     private var user: User? = null
     private var gpsSession: GpsSessionDto? = null
+    private var lastUploadTime: Long = 0L
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -313,10 +315,20 @@ class LocationService : Service() {
     private fun uploadLocationIfNeeded(location: TrackLocation) {
         if (user != null && user!!.autoSync) {
             if (gpsSession == null) {
-                // trackSyncController.createNewSession() TODO
+                val gpsSessionDto = GpsSessionDto(
+                    name = track!!.name,
+                    description = track!!.name,
+                    recordedAt = Date(track!!.startTime)
+                )
+                trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response}, { })
             }
 
-            trackSyncController.addLocationToSession(GpsLocationDto.fromTrackLocation(location, gpsSession!!.id!!))
+            gpsLocationsToUpload.add(GpsLocationDto.fromTrackLocation(location, gpsSession!!.id!!))
+
+
+            gpsLocationsToUpload.forEach { locationToUpload ->
+                trackSyncController.addLocationToSession(locationToUpload) { gpsLocationsToUpload.add(locationToUpload)}
+            }
         }
     }
 
