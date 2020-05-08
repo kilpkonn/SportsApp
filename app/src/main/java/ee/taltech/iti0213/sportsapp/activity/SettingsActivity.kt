@@ -268,12 +268,16 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun onSpeedModeChange(isOn: Boolean) {
-        user!!.speedMode = !isOn
-        userRepository.updateUser(user!!)
+        user?.speedMode = !isOn
+        if (user != null) {
+            userRepository.updateUser(user!!)
+        }
     }
 
     private fun onAutoSyncChange(isOn: Boolean) {
-        user!!.autoSync = isOn
-        userRepository.updateUser(user!!)
+        user?.autoSync = isOn
+        if (user != null) {
+            userRepository.updateUser(user!!)
+        }
     }
 }

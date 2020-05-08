@@ -44,8 +44,6 @@ class LocationService : Service() {
         private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
     }
 
-    private val gpsLocationsToUpload = mutableListOf<GpsLocationDto>()
-
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
@@ -65,6 +63,7 @@ class LocationService : Service() {
     private var user: User? = null
     private var gpsSession: GpsSessionDto? = null
     private var lastUploadTime: Long = 0L
+    private var gpsLocationsToUpload = mutableListOf<TrackLocation>()
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -127,7 +126,13 @@ class LocationService : Service() {
         Log.i(TAG, "New location: $location")
         // First location
 
-        if (isAddingToTrack) track?.update(TrackLocation.fromLocation(location))
+        val trackLocation = TrackLocation.fromLocation(location)
+
+        if (isAddingToTrack) {
+            track?.update(trackLocation)
+        }
+
+        uploadLocationIfNeeded(trackLocation)
 
         // broadcast trackData
         val trackData = track?.getTrackData()
@@ -140,7 +145,7 @@ class LocationService : Service() {
 
         // broadcast new location to UI
         val locationIntent = Intent(C.LOCATION_UPDATE_ACTION)
-        locationIntent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, TrackLocation.fromLocation(location) as Parcelable)
+        locationIntent.putExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION, trackLocation as Parcelable)
         LocalBroadcastManager.getInstance(this).sendBroadcast(locationIntent)
         LocalBroadcastManager.getInstance(this).sendBroadcast(trackDataIntent)
 
@@ -258,15 +263,24 @@ class LocationService : Service() {
 
         notifyView.setTextViewText(R.id.total_distance, Converter.distToString(trackData?.totalDistance ?: 0.0))
         notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(trackData?.totalTime ?: 0))
-        notifyView.setTextViewText(R.id.avg_speed, Converter.speedToString(trackData?.getAverageSpeedFromStart() ?: 0.0, user?.speedMode ?: true))
+        notifyView.setTextViewText(
+            R.id.avg_speed,
+            Converter.speedToString(trackData?.getAverageSpeedFromStart() ?: 0.0, user?.speedMode ?: true)
+        )
 
         notifyView.setTextViewText(R.id.distance_cp, Converter.distToString(trackData?.distanceFromLastCP ?: 0.0))
         notifyView.setTextViewText(R.id.drift_cp, Converter.distToString(trackData?.driftLastCP?.toDouble() ?: 0.0))
-        notifyView.setTextViewText(R.id.avg_speed_cp, Converter.speedToString(trackData?.getAverageSpeedFromLastCP() ?: 0.0, user?.speedMode ?: true))
+        notifyView.setTextViewText(
+            R.id.avg_speed_cp,
+            Converter.speedToString(trackData?.getAverageSpeedFromLastCP() ?: 0.0, user?.speedMode ?: true)
+        )
 
         notifyView.setTextViewText(R.id.distance_wp, Converter.distToString(trackData?.distanceFromLastWP ?: 0.0))
         notifyView.setTextViewText(R.id.drift_wp, Converter.distToString(trackData?.driftLastWP?.toDouble() ?: 0.0))
-        notifyView.setTextViewText(R.id.avg_speed_wp, Converter.speedToString(trackData?.getAverageSpeedFromLastWP() ?: 0.0, user?.speedMode ?: true))
+        notifyView.setTextViewText(
+            R.id.avg_speed_wp,
+            Converter.speedToString(trackData?.getAverageSpeedFromLastWP() ?: 0.0, user?.speedMode ?: true)
+        )
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
@@ -320,14 +334,22 @@ class LocationService : Service() {
                     description = track!!.name,
                     recordedAt = Date(track!!.startTime)
                 )
-                trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response}, { })
+                trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response }, { })
             }
 
-            gpsLocationsToUpload.add(GpsLocationDto.fromTrackLocation(location, gpsSession!!.id!!))
+            gpsLocationsToUpload.add(location)
 
-
-            gpsLocationsToUpload.forEach { locationToUpload ->
-                trackSyncController.addLocationToSession(locationToUpload) { gpsLocationsToUpload.add(locationToUpload)}
+            if (gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
+                val toUpload = gpsLocationsToUpload
+                gpsLocationsToUpload = mutableListOf()
+                toUpload.forEach { locationToUpload ->
+                    trackSyncController.addLocationToSession(
+                        GpsLocationDto.fromTrackLocation(
+                            locationToUpload,
+                            gpsSession!!.id!!
+                        )
+                    ) { gpsLocationsToUpload.add(locationToUpload) }
+                }
             }
         }
     }

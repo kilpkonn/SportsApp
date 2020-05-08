@@ -56,6 +56,10 @@ class WebApiHandler private constructor(var context: Context) {
     }
 
     fun makeAuthorizedRequest(url: String, json: JSONObject, onSuccess: (r: JSONObject) -> Unit, onError:(error: VolleyError) -> Unit) {
+        if (jwt.get() == null) {
+            onError(VolleyError())
+            return
+        }
         val httpRequest = object : JsonObjectRequest(
             POST,
             "${BASE_URL}v${API_VERSION}/$url",
