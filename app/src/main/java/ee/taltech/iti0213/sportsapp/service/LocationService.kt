@@ -21,6 +21,8 @@ import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
+import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
+import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.domain.User
@@ -60,6 +62,7 @@ class LocationService : Service() {
     private val trackSyncController = TrackSyncController.getInstance(this)
 
     private var user: User? = null
+    private var gpsSession: GpsSessionDto? = null
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -307,6 +310,16 @@ class LocationService : Service() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
+    private fun uploadLocationIfNeeded(location: TrackLocation) {
+        if (user != null && user!!.autoSync) {
+            if (gpsSession == null) {
+                // trackSyncController.createNewSession() TODO
+            }
+
+            trackSyncController.addLocationToSession(GpsLocationDto.fromTrackLocation(location, gpsSession!!.id!!))
+        }
+    }
+
     // ===================================== BROADCAST RECEIVER ========================================
 
     private inner class InnerBroadcastReceiver : BroadcastReceiver() {
@@ -385,7 +398,7 @@ class LocationService : Service() {
                     checkpointsRepository,
                     wayPointsRepository,
                     trackSyncController
-                )
+                ) // TODO: Rework this
             }
             track = Track()
             isAddingToTrack = false

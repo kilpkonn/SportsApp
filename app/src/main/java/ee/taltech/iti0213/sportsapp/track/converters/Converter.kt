@@ -1,7 +1,6 @@
 package ee.taltech.iti0213.sportsapp.track.converters
 
 import kotlin.math.abs
-import kotlin.math.round
 
 class Converter {
     companion object {

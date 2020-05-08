@@ -150,7 +150,7 @@ class HistoryActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
-    fun onFlingRight() {
+    private fun onFlingRight() {
         moveTaskToBack(true)
     }
 
