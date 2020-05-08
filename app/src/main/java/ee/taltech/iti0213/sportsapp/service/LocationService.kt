@@ -23,6 +23,7 @@ import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
+import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
@@ -57,6 +58,8 @@ class LocationService : Service() {
 
     private val accountController = AccountController.getInstance(this)
     private val trackSyncController = TrackSyncController.getInstance(this)
+
+    private var user: User? = null
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -250,15 +253,15 @@ class LocationService : Service() {
 
         notifyView.setTextViewText(R.id.total_distance, Converter.distToString(trackData?.totalDistance ?: 0.0))
         notifyView.setTextViewText(R.id.duration, Converter.longToHhMmSs(trackData?.totalTime ?: 0))
-        notifyView.setTextViewText(R.id.avg_speed, Converter.speedToString(trackData?.getAverageSpeedFromStart() ?: 0.0))
+        notifyView.setTextViewText(R.id.avg_speed, Converter.speedToString(trackData?.getAverageSpeedFromStart() ?: 0.0, user?.speedMode ?: true))
 
         notifyView.setTextViewText(R.id.distance_cp, Converter.distToString(trackData?.distanceFromLastCP ?: 0.0))
         notifyView.setTextViewText(R.id.drift_cp, Converter.distToString(trackData?.driftLastCP?.toDouble() ?: 0.0))
-        notifyView.setTextViewText(R.id.avg_speed_cp, Converter.speedToString(trackData?.getAverageSpeedFromLastCP() ?: 0.0))
+        notifyView.setTextViewText(R.id.avg_speed_cp, Converter.speedToString(trackData?.getAverageSpeedFromLastCP() ?: 0.0, user?.speedMode ?: true))
 
         notifyView.setTextViewText(R.id.distance_wp, Converter.distToString(trackData?.distanceFromLastWP ?: 0.0))
         notifyView.setTextViewText(R.id.drift_wp, Converter.distToString(trackData?.driftLastWP?.toDouble() ?: 0.0))
-        notifyView.setTextViewText(R.id.avg_speed_wp, Converter.speedToString(trackData?.getAverageSpeedFromLastWP() ?: 0.0))
+        notifyView.setTextViewText(R.id.avg_speed_wp, Converter.speedToString(trackData?.getAverageSpeedFromLastWP() ?: 0.0, user?.speedMode ?: true))
         notifyView.setViewPadding(R.id.track_control_bar, 0, 100, 1, 0)
 
         // construct and show notification
@@ -289,6 +292,8 @@ class LocationService : Service() {
     }
 
     private fun onTrackSyncRequest(since: Long) {
+        user = userRepository.readUser() // TODO: Something else here?
+
         if (track == null) return
 
         // Notify activity, that track has been reset

@@ -51,8 +51,10 @@ import ee.taltech.iti0213.sportsapp.component.spinner.DisplayMode
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.RotationMode
 import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
+import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
+import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
@@ -99,8 +101,12 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
+    private val userRepository = UserRepository.open(this)
+
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
+
+    private var user: User? = null
 
     private var locationServiceActive = false
     private var isTracking = false
@@ -383,6 +389,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         Log.d(TAG, "onStart")
         super.onStart()
         isSyncedWithService = false
+        user = userRepository.readUser()
     }
 
     override fun onResume() {
@@ -414,6 +421,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         unregisterReceiver(broadcastReceiver)
         trackSummaryRepository.close()
         trackLocationsRepository.close()
+        userRepository.close()
     }
 
     override fun onRestart() {
@@ -797,15 +805,15 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             textViewTotalDistance.text = Converter.distToString(trackData.totalDistance)
             textViewTotalTime.text = Converter.longToHhMmSs(trackData.totalTime)
-            textViewAverageSpeed.text = Converter.speedToString(trackData.getAverageSpeedFromStart())
+            textViewAverageSpeed.text = Converter.speedToString(trackData.getAverageSpeedFromStart(), user?.speedMode ?: true)
 
             textViewDistanceLastCP.text = Converter.distToString(trackData.distanceFromLastCP)
             textViewDriftLastCP.text = Converter.distToString(trackData.driftLastCP.toDouble())
-            textViewAverageSpeedLastCP.text = Converter.speedToString(trackData.getAverageSpeedFromLastCP())
+            textViewAverageSpeedLastCP.text = Converter.speedToString(trackData.getAverageSpeedFromLastCP(), user?.speedMode ?: true)
 
             textViewDistanceLastWP.text = Converter.distToString(trackData.distanceFromLastWP)
             textViewDriftLastWP.text = Converter.distToString(trackData.driftLastWP.toDouble())
-            textViewAverageSpeedLastWP.text = Converter.speedToString(trackData.getAverageSpeedFromLastWP())
+            textViewAverageSpeedLastWP.text = Converter.speedToString(trackData.getAverageSpeedFromLastWP(), user?.speedMode ?: true)
         }
     }
 

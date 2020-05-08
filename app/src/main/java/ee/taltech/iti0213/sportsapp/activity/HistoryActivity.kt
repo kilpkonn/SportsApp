@@ -23,6 +23,8 @@ import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.component.view.TrackIconImageView
+import ee.taltech.iti0213.sportsapp.db.domain.User
+import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -37,6 +39,10 @@ class HistoryActivity : AppCompatActivity() {
 
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
+
+    private val userRepository = UserRepository.open(this)
+
+    private var user: User? = null
 
     private var selectedItems = hashMapOf<Long, Int>()
 
@@ -61,6 +67,8 @@ class HistoryActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        user = userRepository.readUser()
+
         overridePendingTransition(
             R.anim.slide_in_from_right,
             R.anim.slide_out_to_left
@@ -77,8 +85,8 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.duration).text = Converter.longToHhMmSs(track.durationMoving)
                 trackView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(track.elevationGained)
                 trackView.findViewById<TextView>(R.id.avg_speed).text =
-                    Converter.speedToString(track.distance / track.durationMoving * 1_000_000_000 * 3.6)
-                trackView.findViewById<TextView>(R.id.max_speed).text = Converter.speedToString(track.maxSpeed)
+                    Converter.speedToString(track.distance / track.durationMoving * 1_000_000_000 * 3.6, user?.speedMode ?: true)
+                trackView.findViewById<TextView>(R.id.max_speed).text = Converter.speedToString(track.maxSpeed, user?.speedMode ?: true)
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
@@ -114,6 +122,7 @@ class HistoryActivity : AppCompatActivity() {
         super.onDestroy()
         trackSummaryRepository.close()
         trackLocationsRepository.close()
+        userRepository.close()
     }
 
     override fun onPause() {

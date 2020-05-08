@@ -20,6 +20,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
+import ee.taltech.iti0213.sportsapp.db.domain.User
+import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
@@ -45,7 +47,11 @@ class DetailActivity : AppCompatActivity() {
     private val broadcastReceiver = InnerBroadcastReceiver()
     private val broadcastReceiverIntentFilter: IntentFilter = IntentFilter()
 
+    private val userRepository = UserRepository.open(this)
+
     private var trackType = 0
+
+    private var user: User? = null
 
     private lateinit var flingDetector: FlingDetector
 
@@ -139,6 +145,7 @@ class DetailActivity : AppCompatActivity() {
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
+        user = userRepository.readUser()
     }
 
     override fun onResume() {
@@ -169,6 +176,7 @@ class DetailActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
+        userRepository.close()
     }
 
     override fun onRestart() {
@@ -220,7 +228,7 @@ class DetailActivity : AppCompatActivity() {
                 textEditTrackName.setText(data.name)
             }
             txtViewDuration.text = Converter.longToHhMmSs(data.duration);
-            txtViewAverageSpeed.text = Converter.speedToString(data.getSpeed())
+            txtViewAverageSpeed.text = Converter.speedToString(data.getSpeed(), user?.speedMode ?: true)
             txtViewElevationGained.text = Converter.elevationToString(data.elevationGained)
             txtViewDrift.text = Converter.distToString(data.drift)
             txtViewDistance.text = Converter.distToString(data.distance)

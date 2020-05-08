@@ -1,6 +1,7 @@
 package ee.taltech.iti0213.sportsapp.track.converters
 
 import kotlin.math.abs
+import kotlin.math.round
 
 class Converter {
     companion object {
@@ -16,8 +17,12 @@ class Converter {
             return if (distance < 1000) "%.2f m".format(abs(distance)) else "%.1f km".format(distance / 1000)
         }
 
-        fun speedToString(speed: Double): String {
-            return (if (abs(speed) < 10) "%.2f km/h" else "%.1f km/h").format(abs(speed))
+        fun speedToString(speed: Double, isSpeedMode: Boolean): String {
+            if (isSpeedMode) {
+                return (if (abs(speed) < 10) "%.2f km/h" else "%.1f km/h").format(abs(speed))
+            }
+            if (speed < 1 / 60.0) return "-:--"
+            return "%d:%d".format(abs((1 / speed * 60).toInt()), abs((1 / speed * 60 * 60).toInt() % 60))
         }
 
         fun elevationToString(elevationGained: Double): String {
