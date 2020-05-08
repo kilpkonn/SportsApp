@@ -327,6 +327,7 @@ class LocationService : Service() {
     }
 
     private fun uploadLocationIfNeeded(location: TrackLocation) {
+        gpsLocationsToUpload.add(location)
         if (user != null && user!!.autoSync) {
             if (gpsSession == null) {
                 val gpsSessionDto = GpsSessionDto(
@@ -336,8 +337,6 @@ class LocationService : Service() {
                 )
                 trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response }, { })
             }
-
-            gpsLocationsToUpload.add(location)
 
             if (gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
                 val toUpload = gpsLocationsToUpload
