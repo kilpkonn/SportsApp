@@ -3,7 +3,6 @@ package ee.taltech.iti0213.sportsapp.db.repository
 import android.content.ContentValues
 import android.content.Context
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
-import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.track.TrackType
 
@@ -18,25 +17,24 @@ class UserRepository(context: Context): IRepository {
     private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun saveUser(user: User): Long {
-        val trackValues = ContentValues()
-        trackValues.put(DatabaseHelper.KEY_USER_USERNAME, user.username)
-        trackValues.put(DatabaseHelper.KEY_USER_EMAIL, user.email)
-        trackValues.put(DatabaseHelper.KEY_USER_PASSWORD, user.password)
-        trackValues.put(DatabaseHelper.KEY_USER_FIRST_NAME, user.firstName)
-        trackValues.put(DatabaseHelper.KEY_USER_LAST_NAME, user.lastName)
-        trackValues.put(DatabaseHelper.KEY_USER_SPEED_MODE, user.speedMode)
-        trackValues.put(DatabaseHelper.KEY_USER_DEFAULT_ACTIVITY, user.defaultActivityType.value)
-        trackValues.put(DatabaseHelper.KEY_USER_AUTO_SYNC, user.autoSync)
+        val userValues = ContentValues()
+        userValues.put(DatabaseHelper.KEY_USER_USERNAME, user.username)
+        userValues.put(DatabaseHelper.KEY_USER_EMAIL, user.email)
+        userValues.put(DatabaseHelper.KEY_USER_PASSWORD, user.password)
+        userValues.put(DatabaseHelper.KEY_USER_FIRST_NAME, user.firstName)
+        userValues.put(DatabaseHelper.KEY_USER_LAST_NAME, user.lastName)
+        userValues.put(DatabaseHelper.KEY_USER_SPEED_MODE, user.speedMode)
+        userValues.put(DatabaseHelper.KEY_USER_DEFAULT_ACTIVITY, user.defaultActivityType.value)
+        userValues.put(DatabaseHelper.KEY_USER_AUTO_SYNC, user.autoSync)
 
         databaseHelper.writableDatabase.beginTransaction()
-        val id = databaseHelper.writableDatabase.insert(DatabaseHelper.TABLE_USERS, null, trackValues)
+        val id = databaseHelper.writableDatabase.insert(DatabaseHelper.TABLE_USERS, null, userValues)
         databaseHelper.writableDatabase.setTransactionSuccessful()
         databaseHelper.writableDatabase.endTransaction()
         return id
     }
 
     fun readUser(): User? {
-
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_USERS
                 // + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
                 + " LIMIT 1 ")
@@ -47,6 +45,7 @@ class UserRepository(context: Context): IRepository {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 user = User(
+                    cursor.getLong(0),
                     cursor.getString(1),
                     cursor.getString(2),
                     cursor.getString(3),
@@ -60,6 +59,23 @@ class UserRepository(context: Context): IRepository {
             cursor.close()
         }
         return user
+    }
+
+    fun updateUser(user: User) {
+        val userValues = ContentValues()
+        userValues.put(DatabaseHelper.KEY_USER_USERNAME, user.username)
+        userValues.put(DatabaseHelper.KEY_USER_EMAIL, user.email)
+        userValues.put(DatabaseHelper.KEY_USER_PASSWORD, user.password)
+        userValues.put(DatabaseHelper.KEY_USER_FIRST_NAME, user.firstName)
+        userValues.put(DatabaseHelper.KEY_USER_LAST_NAME, user.lastName)
+        userValues.put(DatabaseHelper.KEY_USER_SPEED_MODE, user.speedMode)
+        userValues.put(DatabaseHelper.KEY_USER_DEFAULT_ACTIVITY, user.defaultActivityType.value)
+        userValues.put(DatabaseHelper.KEY_USER_AUTO_SYNC, user.autoSync)
+
+        databaseHelper.writableDatabase.beginTransaction()
+        databaseHelper.writableDatabase.update(DatabaseHelper.TABLE_USERS, userValues, "${DatabaseHelper.KEY_ID} = ?", arrayOf(user.userId.toString()))
+        databaseHelper.writableDatabase.setTransactionSuccessful()
+        databaseHelper.writableDatabase.endTransaction()
     }
 
     fun deleteUsers() {

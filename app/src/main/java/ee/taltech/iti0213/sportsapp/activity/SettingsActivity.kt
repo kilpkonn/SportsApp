@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
@@ -58,6 +56,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var layoutRegister: ConstraintLayout
     private lateinit var layoutSettings: ConstraintLayout
 
+    private lateinit var switchAutoSync: Switch
+    private lateinit var switchSpeedMode: Switch
+    private lateinit var seekBarSyncInterval: SeekBar
+
     private lateinit var buttonRegister: Button
     private lateinit var buttonSyncTrack: Button
     private lateinit var buttonToggleRegister: Button
@@ -91,8 +93,15 @@ class SettingsActivity : AppCompatActivity() {
         layoutRegister = findViewById(R.id.layout_register)
         layoutSettings = findViewById(R.id.layout_settings)
 
+        switchAutoSync = findViewById(R.id.switch_auto_sync)
+        switchSpeedMode = findViewById(R.id.switch_speed_pace)
+        seekBarSyncInterval = findViewById(R.id.seek_bar_sync_interval)
+
         buttonSyncTrack = findViewById(R.id.btn_sync_track)
         buttonLogOut = findViewById(R.id.btn_logout)
+
+        switchSpeedMode.setOnCheckedChangeListener { _, isChecked -> onSpeedModeChange(isChecked) }
+        switchAutoSync.setOnCheckedChangeListener { _, isChecked -> onAutoSyncChange(isChecked) }
 
         buttonRegister.setOnClickListener { onRegister() }
         buttonToggleRegister.setOnClickListener { onToggleRegister() }
@@ -104,9 +113,14 @@ class SettingsActivity : AppCompatActivity() {
         if (user == null) {
             layoutRegister.visibility = View.VISIBLE
             layoutSettings.visibility = View.GONE
+            switchAutoSync.isChecked = true
+            switchSpeedMode.isChecked = true
         } else {
             layoutRegister.visibility = View.GONE
             layoutSettings.visibility = View.VISIBLE
+
+            switchAutoSync.isChecked = user!!.autoSync
+            switchSpeedMode.isChecked = !user!!.speedMode
 
             accountController.login(LoginDto(user!!.email, user!!.password + "-A"))
         }
@@ -225,6 +239,7 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         val user = User(
+            null,
             editTextUsername.text.toString(),
             registerDto.email,
             HashUtils.md5(editTextPassword.text.toString()),
@@ -250,5 +265,15 @@ class SettingsActivity : AppCompatActivity() {
             wayPointsRepository,
             trackSyncController
         )
+    }
+
+    private fun onSpeedModeChange(isOn: Boolean) {
+        user!!.speedMode = !isOn
+        userRepository.updateUser(user!!)
+    }
+
+    private fun onAutoSyncChange(isOn: Boolean) {
+        user!!.autoSync = isOn
+        userRepository.updateUser(user!!)
     }
 }
