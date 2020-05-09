@@ -265,7 +265,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         if (!isAddingWP) return
         if (latLng == null) return
 
-        val wp = WayPoint(latLng.latitude, latLng.longitude, lastUpdateTime)
+        val wp = WayPoint(latLng.latitude, latLng.longitude, lastLocation?.timestamp ?: 0L)
         addWP(wp)
 
         val intent = Intent(C.TRACK_ACTION_ADD_WP)

@@ -13,7 +13,7 @@ class GpsLocationDto(
     @JsonProperty("id")
     val id: String?,
     @JsonProperty("recordedAt")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="GMT")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="GMT")
     val recordedAt: Date,
     @JsonProperty("latitude")
     val latitude: Double,
