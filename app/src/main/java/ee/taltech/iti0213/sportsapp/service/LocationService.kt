@@ -326,8 +326,12 @@ class LocationService : Service() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
-    private fun uploadLocationIfNeeded(location: TrackLocation) {
-        gpsLocationsToUpload.add(location)
+    private fun uploadLocationIfNeeded(location: TrackLocation?) {
+        if (!isAddingToTrack) return
+
+        if (location != null)
+            gpsLocationsToUpload.add(location)
+
         if (user != null && user!!.autoSync) {
             if (gpsSession == null) {
                 val gpsSessionDto = GpsSessionDto(
@@ -338,7 +342,7 @@ class LocationService : Service() {
                 trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response }, { })
             }
 
-            if (gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
+            if (location == null || gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
                 val toUpload = gpsLocationsToUpload
                 gpsLocationsToUpload = mutableListOf()
                 toUpload.forEach { locationToUpload ->
@@ -424,14 +428,12 @@ class LocationService : Service() {
 
             val user = userRepository.readUser()
             if (user != null && user.autoSync) {
-                TrackUtils.syncTracks(
-                    offlineSessionsRepository,
-                    trackSummaryRepository,
-                    trackLocationsRepository,
-                    checkpointsRepository,
-                    wayPointsRepository,
-                    trackSyncController
-                ) // TODO: Rework this
+                uploadLocationIfNeeded(null)
+                if (gpsLocationsToUpload.isNotEmpty()) {
+                    offlineSessionsRepository.saveOfflineSession(trackId)
+                }
+            } else {
+                offlineSessionsRepository.saveOfflineSession(trackId)
             }
             track = Track()
             isAddingToTrack = false
