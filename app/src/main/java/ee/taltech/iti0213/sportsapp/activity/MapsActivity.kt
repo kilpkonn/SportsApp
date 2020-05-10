@@ -300,6 +300,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         if (wpMarkers.containsKey(marker)) {
             marker.remove()
             val intent = Intent(C.TRACK_ACTION_REMOVE_WP)
+            wpMarkers[marker]?.timeRemoved = lastLocation?.timestamp
             intent.putExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION, wpMarkers[marker])
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             wpMarkers.remove(marker)

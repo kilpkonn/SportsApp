@@ -247,8 +247,7 @@ class LocationService : Service() {
         val intentCp = Intent(C.NOTIFICATION_ACTION_ADD_CP)
         val intentWp = Intent(C.NOTIFICATION_ACTION_ADD_WP)
         if (track != null && track!!.lastLocation != null) {
-            val locWP =
-                WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.timestamp)
+            val locWP = WayPoint(track!!.lastLocation!!.latitude, track!!.lastLocation!!.longitude, track!!.lastLocation!!.timestamp)
             intentWp.putExtra(C.NOTIFICATION_ACTION_ADD_WP_DATA, locWP)
 
             intentCp.putExtra(C.NOTIFICATION_ACTION_ADD_CP_DATA, track!!.lastLocation as Parcelable)
