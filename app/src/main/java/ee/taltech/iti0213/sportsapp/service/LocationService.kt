@@ -358,6 +358,7 @@ class LocationService : Service() {
                 trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!) {
                     gpsLocationsToUpload.addAll(backUp)
                 }
+                lastUploadTime = location?.timestamp ?: 0L
 
                 /*
                 toUpload.forEach { locationToUpload ->
