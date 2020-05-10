@@ -352,7 +352,13 @@ class LocationService : Service() {
                         loc,
                         gpsSession!!.id!!
                     )
-                }
+                }.toMutableList()
+
+                track!!.checkpoints.filter { cp -> cp.elapsedTimestamp > gpsLocationsToUpload.first().elapsedTimestamp }
+                    .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
+                track!!.waypoints.filter { wp -> wp.timeAdded > gpsLocationsToUpload.first().timestamp }
+                    .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
+
                 gpsLocationsToUpload = mutableListOf()
 
                 trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!,
@@ -363,17 +369,6 @@ class LocationService : Service() {
                         gpsLocationsToUpload.addAll(backUp)
                     }
                 )
-
-                /*
-                toUpload.forEach { locationToUpload ->
-                    trackSyncController.addLocationToSession(
-                        GpsLocationDto.fromTrackLocation(
-                            locationToUpload,
-                            gpsSession!!.id!!
-                        )
-                    ) { gpsLocationsToUpload.add(locationToUpload) }
-                }
-                */
             }
         }
     }
@@ -398,7 +393,9 @@ class LocationService : Service() {
                 }
                 C.TRACK_ACTION_ADD_CP -> {
                     if (!intent.hasExtra(C.TRACK_ACTION_ADD_CP_DATA)) return
-                    track?.addCheckpoint(intent.getParcelableExtra(C.TRACK_ACTION_ADD_CP_DATA)!!)
+                    val trackLocation: TrackLocation = intent.getParcelableExtra(C.TRACK_ACTION_ADD_CP_DATA)!!
+                    track?.addCheckpoint(trackLocation)
+                    gpsLocationsToUpload.add(trackLocation)
                 }
                 C.TRACK_ACTION_REMOVE_WP -> {
                     if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
