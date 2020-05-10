@@ -8,7 +8,9 @@ import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.db.domain.OfflineSession
 import ee.taltech.iti0213.sportsapp.db.repository.*
+import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
+import io.jenetics.jpx.GPX
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -65,11 +67,36 @@ class TrackUtils {
                         offlineSessionsRepository.deleteOfflineSession(sessionId.id)
                         Toast.makeText(context, "Uploaded session: ${session.name}", Toast.LENGTH_SHORT).show()
                     }, {
-                        Toast.makeText(context,"Error uploading session: ${session.name}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error uploading session: ${session.name}", Toast.LENGTH_SHORT).show()
                     })
                 }, { }
                 )
             }
+        }
+
+        fun serializeToGpx(track: Track) {
+            var lastPause = 0
+            val pauses = track.pauses
+            pauses.add(track.track.size)
+
+            val gpx = GPX.builder()
+                .addTrack { gpxTrack ->
+                    pauses.forEach { pause ->
+                        gpxTrack.addSegment { gpxSegment ->
+                            track.track.subList(lastPause, pause).forEach { trackLocation ->
+                                gpxSegment.addPoint { p ->
+                                    p.lat(trackLocation.latitude)
+                                        .lon(trackLocation.longitude)
+                                        .ele(trackLocation.altitude)
+                                        .hdop(trackLocation.accuracy.toDouble())
+                                        .vdop(trackLocation.altitudeAccuracy.toDouble())
+                                        .time(trackLocation.timestamp)
+                                }
+                            }
+                        }
+                        lastPause = pause
+                    }
+                }
         }
     }
 }
