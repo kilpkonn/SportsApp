@@ -355,10 +355,14 @@ class LocationService : Service() {
                 }
                 gpsLocationsToUpload = mutableListOf()
 
-                trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!) {
-                    gpsLocationsToUpload.addAll(backUp)
-                }
-                lastUploadTime = location?.timestamp ?: 0L
+                trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!,
+                    {
+                        lastUploadTime = location?.timestamp ?: 0L
+                    }
+                    , {
+                        gpsLocationsToUpload.addAll(backUp)
+                    }
+                )
 
                 /*
                 toUpload.forEach { locationToUpload ->
