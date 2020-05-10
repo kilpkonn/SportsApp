@@ -23,6 +23,7 @@ import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
+import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
@@ -339,12 +340,26 @@ class LocationService : Service() {
                     description = track!!.name,
                     recordedAt = Date(track!!.startTime)
                 )
-                trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response }, { })
+                trackSyncController.createNewSession(gpsSessionDto, { response -> gpsSession = response }, {
+                    accountController.login(LoginDto(user!!.email, user!!.password + "-A"))
+                })
             }
 
             if (location == null || gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
-                val toUpload = gpsLocationsToUpload
+                val backUp = gpsLocationsToUpload
+                val toUpload = gpsLocationsToUpload.map { loc ->
+                    GpsLocationDto.fromTrackLocation(
+                        loc,
+                        gpsSession!!.id!!
+                    )
+                }
                 gpsLocationsToUpload = mutableListOf()
+
+                trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!) {
+                    gpsLocationsToUpload.addAll(backUp)
+                }
+
+                /*
                 toUpload.forEach { locationToUpload ->
                     trackSyncController.addLocationToSession(
                         GpsLocationDto.fromTrackLocation(
@@ -353,6 +368,7 @@ class LocationService : Service() {
                         )
                     ) { gpsLocationsToUpload.add(locationToUpload) }
                 }
+                */
             }
         }
     }

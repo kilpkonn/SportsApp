@@ -3,13 +3,14 @@ package ee.taltech.iti0213.sportsapp.api
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
-import com.android.volley.Request
+import com.android.volley.*
 import com.android.volley.Request.Method.POST
-import com.android.volley.RequestQueue
-import com.android.volley.Response
-import com.android.volley.VolleyError
+import com.android.volley.toolbox.HttpHeaderParser
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicReference
@@ -55,7 +56,12 @@ class WebApiHandler private constructor(var context: Context) {
         }
     }
 
-    fun makeAuthorizedRequest(url: String, json: JSONObject, onSuccess: (r: JSONObject) -> Unit, onError:(error: VolleyError) -> Unit) {
+    fun makeAuthorizedRequest(
+        url: String,
+        json: JSONObject,
+        onSuccess: (r: JSONObject) -> Unit,
+        onError: (error: VolleyError) -> Unit
+    ) {
         if (jwt.get() == null) {
             onError(VolleyError())
             return
@@ -63,7 +69,7 @@ class WebApiHandler private constructor(var context: Context) {
         val httpRequest = object : JsonObjectRequest(
             POST,
             "${BASE_URL}v${API_VERSION}/$url",
-           json,
+            json,
             Response.Listener { response ->
                 Log.d(TAG, response.toString())
                 onSuccess(response)
@@ -81,6 +87,56 @@ class WebApiHandler private constructor(var context: Context) {
                 }
                 headers["Authorization"] = "Bearer " + jwt.get()!!
                 return headers
+            }
+        }
+        addToRequestQueue(httpRequest)
+    }
+
+    fun makeAuthorizedArrayRequest(
+        url: String,
+        json: JSONArray,
+        onSuccess: (r: JSONArray) -> Unit,
+        onError: (error: VolleyError) -> Unit
+    ) {
+        if (jwt.get() == null) {
+            onError(VolleyError())
+            return
+        }
+        val httpRequest = object : JsonArrayRequest(
+            POST,
+            "${BASE_URL}v${API_VERSION}/$url",
+            json,
+            Response.Listener { response ->
+                Log.d(TAG, response.toString())
+                onSuccess(response)
+            },
+            Response.ErrorListener { error ->
+                Log.e(TAG, error.toString())
+                // Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                onError(error)
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                for ((key, value) in super.getHeaders()) {
+                    headers[key] = value
+                }
+                headers["Authorization"] = "Bearer " + jwt.get()!!
+                return headers
+            }
+
+            override fun parseNetworkResponse(response: NetworkResponse?): Response<JSONArray> {
+                return try {
+                    val jsonString = String(response!!.data, Charset.defaultCharset())
+                    val arr = JSONArray()
+                    arr.put(JSONObject(jsonString))
+                    Response.success(
+                        arr,
+                        HttpHeaderParser.parseCacheHeaders(response)
+                    )
+                } catch (je: JSONException) {
+                    Response.error(ParseError(je))
+                }
             }
         }
         addToRequestQueue(httpRequest)

@@ -45,23 +45,22 @@ class TrackUtils {
                     recordedAt = Date(session.startTimestamp)
                 )
                 trackSyncController.createNewSession(sessionDto, { resp ->
+                    val locationsToUpload = mutableListOf<GpsLocationDto>()
                     locations.forEach { location ->
-                        val locationDto = GpsLocationDto.fromTrackLocation(location, resp.id!!)
-                        trackSyncController.addLocationToSession(locationDto) { }
+                        locationsToUpload.add(GpsLocationDto.fromTrackLocation(location, resp.id!!))
                     }
 
                     checkpoints.forEach { cp ->
-                        val cpDto = GpsLocationDto.fromCheckpoint(cp, resp.id!!)
-                        trackSyncController.addLocationToSession(cpDto) { }
+                        locationsToUpload.add(GpsLocationDto.fromCheckpoint(cp, resp.id!!))
                     }
 
                     wayPoints.forEach { wp ->
-                        val wpDto = GpsLocationDto.fromWayPoint(wp, resp.id!!)
-                        trackSyncController.addLocationToSession(wpDto) { }
+                        locationsToUpload.add(GpsLocationDto.fromWayPoint(wp, resp.id!!))
                     }
 
-                    offlineSessionsRepository.deleteOfflineSession(sessionId.id)
-                    // Check for failure?
+                    trackSyncController.addMultipleLocationsToSession(locationsToUpload, resp.id!!) {
+                        offlineSessionsRepository.deleteOfflineSession(sessionId.id)
+                    }
                 }, { }
                 )
             }

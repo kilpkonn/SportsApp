@@ -5,8 +5,10 @@ import android.util.Log
 import android.widget.Toast
 import com.fasterxml.jackson.databind.ObjectMapper
 import ee.taltech.iti0213.sportsapp.api.WebApiHandler
+import ee.taltech.iti0213.sportsapp.api.dto.BulkUploadResponseDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
+import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.charset.Charset
 
@@ -55,6 +57,25 @@ class TrackSyncController private constructor(val context: Context) {
             JSONObject(mapper.writeValueAsString(gpsLocationDto)),
             { response ->
                 Log.d(TAG, response.toString())
+            }, { error ->
+                Log.e(TAG, error.toString())
+                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                onError()
+                Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
+            })
+    }
+
+    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onError: () -> Unit) {
+        val handler = WebApiHandler.getInstance(context)
+        handler.makeAuthorizedArrayRequest(
+            "GpsLocations/bulkupload/$gpsSessionId",
+            JSONArray(mapper.writeValueAsString(gpsLocations)),
+            { response ->
+                Log.d(TAG, response.toString())
+                val responseDto = mapper.readValue(response[0].toString(), BulkUploadResponseDto::class.java)
+                if (responseDto.locationsAdded != responseDto.locationsReceived) {
+                    onError() // <- Something more elegant here? Not too much info to work with tho
+                }
             }, { error ->
                 Log.e(TAG, error.toString())
                 Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
