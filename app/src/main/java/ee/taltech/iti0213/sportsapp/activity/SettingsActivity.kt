@@ -275,7 +275,8 @@ class SettingsActivity : AppCompatActivity() {
             trackLocationsRepository,
             checkpointsRepository,
             wayPointsRepository,
-            trackSyncController
+            trackSyncController,
+            this
         )
     }
 

@@ -1,5 +1,7 @@
 package ee.taltech.iti0213.sportsapp.util
 
+import android.content.Context
+import android.widget.Toast
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
@@ -29,7 +31,8 @@ class TrackUtils {
             trackLocationsRepository: TrackLocationsRepository,
             checkpointsRepository: CheckpointsRepository,
             wayPointsRepository: WayPointsRepository,
-            trackSyncController: TrackSyncController
+            trackSyncController: TrackSyncController,
+            context: Context
         ) {
             val sessionsToSync = offlineSessionsRepository.readOfflineSessions()
 
@@ -58,9 +61,12 @@ class TrackUtils {
                         locationsToUpload.add(GpsLocationDto.fromWayPoint(wp, resp.id!!))
                     }
 
-                    trackSyncController.addMultipleLocationsToSession(locationsToUpload, resp.id!!) {
+                    trackSyncController.addMultipleLocationsToSession(locationsToUpload, resp.id!!, {
                         offlineSessionsRepository.deleteOfflineSession(sessionId.id)
-                    }
+                        Toast.makeText(context, "Uploaded session: ${session.name}", Toast.LENGTH_SHORT).show()
+                    }, {
+                        Toast.makeText(context,"Error uploading session: ${session.name}", Toast.LENGTH_SHORT).show()
+                    })
                 }, { }
                 )
             }

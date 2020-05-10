@@ -65,7 +65,7 @@ class TrackSyncController private constructor(val context: Context) {
             })
     }
 
-    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onError: () -> Unit) {
+    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onSuccess: (r: BulkUploadResponseDto) -> Unit, onError: () -> Unit) {
         val handler = WebApiHandler.getInstance(context)
         handler.makeAuthorizedArrayRequest(
             "GpsLocations/bulkupload/$gpsSessionId",
@@ -75,6 +75,8 @@ class TrackSyncController private constructor(val context: Context) {
                 val responseDto = mapper.readValue(response[0].toString(), BulkUploadResponseDto::class.java)
                 if (responseDto.locationsAdded != responseDto.locationsReceived) {
                     onError() // <- Something more elegant here? Not too much info to work with tho
+                } else {
+                    onSuccess(responseDto)
                 }
             }, { error ->
                 Log.e(TAG, error.toString())
