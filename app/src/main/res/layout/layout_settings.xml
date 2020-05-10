@@ -66,7 +66,7 @@
                 android:textSize="20sp"
                 android:padding="@dimen/padding_small"
                 android:textColor="@color/design_default_color_secondary_variant"
-                android:text="Auto sync tracks"
+                android:text="@string/auto_sync_tracks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <Switch
@@ -81,7 +81,8 @@
         <SeekBar
             android:id="@+id/seek_bar_sync_interval"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:max="60"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -93,7 +94,7 @@
                 android:textSize="20sp"
                 android:padding="@dimen/padding_small"
                 android:textColor="@color/design_default_color_secondary_variant"
-                android:text="Use pace instead of speed"
+                android:text="@string/pace_vs_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <Switch

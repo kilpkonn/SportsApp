@@ -131,4 +131,6 @@
     <string name="register">Register</string>
     <string name="register_instead">Register instead</string>
     <string name="login_instead">Log in instead</string>
+    <string name="auto_sync_tracks">Auto sync tracks</string>
+    <string name="pace_vs_speed">Use pace instead of speed</string>
 </resources>

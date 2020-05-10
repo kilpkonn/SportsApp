@@ -1,10 +1,12 @@
 package ee.taltech.iti0213.sportsapp.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.widget.*
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
@@ -23,6 +25,8 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val BUNDLE_IS_REGISTER = "toggle_register"
+
+        private const val MAX_SYNC_INTERVAL = 60 * 1000L
     }
 
     private val accountController = AccountController.getInstance(this)
@@ -102,6 +106,13 @@ class SettingsActivity : AppCompatActivity() {
 
         switchSpeedMode.setOnCheckedChangeListener { _, isChecked -> onSpeedModeChange(isChecked) }
         switchAutoSync.setOnCheckedChangeListener { _, isChecked -> onAutoSyncChange(isChecked) }
+        seekBarSyncInterval.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) { }
+            override fun onStartTrackingTouch(seekBar: SeekBar) { }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                onSyncIntervalChanged()
+            }
+        })
 
         buttonRegister.setOnClickListener { onRegister() }
         buttonToggleRegister.setOnClickListener { onToggleRegister() }
@@ -121,6 +132,7 @@ class SettingsActivity : AppCompatActivity() {
 
             switchAutoSync.isChecked = user!!.autoSync
             switchSpeedMode.isChecked = !user!!.speedMode
+            seekBarSyncInterval.progress = ((MAX_SYNC_INTERVAL - user!!.syncInterval) / 1000).toInt()
 
             accountController.login(LoginDto(user!!.email, user!!.password + "-A"))
         }
@@ -276,6 +288,14 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun onAutoSyncChange(isOn: Boolean) {
         user?.autoSync = isOn
+        if (user != null) {
+            userRepository.updateUser(user!!)
+        }
+    }
+
+    private fun onSyncIntervalChanged() {
+        user?.syncInterval = (MAX_SYNC_INTERVAL - seekBarSyncInterval.progress * 1000).toLong()
+        Log.d("", user!!.syncInterval.toString())
         if (user != null) {
             userRepository.updateUser(user!!)
         }
