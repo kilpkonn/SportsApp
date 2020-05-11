@@ -2,7 +2,6 @@ package ee.taltech.iti0213.sportsapp.util.serializer
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
 import io.jenetics.jpx.GPX
 import java.io.File
 import java.io.FileOutputStream
@@ -25,7 +24,6 @@ class TrackSerializer {
 
     fun saveGpx(gpx: GPX, name: String, context: Context, onSuccess: () -> Unit, onError: () -> Unit) {
         mExternalFile = File(context.getExternalFilesDir(FILE_PATH), name.replace(" ", "_"))
-        Log.d("", File(context.getExternalFilesDir(FILE_PATH), name).absolutePath.toString())
         try {
             FileOutputStream(mExternalFile!!).use { out ->
                 GPX.write(gpx, out)
