@@ -1,10 +1,12 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
@@ -209,6 +211,7 @@ class SettingsActivity : AppCompatActivity() {
             textUsernameLbl.visibility = View.GONE
             textFirstNameLbl.visibility = View.GONE
             textLastNameLbl.visibility = View.GONE
+            buttonRegister.setOnClickListener { onLogin() }
         } else {
             buttonRegister.text = getString(R.string.register)
             buttonToggleRegister.text = getString(R.string.login_instead)
@@ -219,6 +222,25 @@ class SettingsActivity : AppCompatActivity() {
             textUsernameLbl.visibility = View.VISIBLE
             textFirstNameLbl.visibility = View.VISIBLE
             textLastNameLbl.visibility = View.VISIBLE
+            buttonRegister.setOnClickListener { onRegister() }
+        }
+    }
+
+    private fun onLogin() {
+        val loginDto = LoginDto(editTextEmail.text.toString(), HashUtils.md5(editTextPassword.text.toString()) + "-A")
+        accountController.login(loginDto) {response ->
+            val newUser = User(
+                null,
+                "Not Implemented in backend",
+                editTextEmail.text.toString(),
+                HashUtils.md5(editTextPassword.text.toString()),
+                response.firstName,
+                response.lastName
+            )
+            userRepository.saveUser(newUser)
+            layoutRegister.visibility = View.GONE
+            layoutSettings.visibility = View.VISIBLE
+            user = newUser
         }
     }
 
