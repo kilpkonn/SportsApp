@@ -133,4 +133,6 @@
     <string name="login_instead">Log in instead</string>
     <string name="auto_sync_tracks">Auto sync tracks</string>
     <string name="pace_vs_speed">Use pace instead of speed</string>
+    <string name="btn_delete">DELETE</string>
+    <string name="btn_rename">RENAME</string>
 </resources>

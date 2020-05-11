@@ -210,7 +210,7 @@
 
         <Button
             android:id="@+id/btn_delete"
-            android:text="DELETE"
+            android:text="@string/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/HistoryEditButton"
@@ -222,7 +222,7 @@
 
         <Button
             android:id="@+id/btn_rename"
-            android:text="RENAME"
+            android:text="@string/btn_rename"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/HistoryEditButton"
@@ -230,6 +230,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_delete"
+            app:layout_constraintEnd_toStartOf="@id/btn_export"/>
+        <Button
+            android:id="@+id/btn_export"
+            android:text="EXPORT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/HistoryEditButton"
+            android:background="#009688"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_rename"
             app:layout_constraintEnd_toStartOf="@id/spinner_replay"/>
 
         <Spinner
@@ -241,7 +252,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_rename"/>
+            app:layout_constraintStart_toEndOf="@id/btn_export"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

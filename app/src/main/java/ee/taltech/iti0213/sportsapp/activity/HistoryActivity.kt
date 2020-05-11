@@ -17,14 +17,14 @@ import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.HistorySpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
-import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
-import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.component.view.TrackIconImageView
 import ee.taltech.iti0213.sportsapp.db.domain.User
-import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
+import ee.taltech.iti0213.sportsapp.db.repository.*
+import ee.taltech.iti0213.sportsapp.util.TrackUtils
+import ee.taltech.iti0213.sportsapp.util.serializer.TrackSerializer
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -39,6 +39,8 @@ class HistoryActivity : AppCompatActivity() {
 
     private val trackSummaryRepository = TrackSummaryRepository.open(this)
     private val trackLocationsRepository = TrackLocationsRepository.open(this)
+    private val checkpointsRepository = CheckpointsRepository.open(this)
+    private val wayPointsRepository = WayPointsRepository.open(this)
 
     private val userRepository = UserRepository.open(this)
 
@@ -86,7 +88,8 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(track.elevationGained)
                 trackView.findViewById<TextView>(R.id.avg_speed).text =
                     Converter.speedToString(track.distance / track.durationMoving * 1_000_000_000 * 3.6, user?.speedMode ?: true)
-                trackView.findViewById<TextView>(R.id.max_speed).text = Converter.speedToString(track.maxSpeed, user?.speedMode ?: true)
+                trackView.findViewById<TextView>(R.id.max_speed).text =
+                    Converter.speedToString(track.maxSpeed, user?.speedMode ?: true)
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
@@ -100,6 +103,11 @@ class HistoryActivity : AppCompatActivity() {
 
                 val renameButton = trackView.findViewById<Button>(R.id.btn_rename)
                 renameButton.setOnClickListener { onRenameClicked(track, trackView) }
+
+                val exportButton = trackView.findViewById<Button>(R.id.btn_export)
+                exportButton.setOnClickListener {
+                    onExportClicked(track)
+                }
 
                 val replaySpinner = trackView.findViewById<Spinner>(R.id.spinner_replay)
                 setUpReplaySpinner(replaySpinner, track, trackImage)
@@ -122,6 +130,8 @@ class HistoryActivity : AppCompatActivity() {
         super.onDestroy()
         trackSummaryRepository.close()
         trackLocationsRepository.close()
+        checkpointsRepository.close()
+        wayPointsRepository.close()
         userRepository.close()
     }
 
@@ -184,8 +194,28 @@ class HistoryActivity : AppCompatActivity() {
         } else {
             trackIcon.color = Color.RED
         }
-        trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
+        trackIcon.colorMax =
+            ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
         trackIcon.invalidate()
+    }
+
+    private fun onExportClicked(trackSummary: TrackSummary) {
+        val locations = trackLocationsRepository.readTrackLocations(trackSummary.trackId, 0L, Long.MAX_VALUE)
+        val checkpoints = checkpointsRepository.readTrackCheckpoints(trackSummary.trackId)
+        val wayPoints = wayPointsRepository.readTrackWayPoints(trackSummary.trackId)
+
+        val gpx = TrackUtils.serializeToGpx(locations, checkpoints, wayPoints)
+
+        val serializer = TrackSerializer()
+        serializer.saveGpx(gpx, trackSummary.name, this,
+            {
+                Toast.makeText(this, "Successfully exported gpx!", Toast.LENGTH_SHORT).show()
+            },
+            {
+                Toast.makeText(this, "Error exporting gpx!", Toast.LENGTH_SHORT).show()
+            }
+        )
+
     }
 
     private fun onDeleteClicked(track: TrackSummary, trackView: View) {

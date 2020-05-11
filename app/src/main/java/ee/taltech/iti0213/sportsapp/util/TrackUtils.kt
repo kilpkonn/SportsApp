@@ -10,7 +10,11 @@ import ee.taltech.iti0213.sportsapp.db.domain.OfflineSession
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import io.jenetics.jpx.GPX
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -74,7 +78,50 @@ class TrackUtils {
             }
         }
 
-        fun serializeToGpx(track: Track) {
+        fun serializeToGpx(trackLocations: List<TrackLocation>, checkpoints: List<Checkpoint>, wayPoints: List<WayPoint>): GPX {
+            val gpx = GPX.builder()
+                .addTrack { gpxTrack ->
+                    gpxTrack.addSegment { gpxSegment ->
+                        trackLocations.forEach { trackLocation ->
+                            gpxSegment.addPoint { p ->
+                                p.lat(trackLocation.latitude)
+                                    .lon(trackLocation.longitude)
+                                    .ele(trackLocation.altitude)
+                                    .hdop(trackLocation.accuracy.toDouble())
+                                    .vdop(trackLocation.altitudeAccuracy.toDouble())
+                                    .time(trackLocation.timestamp)
+                                    .links(null)
+                            }
+                        }
+                        checkpoints.forEach { cp ->
+                            gpxSegment.addPoint { p ->
+                                p.lat(cp.latitude)
+                                    .lon(cp.longitude)
+                                    .ele(cp.altitude)
+                                    .hdop(cp.accuracy)
+                                    .vdop(cp.altitudeAccuracy)
+                                    .time(cp.timestamp)
+                                    .links(null)
+                                    .desc("CP")
+
+                            }
+                        }
+                        wayPoints.forEach { wp ->
+                            gpxSegment.addPoint { p ->
+                                p.lat(wp.latitude)
+                                    .lon(wp.longitude)
+                                    .time(wp.timeAdded)
+                                    .links(null)
+                                    .desc("WP")
+
+                            }
+                        }
+                    }
+                }.build()
+            return gpx
+        }
+
+        fun serializeToGpx(track: Track): GPX {
             var lastPause = 0
             val pauses = track.pauses
             pauses.add(track.track.size)
@@ -96,7 +143,8 @@ class TrackUtils {
                         }
                         lastPause = pause
                     }
-                }
+                }.build()
+            return gpx
         }
     }
 }

@@ -5,6 +5,14 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 
     defaultConfig {
         applicationId "ee.taltech.iti0213.sportsapp"
@@ -48,5 +56,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.10.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.0'
-    implementation 'io.jenetics:jpx:2.0.0'
+    implementation 'io.jenetics:jpx:1.6.1'
+    implementation 'stax:stax-api:1.0.1'
+    implementation 'com.fasterxml:aalto-xml:1.1.1'
 }
