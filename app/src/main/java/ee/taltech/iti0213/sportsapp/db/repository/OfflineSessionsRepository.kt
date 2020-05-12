@@ -47,11 +47,14 @@ class OfflineSessionsRepository private constructor(context: Context) : IReposit
     }
 
     fun deleteOfflineSession(id: Long) {
+        databaseHelper.writableDatabase.beginTransaction()
         databaseHelper.writableDatabase.delete(
             DatabaseHelper.TABLE_OFFLINE_SESSIONS,
             "${DatabaseHelper.KEY_ID} = ?",
             arrayOf(id.toString())
         )
+        databaseHelper.writableDatabase.setTransactionSuccessful()
+        databaseHelper.writableDatabase.endTransaction()
     }
 
     override fun close() {

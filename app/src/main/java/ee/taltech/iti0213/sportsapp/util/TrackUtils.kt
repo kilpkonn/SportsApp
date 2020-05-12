@@ -76,6 +76,9 @@ class TrackUtils {
                 }, { }
                 )
             }
+            if (sessionsToSync.isEmpty()) {
+                Toast.makeText(context, "Everything is up to date!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         fun serializeToGpx(trackLocations: List<TrackLocation>, checkpoints: List<Checkpoint>, wayPoints: List<WayPoint>): GPX {

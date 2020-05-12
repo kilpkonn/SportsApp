@@ -18,6 +18,8 @@ class TrackSyncController private constructor(val context: Context) {
     companion object {
         private val TAG = this::class.java.declaringClass!!.simpleName
 
+        private val BUNDLE_MAX_LOCATIONS = 250
+
         private var instance: TrackSyncController? = null
         private val mapper = ObjectMapper()
 
@@ -65,24 +67,31 @@ class TrackSyncController private constructor(val context: Context) {
             })
     }
 
-    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onSuccess: (r: BulkUploadResponseDto) -> Unit, onError: () -> Unit) {
+    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onSuccess: () -> Unit, onError: () -> Unit) {
         val handler = WebApiHandler.getInstance(context)
-        handler.makeAuthorizedArrayRequest(
-            "GpsLocations/bulkupload/$gpsSessionId",
-            JSONArray(mapper.writeValueAsString(gpsLocations)),
-            { response ->
-                Log.d(TAG, response.toString())
-                val responseDto = mapper.readValue(response[0].toString(), BulkUploadResponseDto::class.java)
-                if (responseDto.locationsAdded != responseDto.locationsReceived) {
-                    onError() // <- Something more elegant here? Not too much info to work with tho
-                } else {
-                    onSuccess(responseDto)
-                }
-            }, { error ->
-                Log.e(TAG, error.toString())
-                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
-                onError()
-                Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
-            })
+
+        val chuncks = gpsLocations.chunked(BUNDLE_MAX_LOCATIONS)
+        var err = false
+        chuncks.forEach {chunk ->
+            handler.makeAuthorizedArrayRequest(
+                "GpsLocations/bulkupload/$gpsSessionId",
+                JSONArray(mapper.writeValueAsString(chunk)),
+                { response ->
+                    Log.d(TAG, response.toString())
+                    val responseDto = mapper.readValue(response[0].toString(), BulkUploadResponseDto::class.java)
+                    if (responseDto.locationsAdded != responseDto.locationsReceived) {
+                        err = true
+                    }
+                }, { error ->
+                    Log.e(TAG, error.toString())
+                    Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                   err = true
+                })
+        }
+        if (err) {
+            onError() // <- Something more elegant here? Not too much info to work with tho
+        } else {
+            onSuccess()
+        }
     }
 }

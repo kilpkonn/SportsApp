@@ -52,7 +52,7 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
 
     fun readTrackSummary(id: Long): TrackSummary {
 
-        val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
+        val selectQuery = ("SELECT * FROM " + DatabaseHelper.TABLE_TRACKS
                 + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
                 + " LIMIT 1 ")
 

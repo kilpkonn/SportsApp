@@ -1,12 +1,10 @@
 package ee.taltech.iti0213.sportsapp.activity
 
-import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
