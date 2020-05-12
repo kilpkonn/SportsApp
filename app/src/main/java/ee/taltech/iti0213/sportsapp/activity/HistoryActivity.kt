@@ -21,8 +21,10 @@ import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.component.view.TrackIconImageView
+import ee.taltech.iti0213.sportsapp.db.ReadDatabaseTask
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
+import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
 import ee.taltech.iti0213.sportsapp.util.serializer.TrackSerializer
 
@@ -93,7 +95,10 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
-                trackImage.track = trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)
+                ReadDatabaseTask<TrackLocation>{
+                    trackImage.track = it
+                    trackImage.invalidate()
+                }.execute({trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)})
                 trackImage.maxSpeed = track.maxSpeed
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
