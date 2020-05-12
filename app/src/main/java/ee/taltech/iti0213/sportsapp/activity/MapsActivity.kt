@@ -321,8 +321,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             )
             isCameraIdle = false
         } else {
-            val currentSpeed = speedFilter.process(TrackLocation.calcDistanceBetween(lastLocation!!, trackLocation) /
-                    ((trackLocation.elapsedTimestamp - (lastLocation!!.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6))
+            val currentSpeed = speedFilter.process(
+                TrackLocation.calcDistanceBetween(lastLocation!!, trackLocation) /
+                        ((trackLocation.elapsedTimestamp - (lastLocation!!.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6)
+            )
 
             if (currentSpeed > maxSpeed) {
                 maxSpeed = currentSpeed
@@ -640,13 +642,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
         }
         isTracking = !isTracking
-        if (lastLocation != null) {
-            isSyncedWithService = false
-            syncMapData()
-        } else {
-            mMap.clear()
-            lastRabbitLocations.clear()
-        }
+
+        isSyncedWithService = false
+        syncMapData()
+
     }
 
     private fun startLocationService() {
@@ -703,10 +702,12 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             R.anim.slide_out_to_top
         )
     }
+
     private fun onFlingLeft() {
         val intent = Intent(this, HistoryActivity::class.java)
         startActivity(intent)
     }
+
     private fun onFlingRight() {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
@@ -757,8 +758,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             lastUpdateTime = 0L
             lastLocation = null
             isSyncedWithService = false
-            isTracking = false
-            btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
+            isTracking = intent.getBooleanExtra(C.TRACK_RESET_IS_TRACKING, false)
+            if (!isTracking)
+                btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
         }
 
         private fun onNotificationAddCp(intent: Intent) {
@@ -913,7 +915,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         rabbits.filter { r -> r.key != ReplaySpinnerItems.NONE }
             .forEach { rabbit ->
 
-                val endTime = if (isTracking) (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime else Long.MAX_VALUE
+                val endTime =
+                    if (isTracking) (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime else Long.MAX_VALUE
 
                 ReadDatabaseTask<TrackLocation> { pointsToAdd ->
                     var lastRabbitLoc = lastRabbitLocations[rabbit.key]

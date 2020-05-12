@@ -316,9 +316,11 @@ class LocationService : Service() {
         if (track == null) return
 
         // Notify activity, that track has been reset
-        if (track!!.lastLocation == null) {
-            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_RESET))
-        }
+        /*if (track!!.lastLocation == null) {
+            val intent = Intent(C.TRACK_RESET)
+            intent.putExtra(C.TRACK_RESET_IS_TRACKING, isAddingToTrack)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        }*/
 
         val intent = Intent(C.TRACK_SYNC_RESPONSE)
         val data = track!!.getTrackSyncData(since)

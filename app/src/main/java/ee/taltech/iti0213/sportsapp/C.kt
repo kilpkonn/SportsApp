@@ -39,6 +39,8 @@ class C {
         const val TRACK_SET_TYPE_DATA = "ee.taltech.iti0213.sportsapp.track.set_type.data"
 
         const val TRACK_RESET = "ee.taltech.iti0213.sportsapp.track.reset"
+        const val TRACK_RESET_IS_TRACKING = "ee.taltech.iti0213.sportsapp.track.reset.is_tracking"
+
         const val TRACK_SAVE = "ee.taltech.iti0213.sportsapp.track.save"
         const val TRACK_START = "ee.taltech.iti0213.sportsapp.track.start"
         const val TRACK_STOP = "ee.taltech.iti0213.sportsapp.track.stop"

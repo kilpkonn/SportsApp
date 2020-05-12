@@ -50,7 +50,7 @@ class AccountController private constructor(val context: Context) {
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
-                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                //Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             }
         )
@@ -70,7 +70,7 @@ class AccountController private constructor(val context: Context) {
             },
             Response.ErrorListener {error ->
                 Log.e(TAG, error.toString())
-                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                //Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
                 Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
             }
         )
