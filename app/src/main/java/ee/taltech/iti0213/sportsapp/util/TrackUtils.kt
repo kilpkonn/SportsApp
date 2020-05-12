@@ -6,7 +6,6 @@ import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.GpsLocationDto
 import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import ee.taltech.iti0213.sportsapp.component.imageview.TrackTypeIcons
-import ee.taltech.iti0213.sportsapp.db.domain.OfflineSession
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
@@ -82,7 +81,7 @@ class TrackUtils {
         }
 
         fun serializeToGpx(trackLocations: List<TrackLocation>, checkpoints: List<Checkpoint>, wayPoints: List<WayPoint>): GPX {
-            val gpx = GPX.builder()
+            return GPX.builder()
                 .addTrack { gpxTrack ->
                     gpxTrack.addSegment { gpxSegment ->
                         trackLocations.forEach { trackLocation ->
@@ -93,7 +92,8 @@ class TrackUtils {
                                     .hdop(trackLocation.accuracy.toDouble())
                                     .vdop(trackLocation.altitudeAccuracy.toDouble())
                                     .time(trackLocation.timestamp)
-                                    .links(null)
+                                    .desc("LOC")
+                                    .type("LOC")
                             }
                         }
                         checkpoints.forEach { cp ->
@@ -104,8 +104,9 @@ class TrackUtils {
                                     .hdop(cp.accuracy)
                                     .vdop(cp.altitudeAccuracy)
                                     .time(cp.timestamp)
-                                    .links(null)
                                     .desc("CP")
+                                    .sym("CP")
+                                    .type("CP")
 
                             }
                         }
@@ -114,14 +115,14 @@ class TrackUtils {
                                 p.lat(wp.latitude)
                                     .lon(wp.longitude)
                                     .time(wp.timeAdded)
-                                    .links(null)
                                     .desc("WP")
+                                    .sym("WP")
+                                    .type("WP")
 
                             }
                         }
                     }
                 }.build()
-            return gpx
         }
 
         fun serializeToGpx(track: Track): GPX {

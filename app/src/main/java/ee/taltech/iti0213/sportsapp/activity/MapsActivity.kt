@@ -634,17 +634,23 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_STOP))
             btnStartStop.setImageResource(R.drawable.ic_play_circle_outline_24px)
         } else {
-            startLocationService(true)
+            startLocationService()
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_START))
             btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
         }
-
         isTracking = !isTracking
+        if (lastLocation != null) {
+            isSyncedWithService = false
+            syncMapData()
+        } else {
+            mMap.clear()
+            lastRabbitLocations.clear()
+        }
     }
 
-    private fun startLocationService(force: Boolean = false) {
+    private fun startLocationService() {
         if (!isPermissionsGranted) return
-        if (locationServiceActive && !force) return
+        // if (locationServiceActive && !force) return
         if (Build.VERSION.SDK_INT >= 26) {
             // starting the FOREGROUND service
             // service has to display non-dismissable notification within 5 secs
@@ -907,10 +913,12 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             .forEach { rabbit ->
                 var lastRabbitLoc = lastRabbitLocations[rabbit.key]
 
+                val endTime = if (isTracking) (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime else Long.MAX_VALUE
+
                 val pointsToAdd = trackLocationsRepository.readTrackLocations(
                     rabbit.value,
                     lastRabbitLoc?.elapsedTimestamp ?: rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L,
-                    (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime // Long.MAX_VALUE
+                    endTime
                 )
 
                 var lastLoc: LatLng? = null
