@@ -33,6 +33,7 @@ import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
+import ee.taltech.iti0213.sportsapp.util.filter.KalmanTrackLocationFilter
 import java.util.*
 
 
@@ -60,6 +61,8 @@ class LocationService : Service() {
 
     private val accountController = AccountController.getInstance(this)
     private val trackSyncController = TrackSyncController.getInstance(this)
+
+    private val trackLocationFilter = KalmanTrackLocationFilter(10.0)
 
     private var user: User? = null
     private var gpsSession: GpsSessionDto? = null
@@ -127,7 +130,7 @@ class LocationService : Service() {
         Log.i(TAG, "New location: $location")
         // First location
 
-        val trackLocation = TrackLocation.fromLocation(location)
+        val trackLocation = trackLocationFilter.process(TrackLocation.fromLocation(location))
 
         if (isAddingToTrack) {
             track?.update(trackLocation)
