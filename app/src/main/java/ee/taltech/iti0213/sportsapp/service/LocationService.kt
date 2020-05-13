@@ -356,7 +356,9 @@ class LocationService : Service() {
                 })
             }
 
-            if (location == null || gpsSession != null && location.timestamp - lastUploadTime > user!!.syncInterval) {
+            if (location == null && gpsSession?.id != null
+                || gpsSession?.id != null && location?.timestamp ?: 0L - lastUploadTime > user!!.syncInterval
+            ) {
                 val backUp = gpsLocationsToUpload
                 val toUpload = gpsLocationsToUpload.map { loc ->
                     GpsLocationDto.fromTrackLocation(
