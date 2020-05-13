@@ -3,12 +3,14 @@ package ee.taltech.iti0213.sportsapp.component.view
 import android.animation.ArgbEvaluator
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
-import kotlin.math.*
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageView(context, attrs) {
 
@@ -18,8 +20,8 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
         val argbEvaluator = ArgbEvaluator()
     }
 
-    var color: Int = Color.RED
-    var colorMax: Int = 0xFFff9e9e.toInt()
+    var color: Int = ReplaySpinnerItems.COLORS_MIN_SPEED[ReplaySpinnerItems.NONE]!!
+    var colorMax: Int = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.NONE]!!
     var track: List<TrackLocation>? = null
     var maxSpeed = 99.99
 
@@ -45,10 +47,10 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
 
         var last = track?.first()
         for (location in track!!) {
-            val relSpeed = min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
-                    ((location.elapsedTimestamp - (last.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) / maxSpeed)
+            var relSpeed = max(0.0, min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
+                    ((location.elapsedTimestamp - (last.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) / maxSpeed))
 
-            paint.color = argbEvaluator.evaluate(relSpeed.pow(0.5).toFloat(), color, colorMax) as Int
+            paint.color = argbEvaluator.evaluate(relSpeed.pow(1).toFloat(), color, colorMax) as Int
 
             canvas?.drawLine(
                 width * PADDING + ((location.longitude - minLng) / lngDelta * paddedWidth).toFloat(),

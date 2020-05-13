@@ -95,10 +95,10 @@ class HistoryActivity : AppCompatActivity() {
                 trackView.findViewById<TextView>(R.id.drift).text = Converter.distToString(track.drift)
 
                 val trackImage = trackView.findViewById<TrackIconImageView>(R.id.track_image)
-                ReadDatabaseTask<TrackLocation>{
+                ReadDatabaseTask<TrackLocation> {
                     trackImage.track = it
                     trackImage.invalidate()
-                }.execute({trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE)})
+                }.execute({ trackLocationsRepository.readTrackLocations(track.trackId, 0L, Long.MAX_VALUE) })
                 trackImage.maxSpeed = track.maxSpeed
 
                 val deleteButton = trackView.findViewById<Button>(R.id.btn_delete)
@@ -118,12 +118,13 @@ class HistoryActivity : AppCompatActivity() {
                 setUpReplaySpinner(replaySpinner, track, trackImage)
 
                 val optionsView = trackView.findViewById<ConstraintLayout>(R.id.options)
-                trackView.setOnClickListener {
+                trackView.setOnLongClickListener {
                     if (optionsView.visibility == View.GONE) {
                         optionsView.visibility = View.VISIBLE
                     } else {
                         optionsView.visibility = View.GONE
                     }
+                    return@setOnLongClickListener true
                 }
 
                 linearLayoutScrollContent.addView(trackView)
@@ -182,25 +183,18 @@ class HistoryActivity : AppCompatActivity() {
                 val intent = Intent(C.TRACK_SET_RABBIT)
                 intent.putExtra(C.TRACK_SET_RABBIT_NAME, ReplaySpinnerItems.OPTIONS[position])
                 intent.putExtra(C.TRACK_SET_RABBIT_VALUE, track.trackId)
-                if (ReplaySpinnerItems.OPTIONS[position] != ReplaySpinnerItems.NONE) {
-                    trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
-                } else {
-                    trackIcon.color = Color.RED
-                }
-                trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!.toInt()
+                trackIcon.color = ReplaySpinnerItems.COLORS_MIN_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!
+                trackIcon.colorMax = ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[position]]!!
                 trackIcon.invalidate()
                 LocalBroadcastManager.getInstance(this@HistoryActivity).sendBroadcast(intent)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
-        if (ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0] != ReplaySpinnerItems.NONE) {
-            trackIcon.color = ReplaySpinnerItems.COLORS[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
-        } else {
-            trackIcon.color = Color.RED
-        }
+        trackIcon.color = Color.RED //ReplaySpinnerItems.COLORS_MIN_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!
+
         trackIcon.colorMax =
-            ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!.toInt()
+            ReplaySpinnerItems.COLORS_MAX_SPEED[ReplaySpinnerItems.OPTIONS[selectedItems[track.trackId] ?: 0]]!!
         trackIcon.invalidate()
     }
 
