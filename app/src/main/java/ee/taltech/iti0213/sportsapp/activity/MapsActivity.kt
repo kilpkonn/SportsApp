@@ -111,6 +111,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private var locationServiceActive = false
     private var isTracking = false
+    private var shouldDrawTail = true
     private var lastLocation: TrackLocation? = null
     private var isSyncedWithService = false
     private var isPermissionsGranted = false
@@ -792,6 +793,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             syncData.track.forEachIndexed { i, trackPoint ->
                 updateLocation(trackPoint, !syncData.pauses.contains(i))
             }
+            shouldDrawTail = !syncData.pauses.contains(syncData.track.size)
 
             for (wp in syncData.wayPoints) {
                 addWP(wp)
@@ -810,7 +812,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             }
 
             val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
-            updateLocation(trackLocation, isTracking)
+            updateLocation(trackLocation, shouldDrawTail && isTracking)
+            if (!shouldDrawTail)
+                shouldDrawTail = true
         }
 
         private fun onTrackDataUpdate(intent: Intent) {
