@@ -36,7 +36,7 @@ class KalmanTrackLocationFilter(private val qMetersPerSecond: Double) : IFilter<
             if (dt > 0) {
                 // Variance increases over time
                 variance += dt * qMetersPerSecond * qMetersPerSecond / 1_000_000_000
-                timestamp = input.timestamp
+                timestamp = input.elapsedTimestamp
             }
             // Kalman gain matrix K = Covarariance * Inverse(Covariance + MeasurementVariance)
             // NB: because K is dimensionless, it doesn't matter that variance has different units to lat and lng
