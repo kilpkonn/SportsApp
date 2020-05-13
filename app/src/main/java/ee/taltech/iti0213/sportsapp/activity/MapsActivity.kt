@@ -56,6 +56,7 @@ import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
+import ee.taltech.iti0213.sportsapp.provider.FakeLocationProvider
 import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
@@ -106,6 +107,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
     private val lastRabbitLocations = hashMapOf<String, TrackLocation>()
     private val wpMarkers = HashMap<Marker, WayPoint>()
+
+    private val mapLocationProvider = FakeLocationProvider()
 
     private var user: User? = null
 
@@ -261,6 +264,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         mMap.isMyLocationEnabled = isPermissionsGranted
         mMap.uiSettings.isCompassEnabled = false;
         mMap.uiSettings.isMapToolbarEnabled = false
+        mMap.setLocationSource(mapLocationProvider)
         setUpSpinners()
     }
 
@@ -312,8 +316,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun updateLocation(trackLocation: TrackLocation, drawLine: Boolean) {
+        mapLocationProvider.setLocation(trackLocation)
         val location = LatLng(trackLocation.latitude, trackLocation.longitude)
-
         if (lastLocation == null) {
             mMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
