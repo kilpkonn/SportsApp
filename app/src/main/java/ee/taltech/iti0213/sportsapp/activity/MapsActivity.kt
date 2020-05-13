@@ -201,6 +201,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_WP)
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_SAVE)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SET_RABBIT)
         broadcastReceiverIntentFilter.addAction(C.TRACK_IS_RUNNING)
 
@@ -729,7 +730,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 C.TRACK_SYNC_RESPONSE -> onTrackSync(intent)
                 C.NOTIFICATION_ACTION_ADD_WP -> onNotificationAddedWp(intent)
                 C.NOTIFICATION_ACTION_ADD_CP -> onNotificationAddCp(intent)
-                C.TRACK_RESET -> onTrackReset(intent)
+                C.TRACK_RESET, C.TRACK_SAVE -> onTrackReset(intent)
                 C.TRACK_SET_RABBIT -> onSetTrackRabbit(intent)
                 C.TRACK_IS_RUNNING -> onTrackIsRunning(intent)
             }
