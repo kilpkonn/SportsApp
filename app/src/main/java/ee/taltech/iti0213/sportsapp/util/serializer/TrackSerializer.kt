@@ -23,7 +23,7 @@ class TrackSerializer {
     }
 
     fun saveGpx(gpx: GPX, name: String, context: Context, onSuccess: () -> Unit, onError: () -> Unit) {
-        mExternalFile = File(context.getExternalFilesDir(FILE_PATH), name.replace(" ", "_"))
+        mExternalFile = File(context.getExternalFilesDir(FILE_PATH), name.replace(" ", "_") + ".gpx")
         try {
             FileOutputStream(mExternalFile!!).use { out ->
                 GPX.write(gpx, out)
