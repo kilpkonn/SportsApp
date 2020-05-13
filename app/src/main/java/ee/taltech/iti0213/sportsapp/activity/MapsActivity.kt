@@ -954,7 +954,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
                             Log.d(TAG, "Relspeed $relSpeed")
                             val color = argbEvaluator.evaluate(
-                                relSpeed.toFloat().pow(2),
+                                relSpeed.toFloat().pow(0.5f),
                                 ReplaySpinnerItems.COLORS[rabbit.key]!!.toInt(),
                                 ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()
                             ) as Int

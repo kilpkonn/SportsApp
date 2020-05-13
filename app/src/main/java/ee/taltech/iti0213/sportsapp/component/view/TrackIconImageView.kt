@@ -48,7 +48,7 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
             val relSpeed = min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
                     ((location.elapsedTimestamp - (last.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) / maxSpeed)
 
-            paint.color = argbEvaluator.evaluate(relSpeed.pow(2.0).toFloat(), color, colorMax) as Int
+            paint.color = argbEvaluator.evaluate(relSpeed.pow(0.5).toFloat(), color, colorMax) as Int
 
             canvas?.drawLine(
                 width * PADDING + ((location.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
