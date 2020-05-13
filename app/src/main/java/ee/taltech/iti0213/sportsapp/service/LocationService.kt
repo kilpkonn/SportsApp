@@ -141,8 +141,11 @@ class LocationService : Service() {
         // broadcast trackData
         val trackData = track?.getTrackData()
 
-        if (isAddingToTrack)
+        if (isAddingToTrack) {
             showNotification(trackData)
+        } else {
+            stopForeground(false)
+        }
 
         val trackDataIntent = Intent(C.TRACK_STATS_UPDATE_ACTION)
         trackDataIntent.putExtra(C.TRACK_STATS_UPDATE_ACTION_DATA, trackData)
