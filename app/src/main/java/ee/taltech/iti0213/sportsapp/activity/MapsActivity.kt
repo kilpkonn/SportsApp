@@ -198,6 +198,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         broadcastReceiverIntentFilter.addAction(C.NOTIFICATION_ACTION_ADD_CP)
         broadcastReceiverIntentFilter.addAction(C.TRACK_RESET)
         broadcastReceiverIntentFilter.addAction(C.TRACK_SET_RABBIT)
+        broadcastReceiverIntentFilter.addAction(C.TRACK_IS_RUNNING)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
@@ -725,10 +726,16 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 C.NOTIFICATION_ACTION_ADD_CP -> onNotificationAddCp(intent)
                 C.TRACK_RESET -> onTrackReset(intent)
                 C.TRACK_SET_RABBIT -> onSetTrackRabbit(intent)
+                C.TRACK_IS_RUNNING -> onTrackIsRunning(intent)
             }
         }
 
         // ------------------------------------- BROADCAST RECEIVER CALLBACKS ------------------------------------------
+
+        private fun onTrackIsRunning(intent: Intent) {
+            btnStartStop.setImageResource(R.drawable.ic_pause_circle_outline_24px)
+            isTracking = true
+        }
 
         private fun onSetTrackRabbit(intent: Intent) {
             Log.d(TAG, "On set rabbit.")

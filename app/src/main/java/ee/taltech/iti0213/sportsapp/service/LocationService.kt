@@ -229,6 +229,10 @@ class LocationService : Service() {
             track = Track()
         }
 
+        if (isAddingToTrack) {
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(C.TRACK_IS_RUNNING))
+        }
+
         showNotification(track?.getTrackData())
 
         return START_STICKY

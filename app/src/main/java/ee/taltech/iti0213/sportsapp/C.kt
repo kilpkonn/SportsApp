@@ -45,6 +45,8 @@ class C {
         const val TRACK_START = "ee.taltech.iti0213.sportsapp.track.start"
         const val TRACK_STOP = "ee.taltech.iti0213.sportsapp.track.stop"
 
+        const val TRACK_IS_RUNNING = "ee.taltech.iti0213.sportsapp.track.is_running"
+
         const val TRACK_DETAIL_REQUEST = "ee.taltech.iti0213.sportsapp.track.detail.request"
         const val TRACK_DETAIL_REQUEST_DATA = "ee.taltech.iti0213.sportsapp.track.detail.request.data"
         const val TRACK_DETAIL_RESPONSE = "ee.taltech.iti0213.sportsapp.track.detail.response"
