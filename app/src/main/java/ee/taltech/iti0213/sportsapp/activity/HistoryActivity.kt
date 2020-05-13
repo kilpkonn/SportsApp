@@ -237,12 +237,13 @@ class HistoryActivity : AppCompatActivity() {
         textInputLayout.setPadding(19, 0, 19, 0)
         val input = EditText(this)
         input.setTextColor(0xFFb8e7ff.toInt())
+        input.setText(track.name)
         textInputLayout.addView(input)
 
         val alert = AlertDialog.Builder(this, R.style.AppCompatAlertInfoDialogStyle)
             .setTitle("Rename track")
             .setView(textInputLayout)
-            .setPositiveButton("Rename") { dialog, _ ->
+            .setPositiveButton("Rename") { _, _ ->
                 // do some thing with input.text
                 track.name = input.text.toString()
                 trackView.findViewById<TextView>(R.id.track_name).text = track.name
