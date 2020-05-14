@@ -22,6 +22,7 @@ import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAd
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.util.HashUtils
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
@@ -116,8 +117,8 @@ class SettingsActivity : AppCompatActivity() {
         switchSpeedMode.setOnCheckedChangeListener { _, isChecked -> onSpeedModeChange(isChecked) }
         switchAutoSync.setOnCheckedChangeListener { _, isChecked -> onAutoSyncChange(isChecked) }
         seekBarSyncInterval.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) { }
-            override fun onStartTrackingTouch(seekBar: SeekBar) { }
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 onSyncIntervalChanged()
             }
@@ -152,7 +153,10 @@ class SettingsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        onLogin()
+        if (user != null) {
+            accountController.login(LoginDto(user!!.email, user!!.password + "-A"))
+        }
+        // onLogin()
         setUpTypeSpinner(spinnerTrackType)
 
         overridePendingTransition(
@@ -238,7 +242,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun onLogin() {
         val loginDto = LoginDto(editTextEmail.text.toString(), HashUtils.md5(editTextPassword.text.toString()) + "-A")
-        accountController.login(loginDto) {response ->
+        accountController.login(loginDto) { response ->
             val newUser = User(
                 null,
                 "Not Implemented in backend",
@@ -340,8 +344,11 @@ class SettingsActivity : AppCompatActivity() {
         spinner.setSelection(user?.defaultActivityType?.value ?: 0)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                user?.defaultActivityType = TrackType.fromInt(position) ?: TrackType.UNKNOWN
-                if (user != null) userRepository.updateUser(user!!)
+                if (user != null && user!!.defaultActivityType != TrackType.fromInt(position)) {
+                    user!!.defaultActivityType = TrackType.fromInt(position) ?: TrackType.UNKNOWN
+                    userRepository.updateUser(user!!)
+                    Toast.makeText(this@SettingsActivity, "Changes will apply to next session", Toast.LENGTH_SHORT).show()
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}

@@ -224,9 +224,7 @@ class LocationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
 
-        if (user == null) {
-            user = userRepository.readUser()
-        }
+        user = userRepository.readUser()
 
         // set counters to 0 if fresh start
         if (track == null) {
@@ -426,13 +424,17 @@ class LocationService : Service() {
                 C.TRACK_DETAIL_REQUEST -> onDetailTrackDataRequest(intent)
                 C.TRACK_SAVE -> onTrackSave()
                 C.TRACK_RESET -> {
+                    user = userRepository.readUser()
                     track = Track()
                     track!!.type = user?.defaultActivityType ?: TrackType.UNKNOWN
                     isAddingToTrack = false
                     showNotification(track!!.getTrackData())
                     stopForeground(false)
                 }
-                C.TRACK_START -> isAddingToTrack = true
+                C.TRACK_START -> {
+                    isAddingToTrack = true
+                    user = userRepository.readUser()
+                }
                 C.TRACK_STOP -> {
                     isAddingToTrack = false
                     track?.onPause()
@@ -457,13 +459,13 @@ class LocationService : Service() {
 
         private fun onTrackSave() {
             if (track == null || track!!.track.size < 2) return
+            user = userRepository.readUser()
             val trackId = trackSummaryRepository.saveTrack(track!!)
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
             wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
 
-            val user = userRepository.readUser()
-            if (user != null && user.autoSync) {
+            if (user != null && user!!.autoSync) {
                 uploadLocationIfNeeded(null)
                 if (gpsLocationsToUpload.isNotEmpty()) {
                     offlineSessionsRepository.saveOfflineSession(trackId)
