@@ -748,7 +748,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val rabbitName = intent.getStringExtra(C.TRACK_SET_RABBIT_NAME) ?: ReplaySpinnerItems.NONE
             val trackId = intent.getLongExtra(C.TRACK_SET_RABBIT_VALUE, -1L)
 
-            rabbitTracks[trackId] = trackSummaryRepository.readTrackSummary(trackId)
+            rabbitTracks[trackId] = trackSummaryRepository.readTrackSummary(trackId)!!
 
             if (rabbitName == ReplaySpinnerItems.NONE) {
                 rabbits = HashMap(rabbits.filter { r -> r.value != trackId })

@@ -42,15 +42,18 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
     fun updateTrackName(track: TrackSummary) {
         val contentValues = ContentValues()
         contentValues.put(DatabaseHelper.KEY_TRACK_NAME, track.name)
+        databaseHelper.writableDatabase.beginTransaction()
         databaseHelper.writableDatabase.update(
             DatabaseHelper.TABLE_TRACKS,
             contentValues,
             "${DatabaseHelper.KEY_ID}=${track.trackId}",
             null
         )
+        databaseHelper.writableDatabase.setTransactionSuccessful()
+        databaseHelper.writableDatabase.endTransaction()
     }
 
-    fun readTrackSummary(id: Long): TrackSummary {
+    fun readTrackSummary(id: Long): TrackSummary? {
 
         val selectQuery = ("SELECT * FROM " + DatabaseHelper.TABLE_TRACKS
                 + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
@@ -79,7 +82,7 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
             }
             cursor.close()
         }
-        return track!!
+        return track
     }
 
     fun readTrackSummaries(startId: Long, endId: Long): List<TrackSummary> {

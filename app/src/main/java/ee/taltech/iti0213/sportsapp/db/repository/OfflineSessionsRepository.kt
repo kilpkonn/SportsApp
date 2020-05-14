@@ -16,9 +16,9 @@ class OfflineSessionsRepository private constructor(context: Context) : IReposit
     private val databaseHelper: DatabaseHelper = DatabaseHelper.getInstance(context)
 
     fun saveOfflineSession(trackId: Long) {
-        databaseHelper.writableDatabase.beginTransaction()
         val offlineSessionsValues = ContentValues()
         offlineSessionsValues.put(DatabaseHelper.KEY_TRACK_ID, trackId)
+        databaseHelper.writableDatabase.beginTransaction()
         databaseHelper.writableDatabase.insert(DatabaseHelper.TABLE_OFFLINE_SESSIONS, null, offlineSessionsValues)
         databaseHelper.writableDatabase.setTransactionSuccessful()
         databaseHelper.writableDatabase.endTransaction()

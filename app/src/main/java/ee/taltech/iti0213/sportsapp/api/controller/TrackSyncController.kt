@@ -46,7 +46,9 @@ class TrackSyncController private constructor(val context: Context) {
             },
             { error ->
                 Log.e(TAG, error.toString())
-                //Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                if (error.networkResponse != null) {
+                    Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                }
                 onError()
                 // Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()
             })
@@ -84,7 +86,9 @@ class TrackSyncController private constructor(val context: Context) {
                     }
                 }, { error ->
                     Log.e(TAG, error.toString())
-                    Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                    if (error.networkResponse != null) {
+                        Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                    }
                    err = true
                 })
         }
