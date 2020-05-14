@@ -455,7 +455,6 @@ class LocationService : Service() {
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
             wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
-            offlineSessionsRepository.saveOfflineSession(trackId)
 
             val user = userRepository.readUser()
             if (user != null && user.autoSync) {

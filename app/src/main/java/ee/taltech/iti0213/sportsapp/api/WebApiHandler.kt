@@ -76,7 +76,9 @@ class WebApiHandler private constructor(var context: Context) {
             },
             Response.ErrorListener { error ->
                 Log.e(TAG, error.toString())
-                Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                if (error.networkResponse != null) {
+                    Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                }
                 onError(error)
             }
         ) {
@@ -112,7 +114,9 @@ class WebApiHandler private constructor(var context: Context) {
             },
             Response.ErrorListener { error ->
                 Log.e(TAG, error.toString())
-                // Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                if (error.networkResponse != null) {
+                    Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
+                }
                 onError(error)
             }
         ) {
