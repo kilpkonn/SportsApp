@@ -224,9 +224,14 @@ class LocationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
 
+        if (user == null) {
+            user = userRepository.readUser()
+        }
+
         // set counters to 0 if fresh start
         if (track == null) {
             track = Track()
+            track!!.type = user?.defaultActivityType ?: TrackType.UNKNOWN
         }
 
         if (isAddingToTrack) {
@@ -422,6 +427,7 @@ class LocationService : Service() {
                 C.TRACK_SAVE -> onTrackSave()
                 C.TRACK_RESET -> {
                     track = Track()
+                    track!!.type = user?.defaultActivityType ?: TrackType.UNKNOWN
                     isAddingToTrack = false
                     showNotification(track!!.getTrackData())
                     stopForeground(false)
@@ -466,6 +472,7 @@ class LocationService : Service() {
                 offlineSessionsRepository.saveOfflineSession(trackId)
             }
             track = Track()
+            track!!.type = user?.defaultActivityType ?: TrackType.UNKNOWN
             isAddingToTrack = false
             showNotification(track!!.getTrackData())
             stopForeground(false)

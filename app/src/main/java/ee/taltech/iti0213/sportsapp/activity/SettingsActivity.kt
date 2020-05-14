@@ -1,5 +1,6 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -9,15 +10,19 @@ import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
+import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.api.controller.AccountController
 import ee.taltech.iti0213.sportsapp.api.controller.TrackSyncController
 import ee.taltech.iti0213.sportsapp.api.dto.LoginDto
 import ee.taltech.iti0213.sportsapp.api.dto.RegisterDto
+import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.*
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.util.HashUtils
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
 
@@ -69,6 +74,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var buttonToggleRegister: Button
     private lateinit var buttonLogOut: Button
 
+    private lateinit var spinnerTrackType: Spinner
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -103,6 +110,8 @@ class SettingsActivity : AppCompatActivity() {
 
         buttonSyncTrack = findViewById(R.id.btn_sync_track)
         buttonLogOut = findViewById(R.id.btn_logout)
+
+        spinnerTrackType = findViewById(R.id.spinner_track_type)
 
         switchSpeedMode.setOnCheckedChangeListener { _, isChecked -> onSpeedModeChange(isChecked) }
         switchAutoSync.setOnCheckedChangeListener { _, isChecked -> onAutoSyncChange(isChecked) }
@@ -144,6 +153,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onStart()
 
         onLogin()
+        setUpTypeSpinner(spinnerTrackType)
 
         overridePendingTransition(
             R.anim.slide_in_from_left,
@@ -321,6 +331,20 @@ class SettingsActivity : AppCompatActivity() {
         Log.d("", user!!.syncInterval.toString())
         if (user != null) {
             userRepository.updateUser(user!!)
+        }
+    }
+
+    private fun setUpTypeSpinner(spinner: Spinner) {
+        val displayOptionAdapter = TrackTypeSpinnerAdapter(this)
+        spinner.adapter = displayOptionAdapter
+        spinner.setSelection(user?.defaultActivityType?.value ?: 0)
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                user?.defaultActivityType = TrackType.fromInt(position) ?: TrackType.UNKNOWN
+                if (user != null) userRepository.updateUser(user!!)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 }

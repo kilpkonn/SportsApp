@@ -23,6 +23,7 @@ import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAd
 import ee.taltech.iti0213.sportsapp.db.domain.User
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
+import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.DetailedTrackData
 
@@ -92,7 +93,6 @@ class DetailActivity : AppCompatActivity() {
         txtViewCheckpoints = findViewById(R.id.checkpoints_count)
         spinnerTrackType = findViewById(R.id.spinner_track_type)
         textEditTrackName = findViewById(R.id.track_name)
-        setUpTypeSpinner(spinnerTrackType)
 
         textEditTrackName.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
@@ -146,6 +146,10 @@ class DetailActivity : AppCompatActivity() {
         Log.d(TAG, "onStart")
         super.onStart()
         user = userRepository.readUser()
+        if (trackType == TrackType.UNKNOWN.value) {
+            trackType = (user?.defaultActivityType ?: TrackType.UNKNOWN).value
+        }
+        setUpTypeSpinner(spinnerTrackType)
     }
 
     override fun onResume() {
@@ -249,7 +253,6 @@ class DetailActivity : AppCompatActivity() {
         val displayOptionAdapter = TrackTypeSpinnerAdapter(this)
 
         spinner.adapter = displayOptionAdapter
-        spinner.setSelection(trackType)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val intent = Intent(C.TRACK_SET_TYPE)
@@ -260,6 +263,7 @@ class DetailActivity : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+        spinner.setSelection(trackType)
     }
 
     private fun hideKeyboard(view: View) {
