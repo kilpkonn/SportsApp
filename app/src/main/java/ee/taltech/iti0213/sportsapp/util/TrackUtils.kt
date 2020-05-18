@@ -85,7 +85,7 @@ class TrackUtils {
         }
 
         fun serializeToGpx(trackLocations: List<TrackLocation>, checkpoints: List<Checkpoint>, wayPoints: List<WayPoint>): GPX {
-            return GPX.builder()
+            val gpx = GPX.builder()
                 .addTrack { gpxTrack ->
                     gpxTrack.addSegment { gpxSegment ->
                         trackLocations.forEach { trackLocation ->
@@ -100,21 +100,7 @@ class TrackUtils {
                                     .type("LOC")
                             }
                         }
-                        checkpoints.forEach { cp ->
-                            gpxSegment.addPoint { p ->
-                                p.lat(cp.latitude)
-                                    .lon(cp.longitude)
-                                    .ele(cp.altitude)
-                                    .hdop(cp.accuracy)
-                                    .vdop(cp.altitudeAccuracy)
-                                    .time(cp.timestamp)
-                                    .desc("CP")
-                                    .sym("CP")
-                                    .type("CP")
-
-                            }
-                        }
-                        wayPoints.forEach { wp ->
+                        /*wayPoints.forEach { wp ->
                             gpxSegment.addPoint { p ->
                                 p.lat(wp.latitude)
                                     .lon(wp.longitude)
@@ -124,9 +110,37 @@ class TrackUtils {
                                     .type("WP")
 
                             }
-                        }
+                        }*/
                     }
-                }.build()
+                }
+            checkpoints.forEach { cp ->
+                gpx.addWayPoint { p ->
+                    p.lat(cp.latitude)
+                        .lon(cp.longitude)
+                        .ele(cp.altitude)
+                        .hdop(cp.accuracy)
+                        .vdop(cp.altitudeAccuracy)
+                        .time(cp.timestamp)
+                        .desc("CP")
+                        .sym("CP")
+                        .type("CP")
+
+                }
+            }
+
+            wayPoints.forEach { wp ->
+                gpx.addWayPoint { p ->
+                    p.lat(wp.latitude)
+                        .lon(wp.longitude)
+                        .time(wp.timeAdded)
+                        .desc("WP")
+                        .sym("WP")
+                        .type("WP")
+
+                }
+            }
+
+            return gpx.build()
         }
 
         fun serializeToGpx(track: Track): GPX {

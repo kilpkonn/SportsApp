@@ -14,7 +14,7 @@ class GpsSessionDto(
     @JsonProperty("description")
     val description: String = "",
     @JsonProperty("recordedAt")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="GMT")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss'Z'", timezone="GMT+03:00")
     val recordedAt: Date,
     @JsonProperty("duration")
     val duration: Long? = null,

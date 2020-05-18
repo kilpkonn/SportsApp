@@ -128,6 +128,7 @@ class LocationService : Service() {
 
     private fun onNewLocation(location: Location) {
         Log.i(TAG, "New location: $location")
+
         // First location
 
         val trackLocation = trackLocationFilter.process(TrackLocation.fromLocation(location))
