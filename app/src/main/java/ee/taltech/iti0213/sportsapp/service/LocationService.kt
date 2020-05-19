@@ -371,10 +371,14 @@ class LocationService : Service() {
                     )
                 }.toMutableList()
 
-                track!!.checkpoints.filter { cp -> cp.elapsedTimestamp > gpsLocationsToUpload.first().elapsedTimestamp }
-                    .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
-                track!!.waypoints.filter { wp -> wp.timeAdded > gpsLocationsToUpload.first().timestamp }
-                    .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
+                if (track!!.checkpoints.size > 0) {
+                    track!!.checkpoints.filter { cp -> cp.elapsedTimestamp + UPDATE_INTERVAL_IN_MILLISECONDS * 1_000_000 >= gpsLocationsToUpload.first().elapsedTimestamp }
+                        .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
+                }
+                if (track!!.waypoints.size > 0) {
+                    track!!.waypoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS * 1_000_000 >= gpsLocationsToUpload.first().timestamp }
+                        .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
+                }
 
                 gpsLocationsToUpload = mutableListOf()
 
