@@ -8,6 +8,7 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
 import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter
+import java.util.*
 import kotlin.math.max
 
 class Track {
@@ -20,9 +21,9 @@ class Track {
     var name: String = TrackUtils.generateNameIfNeeded("", TrackType.UNKNOWN)
     var type: TrackType = TrackType.UNKNOWN
 
-    val track = mutableListOf<TrackLocation>()
-    val waypoints = mutableListOf<WayPoint>()
-    val checkpoints = mutableListOf<Checkpoint>()
+    val track = Collections.synchronizedList(mutableListOf<TrackLocation>())
+    val waypoints = Collections.synchronizedList(mutableListOf<WayPoint>())
+    val checkpoints = Collections.synchronizedList(mutableListOf<Checkpoint>())
     val pauses = mutableListOf<Int>()
 
     var runningDistance = 0.0
