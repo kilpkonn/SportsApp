@@ -1,15 +1,20 @@
 package ee.taltech.iti0213.sportsapp.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import ee.taltech.iti0213.sportsapp.C
 import ee.taltech.iti0213.sportsapp.R
@@ -31,6 +36,8 @@ import ee.taltech.iti0213.sportsapp.util.serializer.TrackSerializer
 class HistoryActivity : AppCompatActivity() {
 
     companion object {
+        private val TAG = this::class.java.declaringClass!!.simpleName
+
         private const val BUNDLE_SELECTED_REPLAYS = "selected_replays"
 
         private const val ALERT_DELETE_TITLE = "Delete track?"
@@ -49,6 +56,7 @@ class HistoryActivity : AppCompatActivity() {
     private var user: User? = null
 
     private var selectedItems = hashMapOf<Long, Int>()
+    private var isPermissionsGranted = false
 
     private lateinit var flingDetector: FlingDetector
 
@@ -66,6 +74,8 @@ class HistoryActivity : AppCompatActivity() {
 
         flingDetector = FlingDetector(this)
         flingDetector.onFlingRight = Runnable { onFlingRight() }
+
+        isPermissionsGranted = checkPermissions()
     }
 
     override fun onStart() {
@@ -199,6 +209,10 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun onExportClicked(trackSummary: TrackSummary) {
+        if (!isPermissionsGranted) {
+            return requestPermissions()
+        }
+
         val locations = trackLocationsRepository.readTrackLocations(trackSummary.trackId, 0L, Long.MAX_VALUE)
         val checkpoints = checkpointsRepository.readTrackCheckpoints(trackSummary.trackId)
         val wayPoints = wayPointsRepository.readTrackWayPoints(trackSummary.trackId)
@@ -254,5 +268,44 @@ class HistoryActivity : AppCompatActivity() {
             }.create()
 
         alert.show()
+    }
+
+    private fun requestPermissions() {
+        val shouldProvideRationale =
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        // Provide an additional rationale to the user. This would happen if the user denied the
+        // request previously, but didn't check the "Don't ask again" checkbox.
+        if (shouldProvideRationale) {
+            Log.i(TAG, "Displaying permission rationale to provide additional context.")
+            Snackbar.make(
+                findViewById(R.id.activity_main),
+                C.SNAKBAR_REQUEST_EXTERNAL_STORAGE_ACCESS_TEXT, Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(C.SNAKBAR_REQUEST_EXTERNAL_STORAGE_CONFIRM_TEXT) {
+                    // Request permission
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        C.REQUEST_PERMISSIONS_REQUEST_CODE
+                    )
+                }
+                .show()
+        } else {
+            Log.i(TAG, "Requesting permission")
+            // Request permission. It's possible this can be auto answered if device policy
+            // sets the permission in a given state or the user denied the permission
+            // previously and checked "Never ask again".
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                C.REQUEST_PERMISSIONS_REQUEST_CODE
+            )
+        }
+    }
+    private fun checkPermissions(): Boolean {
+        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 }

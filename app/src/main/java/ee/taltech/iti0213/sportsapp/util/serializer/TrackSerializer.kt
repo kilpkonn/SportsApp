@@ -2,6 +2,7 @@ package ee.taltech.iti0213.sportsapp.util.serializer
 
 import android.content.Context
 import android.os.Environment
+import android.widget.Toast
 import io.jenetics.jpx.GPX
 import java.io.File
 import java.io.FileOutputStream
@@ -23,6 +24,9 @@ class TrackSerializer {
     }
 
     fun saveGpx(gpx: GPX, name: String, context: Context, onSuccess: () -> Unit, onError: () -> Unit) {
+        if (!isExternalStorageAvailable || !isExternalStorageReadOnly) {
+            Toast.makeText(context, "External storage unavailable!", Toast.LENGTH_SHORT).show()
+        }
         mExternalFile = File(context.getExternalFilesDir(FILE_PATH), name.replace(" ", "_") + ".gpx")
         try {
             FileOutputStream(mExternalFile!!).use { out ->

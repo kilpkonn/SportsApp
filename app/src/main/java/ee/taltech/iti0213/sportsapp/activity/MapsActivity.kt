@@ -57,7 +57,6 @@ import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.provider.FakeLocationProvider
-import ee.taltech.iti0213.sportsapp.track.Track
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -612,7 +611,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     // Permission denied.
                     Snackbar.make(
                         findViewById(R.id.activity_main),
-                        C.SNAKBAR_REQUEST_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE
+                        C.SNAKBAR_REQUEST_FINE_LOCATION_DENIED_TEXT, Snackbar.LENGTH_INDEFINITE
                     )
                         .setAction(C.SNAKBAR_OPEN_SETTINGS_TEXT) {
                             // Build intent that displays the App settings screen.
