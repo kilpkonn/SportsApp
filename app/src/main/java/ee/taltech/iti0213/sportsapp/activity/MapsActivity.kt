@@ -283,6 +283,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
 
     private fun addWP(wp: WayPoint) {
+        if (wp.timeRemoved != null) return
+
         val latLng = LatLng(wp.latitude, wp.longitude)
         val options = MarkerOptions().position(latLng)
         options.icon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon("")))
@@ -315,7 +317,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         return true
     }
 
-    private fun updateLocation(trackLocation: TrackLocation, drawLine: Boolean) {
+    private fun updateLocation(trackLocation: TrackLocation, drawLine: Boolean, drawOnlyLine: Boolean = false) {
         mapLocationProvider.setLocation(trackLocation)
         val location = LatLng(trackLocation.latitude, trackLocation.longitude)
         if (lastLocation == null) {
@@ -355,39 +357,48 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         .color(color)
                 )
             }
-            val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
-            val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
 
-            val cameraLoc = when (displayMode) {
-                DisplayMode.CENTERED -> lastLoc
-                else -> mMap.cameraPosition.target
-            }
-            val cameraBearing = when (rotationMode) {
-                RotationMode.NORTH_UP -> 0f
-                RotationMode.USER_CHOSEN_UP -> mMap.cameraPosition.bearing
-                else -> TrackLocation.calcBearingBetween(lastLoc.latitude, lastLoc.longitude, location.latitude, location.longitude)
-            }
-            if (isCameraIdle) {
-                mMap.animateCamera(
-                    CameraUpdateFactory.newCameraPosition(
-                        CameraPosition.builder()
-                            .bearing(cameraBearing)
-                            .target(cameraLoc)
-                            .zoom(cameraZoom)
-                            .tilt(cameraTilt)
-                            .build()
+            if (!drawOnlyLine) {
+
+                val cameraTilt = if (rotationMode == RotationMode.DIRECTION_UP) 50f else 0f
+                val cameraZoom = mMap.cameraPosition.zoom //  FOCUSED_ZOOM_LEVEL
+
+                val cameraLoc = when (displayMode) {
+                    DisplayMode.CENTERED -> lastLoc
+                    else -> mMap.cameraPosition.target
+                }
+                val cameraBearing = when (rotationMode) {
+                    RotationMode.NORTH_UP -> 0f
+                    RotationMode.USER_CHOSEN_UP -> mMap.cameraPosition.bearing
+                    else -> TrackLocation.calcBearingBetween(
+                        lastLoc.latitude,
+                        lastLoc.longitude,
+                        location.latitude,
+                        location.longitude
                     )
-                )
+                }
+                if (isCameraIdle) {
+                    mMap.animateCamera(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.builder()
+                                .bearing(cameraBearing)
+                                .target(cameraLoc)
+                                .zoom(cameraZoom)
+                                .tilt(cameraTilt)
+                                .build()
+                        )
+                    )
+                }
             }
-        }
 
-        for ((marker, wp) in wpMarkers.entries) {
-            val distance = Converter.distToString(wp.getDriftToWP(trackLocation).toDouble())
-            marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
-            marker.showInfoWindow()
-        }
+            for ((marker, wp) in wpMarkers.entries) {
+                val distance = Converter.distToString(wp.getDriftToWP(trackLocation).toDouble())
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(wpIconGenerator.makeIcon(distance)))
+                marker.showInfoWindow()
+            }
 
-        drawRabbits()
+            drawRabbits()
+        }
 
         lastLocation = trackLocation
         lastUpdateTime = trackLocation.elapsedTimestamp
@@ -795,7 +806,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             val syncData = intent.getParcelableExtra<TrackSyncData>(C.TRACK_SYNC_DATA) ?: return
 
             syncData.track.forEachIndexed { i, trackPoint ->
-                updateLocation(trackPoint, !syncData.pauses.contains(i))
+                updateLocation(trackPoint, !syncData.pauses.contains(i), true)
             }
             shouldDrawTail = !syncData.pauses.contains(syncData.track.size)
 
