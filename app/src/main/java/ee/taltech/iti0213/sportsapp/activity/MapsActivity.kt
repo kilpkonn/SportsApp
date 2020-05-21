@@ -760,16 +760,18 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             rabbitTracks[trackId] = trackSummaryRepository.readTrackSummary(trackId)!!
 
-            if (rabbitName == ReplaySpinnerItems.NONE) {
-                rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
+
+            rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
+
+
+            if (rabbitName != ReplaySpinnerItems.NONE) {
+                rabbits[rabbitName] = trackId
             }
 
             if (rabbits.containsKey(rabbitName) && rabbits[rabbitName] != trackId) {
                 syncMapData()
             }
-            if (rabbitName != ReplaySpinnerItems.NONE) {
-                rabbits[rabbitName] = trackId
-            }
+
         }
 
         private fun onTrackReset(intent: Intent) {
