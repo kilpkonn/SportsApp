@@ -67,7 +67,7 @@ class LocationService : Service() {
     private var user: User? = null
     private var gpsSession: GpsSessionDto? = null
     private var lastUploadTime: Long = 0L
-    private var gpsLocationsToUpload = mutableListOf<TrackLocation>()
+    private var gpsLocationsToUpload = Collections.synchronizedList(mutableListOf<TrackLocation>())
 
     private var track: Track? = null
     private var isAddingToTrack = false
@@ -363,7 +363,7 @@ class LocationService : Service() {
             if (location == null && gpsSession?.id != null
                 || gpsSession?.id != null && location?.timestamp ?: 0L - lastUploadTime > user!!.syncInterval
             ) {
-                val backUp = gpsLocationsToUpload
+                val backUp = gpsLocationsToUpload.toList()
                 val toUpload = gpsLocationsToUpload.map { loc ->
                     GpsLocationDto.fromTrackLocation(
                         loc,
@@ -372,15 +372,15 @@ class LocationService : Service() {
                 }.toMutableList()
 
                 if (track!!.checkpoints.size > 0) {
-                    track!!.checkpoints.filter { cp -> cp.elapsedTimestamp + UPDATE_INTERVAL_IN_MILLISECONDS * 1_000_000 >= gpsLocationsToUpload.first().elapsedTimestamp }
+                    track!!.checkpoints.filter { cp -> cp.timestamp + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
                 }
                 if (track!!.waypoints.size > 0) {
-                    track!!.waypoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS * 1_000_000 >= gpsLocationsToUpload.first().timestamp }
+                    track!!.waypoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
                 }
 
-                gpsLocationsToUpload = mutableListOf()
+                gpsLocationsToUpload = Collections.synchronizedList(mutableListOf())
 
                 trackSyncController.addMultipleLocationsToSession(toUpload, gpsSession!!.id!!,
                     {

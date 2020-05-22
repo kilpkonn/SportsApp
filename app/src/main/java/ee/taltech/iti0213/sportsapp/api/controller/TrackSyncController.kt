@@ -11,6 +11,8 @@ import ee.taltech.iti0213.sportsapp.api.dto.GpsSessionDto
 import org.json.JSONArray
 import org.json.JSONObject
 import java.nio.charset.Charset
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class TrackSyncController private constructor(val context: Context) {
@@ -69,33 +71,46 @@ class TrackSyncController private constructor(val context: Context) {
             })
     }
 
-    fun addMultipleLocationsToSession(gpsLocations: List<GpsLocationDto>, gpsSessionId: String, onSuccess: () -> Unit, onError: () -> Unit) {
+    fun addMultipleLocationsToSession(
+        gpsLocations: List<GpsLocationDto>,
+        gpsSessionId: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
         val handler = WebApiHandler.getInstance(context)
 
         val chuncks = gpsLocations.chunked(BUNDLE_MAX_LOCATIONS)
-        var err = false
-        chuncks.forEach {chunk ->
+        var err = AtomicBoolean(false)
+        var count: AtomicInteger = AtomicInteger(chuncks.size)
+        chuncks.forEach { chunk ->
             handler.makeAuthorizedArrayRequest(
                 "GpsLocations/bulkupload/$gpsSessionId",
                 JSONArray(mapper.writeValueAsString(chunk)),
                 { response ->
                     Log.d(TAG, response.toString())
+                    val i = count.decrementAndGet()
                     val responseDto = mapper.readValue(response[0].toString(), BulkUploadResponseDto::class.java)
                     if (responseDto.locationsAdded != responseDto.locationsReceived) {
-                        err = true
+                        err.set(true)
+                    }
+                    if (i == 0) {
+                        if (err.get()) {
+                            onError() // <- Something more elegant here? Not too much info to work with tho
+                        } else {
+                            onSuccess()
+                        }
                     }
                 }, { error ->
                     Log.e(TAG, error.toString())
+                    val i = count.decrementAndGet()
                     if (error.networkResponse != null) {
                         Log.d(TAG, String(error.networkResponse.data, Charset.defaultCharset()))
                     }
-                   err = true
+                    err.set(true)
+                    if (i == 0) {
+                        onError()
+                    }
                 })
-        }
-        if (err) {
-            onError() // <- Something more elegant here? Not too much info to work with tho
-        } else {
-            onSuccess()
         }
     }
 }
