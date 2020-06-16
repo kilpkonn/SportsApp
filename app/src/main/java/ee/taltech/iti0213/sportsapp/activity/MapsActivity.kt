@@ -248,6 +248,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     }
     // ================================================ MAPS CALLBACKS ===============================================
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(map: GoogleMap?) {
         mMap = map ?: return
         wpIconGenerator = IconGenerator(this)
@@ -409,7 +410,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
-        isSyncedWithService = false
+        // isSyncedWithService = false
         user = userRepository.readUser()
     }
 
@@ -419,7 +420,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
-        isSyncedWithService = false
+        // isSyncedWithService = false
     }
 
     override fun onPause() {
@@ -427,7 +428,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         super.onPause()
         sensorManager.unregisterListener(this, accelerometer)
         sensorManager.unregisterListener(this, magnetometer)
-        isSyncedWithService = false
+        // isSyncedWithService = false
     }
 
     override fun onStop() {
@@ -590,6 +591,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -828,7 +830,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                 return // Throw away as sync will return it anyways. Avoids straight line
             }
 
-            val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as TrackLocation
+            val trackLocation = intent.getParcelableExtra(C.LOCATION_UPDATE_ACTION_TRACK_LOCATION) as? TrackLocation ?: return
+
             updateLocation(trackLocation, shouldDrawTail && isTracking)
             if (!shouldDrawTail)
                 shouldDrawTail = true
@@ -837,7 +840,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         private fun onTrackDataUpdate(intent: Intent) {
             if (!intent.hasExtra(C.TRACK_STATS_UPDATE_ACTION_DATA)) return
 
-            val trackData = intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as TrackData
+            val trackData = intent.getParcelableExtra(C.TRACK_STATS_UPDATE_ACTION_DATA) as? TrackData ?: return
 
             elapsedRunningTime = trackData.totalTime
 

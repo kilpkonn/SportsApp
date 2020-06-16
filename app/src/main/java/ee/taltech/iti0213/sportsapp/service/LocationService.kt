@@ -420,7 +420,7 @@ class LocationService : Service() {
                 }
                 C.TRACK_ACTION_REMOVE_WP -> {
                     if (!intent.hasExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION)) return
-                    track?.removeWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION) as WayPoint)
+                    track?.removeWayPoint(intent.getParcelableExtra(C.TRACK_ACTION_REMOVE_WP_LOCATION) as? WayPoint ?: return)
                 }
                 C.TRACK_SYNC_REQUEST -> {
                     if (!intent.hasExtra(C.TRACK_SYNC_REQUEST_TIME)) return
