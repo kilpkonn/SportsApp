@@ -46,5 +46,5 @@
     <string name="pace_vs_speed">Use pace instead of speed</string>
     <string name="btn_delete">DELETE</string>
     <string name="btn_rename">RENAME</string>
-    <string name="count">Count</string>
+    <string name="train_count">Train count</string>
 </resources>

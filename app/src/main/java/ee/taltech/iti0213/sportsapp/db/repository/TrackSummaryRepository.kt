@@ -120,6 +120,41 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         return trackList
     }
 
+    fun readTrackSummariesDuringPeriod(startTime: Long, endTime: Long): List<TrackSummary> {
+        val trackList = mutableListOf<TrackSummary>()
+
+        val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
+                + " WHERE " + DatabaseHelper.KEY_TRACK_START_STAMP + " BETWEEN " + startTime.toString() + " AND " + endTime.toString()
+                + " ORDER BY " + DatabaseHelper.KEY_ID + " DESC")
+
+        val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    val trackSummary = TrackSummary(
+                        cursor.getLong(0),
+                        cursor.getString(1),
+                        cursor.getInt(2),
+                        cursor.getLong(3),
+                        cursor.getLong(4),
+                        cursor.getLong(5),
+                        cursor.getLong(6),
+                        cursor.getLong(7),
+                        cursor.getDouble(8),
+                        cursor.getDouble(9),
+                        cursor.getDouble(10),
+                        cursor.getDouble(11),
+                        cursor.getDouble(12)
+                    )
+                    trackList.add(trackSummary)
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+        }
+        return trackList
+    }
+
     fun deleteTrack(trackId: Long) {
         databaseHelper.writableDatabase.beginTransaction()
         databaseHelper.writableDatabase.delete(
