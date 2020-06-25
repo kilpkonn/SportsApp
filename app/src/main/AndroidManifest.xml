@@ -27,11 +27,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".activity.SettingsActivity"
-            android:launchMode="singleInstance"/>
-        <activity android:name=".activity.HistoryActivity"
-            android:launchMode="singleInstance"/>
+        <activity android:name=".activity.OverviewActivity"></activity>
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name=".activity.HistoryActivity"
+            android:launchMode="singleInstance" />
         <activity
             android:name=".activity.DetailActivity"
             android:launchMode="singleInstance" />
