@@ -2,12 +2,15 @@ package ee.taltech.iti0213.sportsapp.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.Toast
 import ee.taltech.iti0213.sportsapp.R
+import ee.taltech.iti0213.sportsapp.component.spinner.adapter.OverviewTypeSpinnerAdapter
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
+import ee.taltech.iti0213.sportsapp.detector.FlingDetector
 import ee.taltech.iti0213.sportsapp.track.TrackType
 
 class OverviewActivity : AppCompatActivity() {
@@ -16,6 +19,8 @@ class OverviewActivity : AppCompatActivity() {
         private val TAG = this::class.java.declaringClass!!.simpleName
     }
 
+    private lateinit var flingDetector: FlingDetector
+
     private lateinit var overviewTypeSpinner: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,12 +28,30 @@ class OverviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_overview)
 
         overviewTypeSpinner = findViewById(R.id.spinner_overview_type)
+
+        flingDetector = FlingDetector(this)
+
+        flingDetector.onFlingUp = Runnable { onFlingUp() }
+
+        setUpSpinners()
+    }
+
+
+    // ======================================== FLING DETECTION =======================================
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        flingDetector.update(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
+    private fun onFlingUp() {
+        moveTaskToBack(true)
     }
 
     // ============================================= HELPER FUNCTIONS ===================================================
 
     private fun setUpSpinners() {
-        val displayOptionAdapter = TrackTypeSpinnerAdapter(this)
+        val displayOptionAdapter = OverviewTypeSpinnerAdapter(this)
         overviewTypeSpinner.adapter = displayOptionAdapter
         overviewTypeSpinner.setSelection(0)
         overviewTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

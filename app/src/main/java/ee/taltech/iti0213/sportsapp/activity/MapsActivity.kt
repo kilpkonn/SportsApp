@@ -241,6 +241,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         spinnerRotationMode = findViewById(R.id.spinner_rotation_mode)
 
         flingDetector.onFlingUp = Runnable { onFlingUp() }
+        flingDetector.onFlingDown = Runnable { onFlingDown() }
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
         flingDetector.onFlingRight = Runnable { onFlingRight() }
 
@@ -719,6 +720,15 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         overridePendingTransition(
             R.anim.slide_in_from_bottom,
             R.anim.slide_out_to_top
+        )
+    }
+
+    private fun onFlingDown() {
+        val intent = Intent(this, OverviewActivity::class.java)
+        startActivity(intent)
+        overridePendingTransition(
+            R.anim.slide_in_from_top,
+            R.anim.slide_out_to_bottom
         )
     }
 

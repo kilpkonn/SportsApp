@@ -12,7 +12,7 @@ import ee.taltech.iti0213.sportsapp.component.spinner.OverviewMode
 
 
 class OverviewTypeSpinnerAdapter(context: Context) :
-    ArrayAdapter<String>(context, R.layout.track_type_spinner_item, R.id.txt_text, OverviewMode.OPTIONS) {
+    ArrayAdapter<String>(context, R.layout.overview_type_spinner_item, R.id.txt_text, OverviewMode.OPTIONS) {
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val view = super.getDropDownView(position, convertView, parent!!)
@@ -28,6 +28,6 @@ class OverviewTypeSpinnerAdapter(context: Context) :
 
     private fun applyChanges(view: View, position: Int) {
         val txt = view.findViewById<TextView>(R.id.txt_text)
-        txt.text = TrackTypeIcons.OPTIONS[position]
+        txt.text = OverviewMode.OPTIONS[position]
     }
 }
