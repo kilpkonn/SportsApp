@@ -59,7 +59,7 @@
             style="@style/DetailInfoBig"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/cp_count_default_text" />
+            android:text="@string/count_default_text" />
 
         <TextView
             android:layout_width="match_parent"

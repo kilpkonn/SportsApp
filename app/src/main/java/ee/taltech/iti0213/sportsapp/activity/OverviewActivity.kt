@@ -1,17 +1,14 @@
 package ee.taltech.iti0213.sportsapp.activity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import ee.taltech.iti0213.sportsapp.R
 import ee.taltech.iti0213.sportsapp.component.spinner.adapter.OverviewTypeSpinnerAdapter
-import ee.taltech.iti0213.sportsapp.component.spinner.adapter.TrackTypeSpinnerAdapter
 import ee.taltech.iti0213.sportsapp.detector.FlingDetector
-import ee.taltech.iti0213.sportsapp.track.TrackType
 
 class OverviewActivity : AppCompatActivity() {
 
