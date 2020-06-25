@@ -80,24 +80,27 @@ class OverviewActivity : AppCompatActivity() {
     // ============================================= HELPER FUNCTIONS ===================================================
 
     private fun showOverview(period: Long) {
+        linearLayoutScrollContent.removeAllViews()
         val data = trackSummaryRepository.readTrackSummariesDuringPeriod(System.currentTimeMillis() - period, System.currentTimeMillis())
+        val a = System.currentTimeMillis()
         data.groupBy { track -> track.type }
             .forEach { (typeInt, tracks) ->
-                val trackView = layoutInflater.inflate(R.layout.overview_item, linearLayoutScrollContent, false)
-                trackView.findViewById<TextView>(R.id.activity_name).text =
+                val overviewView = layoutInflater.inflate(R.layout.overview_item, linearLayoutScrollContent, false)
+                overviewView.findViewById<TextView>(R.id.activity_name).text =
                     TrackTypeIcons.getString(TrackType.fromInt(typeInt) ?: TrackType.UNKNOWN)
-                trackView.findViewById<ImageView>(R.id.track_type_icon)
+                overviewView.findViewById<ImageView>(R.id.track_type_icon)
                     .setImageResource(TrackTypeIcons.getIcon(TrackType.fromInt(typeInt)!!))
                 val totalDistance = tracks.sumByDouble { t -> t.distance }
                 val totalDurationMoving = tracks.sumByLong { t -> t.durationMoving}
-                trackView.findViewById<TextView>(R.id.distance).text = Converter.distToString(totalDistance)
-                trackView.findViewById<TextView>(R.id.duration).text = Converter.longToHhMmSs(totalDurationMoving)
-                trackView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(tracks.sumByDouble { t -> t.elevationGained })
-                trackView.findViewById<TextView>(R.id.avg_speed).text =
+                overviewView.findViewById<TextView>(R.id.distance).text = Converter.distToString(totalDistance)
+                overviewView.findViewById<TextView>(R.id.duration).text = Converter.longToHhMmSs(totalDurationMoving)
+                overviewView.findViewById<TextView>(R.id.elevation_gained).text = Converter.distToString(tracks.sumByDouble { t -> t.elevationGained })
+                overviewView.findViewById<TextView>(R.id.avg_speed).text =
                     Converter.speedToString(totalDistance / totalDurationMoving * 1_000_000_000 * 3.6, user?.speedMode ?: true)
-                trackView.findViewById<TextView>(R.id.max_speed).text =
+                overviewView.findViewById<TextView>(R.id.max_speed).text =
                     Converter.speedToString(tracks.maxBy { t -> t.maxSpeed }!!.maxSpeed, user?.speedMode ?: true)
-                trackView.findViewById<TextView>(R.id.train_count).text = tracks.size.toString()
+                overviewView.findViewById<TextView>(R.id.train_count).text = tracks.size.toString()
+                linearLayoutScrollContent.addView(overviewView)
             }
     }
 
