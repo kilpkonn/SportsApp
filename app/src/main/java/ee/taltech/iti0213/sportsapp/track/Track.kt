@@ -7,7 +7,9 @@ import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.Checkpoint
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.WayPoint
 import ee.taltech.iti0213.sportsapp.util.TrackUtils
+import ee.taltech.iti0213.sportsapp.util.datatype.Vector2D
 import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter
+import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter2D
 import java.util.*
 import kotlin.math.max
 
@@ -15,7 +17,8 @@ class Track {
     companion object {
         private const val FILTER_LENGTH = 5
     }
-    private val speedFilter = SimpleFilter(FILTER_LENGTH)
+
+    private val speedFilter = SimpleFilter2D(FILTER_LENGTH)
     private val altitudeFilter = SimpleFilter(FILTER_LENGTH)
 
     var name: String = TrackUtils.generateNameIfNeeded("", TrackType.UNKNOWN)
@@ -64,7 +67,12 @@ class Track {
                 if (lastAltitude != 0.0)
                     elevationGained += max(
                         0.0,
-                        altitudeFilter.process(location.altitude - lastAltitude - max(location.altitudeAccuracy, lastLocation?.altitudeAccuracy ?: 0f) / 2)
+                        altitudeFilter.process(
+                            location.altitude - lastAltitude - max(
+                                location.altitudeAccuracy,
+                                lastLocation?.altitudeAccuracy ?: 0f
+                            ) / 2
+                        )
                     )
                 lastAltitude = location.altitude
             }
@@ -73,7 +81,23 @@ class Track {
                 movingTime += location.elapsedTimestamp - currentTimeElapsed
 
                 // No funny stuff with pauses
-                val currSpeed = speedFilter.process(3.6 * 1_000_000_000 * distance / (location.elapsedTimestamp - currentTimeElapsed))
+                val moveVector = speedFilter.process(
+                    Vector2D(
+                        TrackLocation.calcDistanceBetween(
+                            location.latitude,
+                            location.longitude,
+                            lastLocation?.latitude ?: 0.0,
+                            location.longitude
+                        ).toDouble(),
+                        TrackLocation.calcDistanceBetween(
+                            location.latitude,
+                            location.longitude,
+                            location.latitude,
+                            lastLocation?.longitude ?: 0.0
+                        ).toDouble()
+                    )
+                )
+                val currSpeed = 3.6 * 1_000_000_000 * moveVector.length() / (location.elapsedTimestamp - currentTimeElapsed)
                 if (currSpeed > maxSpeed) {
                     maxSpeed = currSpeed
                 }
@@ -174,7 +198,16 @@ class Track {
     fun getDetailedTrackData(): DetailedTrackData {
         val avgElevation = track.map { p -> p.altitude }.filter { a -> a != 0.0 }.average()
         val drift = if (track.size > 1) TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble() else 0.0
-        return DetailedTrackData(name, type.value, getTimeSinceStart(), runningDistance, elevationGained, avgElevation, drift, checkpoints.size)
+        return DetailedTrackData(
+            name,
+            type.value,
+            getTimeSinceStart(),
+            runningDistance,
+            elevationGained,
+            avgElevation,
+            drift,
+            checkpoints.size
+        )
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {
