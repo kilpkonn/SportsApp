@@ -15,7 +15,7 @@ class SimpleFilter2D(private val length: Int): IFilter<Vector2D> {
         for (item in data) {
             avg.add(item)
         }
-        return avg.divide(data.size.toDouble())
+        return avg.divide(length.toDouble()) // Be conservative on boot
     }
 
 }

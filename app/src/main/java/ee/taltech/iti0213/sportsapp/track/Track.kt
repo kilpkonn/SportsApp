@@ -11,7 +11,10 @@ import ee.taltech.iti0213.sportsapp.util.datatype.Vector2D
 import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter
 import ee.taltech.iti0213.sportsapp.util.filter.SimpleFilter2D
 import java.util.*
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
 
 class Track {
     companion object {
@@ -77,26 +80,19 @@ class Track {
                 lastAltitude = location.altitude
             }
 
+            // No funny stuff with pauses
             if (pauses.isEmpty() || pauses.last() != track.size) {
                 movingTime += location.elapsedTimestamp - currentTimeElapsed
 
-                // No funny stuff with pauses
+                val distanceFromLast = TrackLocation.calcDistanceBetween(location, lastLocation ?: location)
+                val bearingFromLast = TrackLocation.calcBearingBetween(lastLocation ?: location, location) / 180.0f * PI
                 val moveVector = speedFilter.process(
                     Vector2D(
-                        TrackLocation.calcDistanceBetween(
-                            location.latitude,
-                            location.longitude,
-                            lastLocation?.latitude ?: 0.0,
-                            location.longitude
-                        ).toDouble(),
-                        TrackLocation.calcDistanceBetween(
-                            location.latitude,
-                            location.longitude,
-                            location.latitude,
-                            lastLocation?.longitude ?: 0.0
-                        ).toDouble()
+                        (distanceFromLast * sin(bearingFromLast)),
+                        (distanceFromLast * cos(bearingFromLast))
                     )
                 )
+
                 val currSpeed = 3.6 * 1_000_000_000 * moveVector.length() / (location.elapsedTimestamp - currentTimeElapsed)
                 if (currSpeed > maxSpeed) {
                     maxSpeed = currSpeed

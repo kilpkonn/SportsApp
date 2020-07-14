@@ -57,6 +57,10 @@ class TrackLocation(
             return distance[0]
         }
 
+        fun calcBearingBetween(from: TrackLocation, to: TrackLocation): Float {
+            return calcBearingBetween(from.latitude, from.longitude, to.latitude, to.longitude)
+        }
+
         fun calcBearingBetween(
                 lat: Double,
                 lng: Double,
