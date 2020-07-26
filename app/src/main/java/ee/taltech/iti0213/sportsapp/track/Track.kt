@@ -18,7 +18,7 @@ import kotlin.math.sin
 
 class Track {
     companion object {
-        private const val FILTER_LENGTH = 5
+        private const val FILTER_LENGTH = 10
     }
 
     private val speedFilter = SimpleFilter2D(FILTER_LENGTH)
@@ -27,9 +27,9 @@ class Track {
     var name: String = TrackUtils.generateNameIfNeeded("", TrackType.UNKNOWN)
     var type: TrackType = TrackType.UNKNOWN
 
-    val track = Collections.synchronizedList(mutableListOf<TrackLocation>())
-    val waypoints = Collections.synchronizedList(mutableListOf<WayPoint>())
-    val checkpoints = Collections.synchronizedList(mutableListOf<Checkpoint>())
+    val track: MutableList<TrackLocation>? = Collections.synchronizedList(mutableListOf<TrackLocation>())
+    val wayPoints: MutableList<WayPoint>? = Collections.synchronizedList(mutableListOf<WayPoint>())
+    val checkpoints: MutableList<Checkpoint>? = Collections.synchronizedList(mutableListOf<Checkpoint>())
     val pauses = mutableListOf<Int>()
 
     var runningDistance = 0.0
@@ -81,15 +81,15 @@ class Track {
             }
 
             // No funny stuff with pauses
-            if (pauses.isEmpty() || pauses.last() != track.size) {
+            if (pauses.isEmpty() || pauses.last() != track?.size) {
                 movingTime += location.elapsedTimestamp - currentTimeElapsed
 
                 val distanceFromLast = TrackLocation.calcDistanceBetween(location, lastLocation ?: location)
                 val bearingFromLast = TrackLocation.calcBearingBetween(lastLocation ?: location, location) / 180.0f * PI
                 val moveVector = speedFilter.process(
                     Vector2D(
-                        (distanceFromLast * sin(bearingFromLast)),
-                        (distanceFromLast * cos(bearingFromLast))
+                        distanceFromLast * sin(bearingFromLast),
+                        distanceFromLast * cos(bearingFromLast)
                     )
                 )
 
@@ -104,15 +104,15 @@ class Track {
         }
         currentTimeElapsed = location.elapsedTimestamp
         lastLocation = location
-        track.add(location)
+        track?.add(location)
     }
 
     fun onPause() {
-        pauses.add(track.size)
+        pauses.add(track?.size ?: return)
     }
 
     fun addCheckpoint(trackLocation: TrackLocation) {
-        checkpoints.add(
+        checkpoints?.add(
             Checkpoint.fromLocation(
                 trackLocation,
                 runningDistance,
@@ -124,13 +124,13 @@ class Track {
     }
 
     fun addWayPoint(wayPoint: WayPoint) {
-        waypoints.add(wayPoint)
+        wayPoints?.add(wayPoint)
         runningDistanceFromLastWP = 0.0
         lastWPTime = wayPoint.timeAdded
     }
 
     fun removeWayPoint(wayPoint: WayPoint) {
-        waypoints.find { wp -> wp == wayPoint }?.timeRemoved = wayPoint.timeRemoved
+        wayPoints?.find { wp -> wp == wayPoint }?.timeRemoved = wayPoint.timeRemoved
     }
 
     fun getTimeSinceStart(): Long {
@@ -147,7 +147,7 @@ class Track {
 
     fun getDriftLastCP(): Float {
         if (lastLocation == null) return 0f
-        val cp = checkpoints.lastOrNull() ?: return 0f
+        val cp = checkpoints?.lastOrNull() ?: return 0f
         return TrackLocation.calcDistanceBetween(
             lastLocation!!.latitude,
             lastLocation!!.longitude,
@@ -158,7 +158,7 @@ class Track {
 
     fun getDriftToLastWP(): Float {
         if (lastLocation == null) return 0f
-        val wp = waypoints.lastOrNull() ?: return 0f
+        val wp = wayPoints?.lastOrNull() ?: return 0f
         return TrackLocation.calcDistanceBetween(
             lastLocation!!.latitude,
             lastLocation!!.longitude,
@@ -169,7 +169,7 @@ class Track {
 
     fun getDrift(): Float {
         if (lastLocation == null) return 0f
-        val start = track.first()
+        val start = track?.first() ?: return 0f
         return TrackLocation.calcDistanceBetween(
             lastLocation!!.latitude,
             lastLocation!!.longitude,
@@ -192,8 +192,8 @@ class Track {
     }
 
     fun getDetailedTrackData(): DetailedTrackData {
-        val avgElevation = track.map { p -> p.altitude }.filter { a -> a != 0.0 }.average()
-        val drift = if (track.size > 1) TrackLocation.calcDistanceBetween(track.first(), track.last()).toDouble() else 0.0
+        val avgElevation = track?.map { p -> p.altitude }?.filter { a -> a != 0.0 }?.average() ?: 0.0
+        val drift = if (track?.size ?: 0 > 1) TrackLocation.calcDistanceBetween(track!!.first(), track.last()).toDouble() else 0.0
         return DetailedTrackData(
             name,
             type.value,
@@ -202,15 +202,15 @@ class Track {
             elevationGained,
             avgElevation,
             drift,
-            checkpoints.size
+            checkpoints?.size ?: 0
         )
     }
 
     fun getTrackSyncData(since: Long): TrackSyncData {
         return TrackSyncData(
-            track.filter { p -> p.elapsedTimestamp >= since },
-            waypoints.filter { p -> p.timeAdded >= since },
-            checkpoints.filter { p -> p.elapsedTimestamp >= since },
+            track?.filter { p -> p.elapsedTimestamp >= since } ?: listOf(),
+            wayPoints?.filter { p -> p.timeAdded >= since } ?: listOf(),
+            checkpoints?.filter { p -> p.elapsedTimestamp >= since } ?: listOf(),
             pauses
         )
     }

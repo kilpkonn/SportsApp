@@ -375,8 +375,8 @@ class LocationService : Service() {
                     track!!.checkpoints.filter { cp -> cp.timestamp + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
                 }
-                if (track!!.waypoints.size > 0) {
-                    track!!.waypoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
+                if (track!!.wayPoints.size > 0) {
+                    track!!.wayPoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
                 }
 
@@ -468,7 +468,7 @@ class LocationService : Service() {
             val trackId = trackSummaryRepository.saveTrack(track!!)
             trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
             checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
-            wayPointsRepository.saveWayPointToTrack(track!!.waypoints, trackId)
+            wayPointsRepository.saveWayPointToTrack(track!!.wayPoints, trackId)
 
             if (user != null && user!!.autoSync) {
                 uploadLocationIfNeeded(null)
