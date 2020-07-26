@@ -8,9 +8,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import ee.taltech.iti0213.sportsapp.component.spinner.ReplaySpinnerItems
 import ee.taltech.iti0213.sportsapp.track.pracelable.loaction.TrackLocation
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
+import kotlin.math.*
 
 class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageView(context, attrs) {
 
@@ -35,9 +33,13 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
         val minLng = track?.minBy { location -> location.longitude }?.longitude ?: 0.0
         val maxLng = track?.maxBy { location -> location.longitude }?.longitude ?: 0.0
 
-        // Should be keep dimensions?
         val latDelta = maxLat - minLat
-        val lngDelta = maxLng - minLng
+        val lngMultiplier = cos((minLat + latDelta / 2) / 180f * PI)
+        val lngDelta = (maxLng - minLng) * lngMultiplier
+
+        val maxDelta = max(latDelta, lngDelta)
+        val latOffset = (maxDelta - latDelta) / 2
+        val lngOffset = (maxDelta - lngDelta) * lngMultiplier / 2
 
         val paint = Paint()
         paint.color = color
@@ -47,16 +49,16 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
 
         var last = track?.first()
         for (location in track!!) {
-            var relSpeed = max(0.0, min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
+            val relSpeed = max(0.0, min(1.0, TrackLocation.calcDistanceBetween(location, last!!) /
                     ((location.elapsedTimestamp - (last.elapsedTimestamp)  + 1) / 1_000_000_000 / 3.6) / maxSpeed))
 
             paint.color = argbEvaluator.evaluate(relSpeed.pow(1).toFloat(), color, colorMax) as Int
 
             canvas?.drawLine(
-                width * PADDING + ((location.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
-                height * (1 - PADDING) - ((location.latitude - minLat) / latDelta * paddedWidth).toFloat(),
-                width * PADDING + ((last.longitude - minLng) / lngDelta * paddedWidth).toFloat(),
-                height * (1 - PADDING) - ((last.latitude - minLat) / latDelta * paddedWidth).toFloat(),
+                width * PADDING + ((lngOffset + location.longitude - minLng) * lngMultiplier / maxDelta * paddedWidth).toFloat(),
+                height * (1 - PADDING) - ((latOffset + location.latitude - minLat) / maxDelta * paddedWidth).toFloat(),
+                width * PADDING + ((lngOffset + last.longitude - minLng) * lngMultiplier/ maxDelta * paddedWidth).toFloat(),
+                height * (1 - PADDING) - ((latOffset + last.latitude - minLat) / maxDelta * paddedWidth).toFloat(),
                 paint
             )
             last = location

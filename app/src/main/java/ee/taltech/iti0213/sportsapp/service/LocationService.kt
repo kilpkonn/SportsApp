@@ -371,12 +371,12 @@ class LocationService : Service() {
                     )
                 }.toMutableList()
 
-                if (track!!.checkpoints.size > 0) {
-                    track!!.checkpoints.filter { cp -> cp.timestamp + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
+                if (track!!.checkpoints?.size ?: 0 > 0) {
+                    track!!.checkpoints!!.filter { cp -> cp.timestamp + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { cp -> toUpload.add(GpsLocationDto.fromCheckpoint(cp, gpsSession!!.id!!)) }
                 }
-                if (track!!.wayPoints.size > 0) {
-                    track!!.wayPoints.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
+                if (track!!.wayPoints?.size ?: 0 > 0) {
+                    track!!.wayPoints!!.filter { wp -> wp.timeAdded + UPDATE_INTERVAL_IN_MILLISECONDS >= lastUploadTime }
                         .forEach { wp -> toUpload.add(GpsLocationDto.fromWayPoint(wp, gpsSession!!.id!!)) }
                 }
 
@@ -463,12 +463,12 @@ class LocationService : Service() {
         }
 
         private fun onTrackSave() {
-            if (track == null || track!!.track.size < 2) return
+            if (track == null || track!!.track?.size ?: 0 < 2) return
             user = userRepository.readUser()
             val trackId = trackSummaryRepository.saveTrack(track!!)
-            trackLocationsRepository.saveLocationToTrack(track!!.track, trackId)
-            checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints, trackId)
-            wayPointsRepository.saveWayPointToTrack(track!!.wayPoints, trackId)
+            trackLocationsRepository.saveLocationToTrack(track!!.track!!, trackId)
+            checkpointsRepository.saveCheckpointToTrack(track!!.checkpoints!!, trackId)
+            wayPointsRepository.saveWayPointToTrack(track!!.wayPoints!!, trackId)
 
             if (user != null && user!!.autoSync) {
                 uploadLocationIfNeeded(null)

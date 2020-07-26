@@ -146,7 +146,7 @@ class TrackUtils {
         fun serializeToGpx(track: Track): GPX {
             var lastPause = 0
             val pauses = track.pauses
-            pauses.add(track.track.size)
+            pauses.add(track.track!!.size )
 
             val gpx = GPX.builder()
                 .addTrack { gpxTrack ->
