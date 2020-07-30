@@ -84,16 +84,16 @@ class Track {
             if (pauses.isEmpty() || pauses.last() != track?.size) {
                 movingTime += location.elapsedTimestamp - currentTimeElapsed
 
-                val distanceFromLast = TrackLocation.calcDistanceBetween(location, lastLocation ?: location)
-                val bearingFromLast = TrackLocation.calcBearingBetween(lastLocation ?: location, location) / 180.0f * PI
-                val moveVector = speedFilter.process(
+                val distanceFromLast = 3.6 * 1_000_000_000 * TrackLocation.calcDistanceBetween(location, lastLocation!!)
+                val bearingFromLast = TrackLocation.calcBearingBetween(lastLocation!!, location) * PI / 180.0f
+                val speedVector = speedFilter.process(
                     Vector2D(
-                        distanceFromLast * sin(bearingFromLast),
-                        distanceFromLast * cos(bearingFromLast)
+                        distanceFromLast * sin(bearingFromLast) / (location.elapsedTimestamp - currentTimeElapsed),
+                        distanceFromLast * cos(bearingFromLast) / (location.elapsedTimestamp - currentTimeElapsed)
                     )
                 )
 
-                val currSpeed = 3.6 * 1_000_000_000 * moveVector.length() / (location.elapsedTimestamp - currentTimeElapsed)
+                val currSpeed = speedVector.length()
                 if (currSpeed > maxSpeed) {
                     maxSpeed = currSpeed
                 }
