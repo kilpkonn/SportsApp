@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "ee.taltech.iti0213.sportsapp"
+        applicationId 'ee.taltech.kilpkonn.sportsapp'
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1

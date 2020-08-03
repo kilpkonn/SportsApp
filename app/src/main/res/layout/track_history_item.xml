@@ -15,7 +15,7 @@
         android:background="@drawable/rounded_corners">
 
 
-        <ee.taltech.iti0213.sportsapp.component.view.TrackIconImageView
+        <ee.taltech.kilpkonn.sportsapp.component.view.TrackIconImageView
             android:id="@+id/track_image"
             android:layout_width="100dp"
             android:layout_height="100dp"

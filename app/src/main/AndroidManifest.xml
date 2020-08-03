@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ee.taltech.iti0213.sportsapp">
+    package="ee.taltech.kilpkonn.sportsapp">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -27,15 +27,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.OverviewActivity"></activity>
+        <activity android:name="ee.taltech.kilpkonn.sportsapp.activity.OverviewActivity"></activity>
         <activity
-            android:name=".activity.SettingsActivity"
+            android:name="ee.taltech.kilpkonn.sportsapp.activity.SettingsActivity"
             android:launchMode="singleInstance" />
         <activity
-            android:name=".activity.HistoryActivity"
+            android:name="ee.taltech.kilpkonn.sportsapp.activity.HistoryActivity"
             android:launchMode="singleInstance" />
         <activity
-            android:name=".activity.DetailActivity"
+            android:name="ee.taltech.kilpkonn.sportsapp.activity.DetailActivity"
             android:launchMode="singleInstance" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -46,7 +46,7 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <activity
-            android:name=".activity.MapsActivity"
+            android:name="ee.taltech.kilpkonn.sportsapp.activity.MapsActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,7 +59,7 @@
         Requires buildTools SDK >= 29
         -->
         <service
-            android:name=".service.LocationService"
+            android:name="ee.taltech.kilpkonn.sportsapp.service.LocationService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location"
