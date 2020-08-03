@@ -5,6 +5,7 @@ import android.content.Context
 import ee.taltech.iti0213.sportsapp.db.DatabaseHelper
 import ee.taltech.iti0213.sportsapp.db.domain.TrackSummary
 import ee.taltech.iti0213.sportsapp.track.Track
+import ee.taltech.iti0213.sportsapp.track.TrackType
 
 class TrackSummaryRepository private constructor(context: Context) : IRepository {
 
@@ -53,11 +54,26 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         databaseHelper.writableDatabase.endTransaction()
     }
 
+    fun readMaxSpeed(trackType: TrackType): Double? {
+        val selectQuery = ("SELECT MAX(" + DatabaseHelper.KEY_TRACK_MAX_SPEED
+                + ") FROM " + DatabaseHelper.TABLE_TRACKS
+                + " WHERE " + DatabaseHelper.KEY_TRACK_TYPE + " = " + trackType.value)
+        val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)
+        var track: Double? = null
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                track = cursor.getDouble(0)
+            }
+            cursor.close()
+        }
+        return track
+    }
+
     fun readTrackSummary(id: Long): TrackSummary? {
 
         val selectQuery = ("SELECT * FROM " + DatabaseHelper.TABLE_TRACKS
-                + " WHERE " + DatabaseHelper.KEY_ID + " = " + id.toString()
-                + " LIMIT 1 ")
+                + " WHERE " + DatabaseHelper.KEY_ID + " = " + id + " LIMIT 1 ")
 
         val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)
         var track: TrackSummary? = null
@@ -89,7 +105,7 @@ class TrackSummaryRepository private constructor(context: Context) : IRepository
         val trackList = mutableListOf<TrackSummary>()
 
         val selectQuery = ("SELECT  * FROM " + DatabaseHelper.TABLE_TRACKS
-                + " WHERE " + DatabaseHelper.KEY_ID + " BETWEEN " + startId.toString() + " AND " + endId.toString()
+                + " WHERE " + DatabaseHelper.KEY_ID + " BETWEEN " + startId + " AND " + endId
                 + " ORDER BY " + DatabaseHelper.KEY_ID + " DESC")
 
         val cursor = databaseHelper.readableDatabase.rawQuery(selectQuery, null)

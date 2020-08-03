@@ -57,6 +57,7 @@ import ee.taltech.iti0213.sportsapp.db.repository.TrackLocationsRepository
 import ee.taltech.iti0213.sportsapp.db.repository.TrackSummaryRepository
 import ee.taltech.iti0213.sportsapp.db.repository.UserRepository
 import ee.taltech.iti0213.sportsapp.provider.FakeLocationProvider
+import ee.taltech.iti0213.sportsapp.track.TrackType
 import ee.taltech.iti0213.sportsapp.track.converters.Converter
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackData
 import ee.taltech.iti0213.sportsapp.track.pracelable.TrackSyncData
@@ -131,6 +132,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var maxSpeed = 0.0
     private var rabbits = hashMapOf<String, Long>()
     private var rabbitTracks = hashMapOf<Long, TrackSummary>()
+    private var trackTypeMaxSpeeds = hashMapOf<TrackType, Double?>()
 
     private var currentDegree = 0.0f
     private var lastAccelerometer = FloatArray(3)
@@ -244,6 +246,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         flingDetector.onFlingDown = Runnable { onFlingDown() }
         flingDetector.onFlingLeft = Runnable { onFlingLeft() }
         flingDetector.onFlingRight = Runnable { onFlingRight() }
+
+        TrackType.values().forEach { type ->
+            trackTypeMaxSpeeds[type] = trackSummaryRepository.readMaxSpeed(type)
+        }
 
         startLocationService()
     }
@@ -772,9 +778,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             rabbitTracks[trackId] = trackSummaryRepository.readTrackSummary(trackId)!!
 
-
             rabbits = HashMap(rabbits.filter { r -> r.value != trackId })
-
 
             if (rabbitName != ReplaySpinnerItems.NONE) {
                 rabbits[rabbitName] = trackId
@@ -971,10 +975,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                         val location = LatLng(p.latitude, p.longitude)
                         if (lastLoc != null) {
                             val relSpeed = min(
-                                1.0, TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
+                                1.0,
+                                TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
                                         ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp
                                             ?: p.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6) /
-                                        (rabbitTracks[rabbit.value]?.maxSpeed ?: 1.0)
+                                        (trackTypeMaxSpeeds[TrackType.fromInt(rabbitTracks[rabbit.value]!!.type)] ?: 1.0)
                             )
 
                             Log.d(TAG, "Relspeed $relSpeed")
