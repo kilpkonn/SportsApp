@@ -28,6 +28,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.view.animation.Animation.RELATIVE_TO_SELF
 import android.view.animation.RotateAnimation
 import android.widget.*
@@ -417,17 +418,15 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
-        // isSyncedWithService = false
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         user = userRepository.readUser()
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-        //registerReceiver(broadcastReceiver, broadcastReceiverIntentFilter)
         sensorManager.registerListener(this, accelerometer, SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, magnetometer, SENSOR_DELAY_GAME)
-        // isSyncedWithService = false
     }
 
     override fun onPause() {
@@ -435,11 +434,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         super.onPause()
         sensorManager.unregisterListener(this, accelerometer)
         sensorManager.unregisterListener(this, magnetometer)
-        // isSyncedWithService = false
     }
 
     override fun onStop() {
         Log.d(TAG, "onStop")
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onStop()
     }
 
