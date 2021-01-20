@@ -82,7 +82,6 @@ class OverviewActivity : AppCompatActivity() {
     private fun showOverview(period: Long) {
         linearLayoutScrollContent.removeAllViews()
         val data = trackSummaryRepository.readTrackSummariesDuringPeriod(System.currentTimeMillis() - period, System.currentTimeMillis())
-        val a = System.currentTimeMillis()
         data.groupBy { track -> track.type }
             .forEach { (typeInt, tracks) ->
                 val overviewView = layoutInflater.inflate(R.layout.overview_item, linearLayoutScrollContent, false)
@@ -98,7 +97,7 @@ class OverviewActivity : AppCompatActivity() {
                 overviewView.findViewById<TextView>(R.id.avg_speed).text =
                     Converter.speedToString(totalDistance / totalDurationMoving * 1_000_000_000 * 3.6, user?.speedMode ?: true)
                 overviewView.findViewById<TextView>(R.id.max_speed).text =
-                    Converter.speedToString(tracks.maxBy { t -> t.maxSpeed }!!.maxSpeed, user?.speedMode ?: true)
+                    Converter.speedToString(tracks.maxByOrNull { t -> t.maxSpeed }!!.maxSpeed, user?.speedMode ?: true)
                 overviewView.findViewById<TextView>(R.id.train_count).text = tracks.size.toString()
                 linearLayoutScrollContent.addView(overviewView)
             }

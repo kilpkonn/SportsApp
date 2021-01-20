@@ -35,11 +35,11 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.libraries.maps.CameraUpdateFactory
+import com.google.android.libraries.maps.GoogleMap
+import com.google.android.libraries.maps.OnMapReadyCallback
+import com.google.android.libraries.maps.SupportMapFragment
+import com.google.android.libraries.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.ui.IconGenerator
 import ee.taltech.kilpkonn.sportsapp.BuildConfig
@@ -133,6 +133,9 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var maxSpeed = 0.0
     private var rabbits = hashMapOf<String, Long>()
     private var rabbitTracks = hashMapOf<Long, TrackSummary>()
+    private var rabbitLines = hashMapOf<Long, Polyline>()
+    private var rabbitStyleSpans = hashMapOf<Long, MutableList<StyleSpan>>()
+    private var rabbitColors = hashMapOf<Long, Int>()
     private var trackTypeMaxSpeeds = hashMapOf<TrackType, Double?>()
 
     private var currentDegree = 0.0f
@@ -140,6 +143,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
     private var lastMagnetometer = FloatArray(3)
     private var lastAccelerometerSet = false
     private var lastMagnetometerSet = false
+
+    private var mPolyline: Polyline? = null
+    private var mLineStyles = mutableListOf<StyleSpan>()
+    private var lastColor = 0xFFFFFF
 
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
@@ -359,12 +366,20 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
             val lastLoc = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
             if (drawLine) {
-                mMap.addPolyline(
-                    PolylineOptions()
-                        .add(lastLoc, location)
-                        .width(5f)
-                        .color(color)
-                )
+                if (mPolyline == null) {
+                    mPolyline = mMap.addPolyline(
+                        PolylineOptions()
+                            .add(lastLoc, location)
+                            .width(5f)
+                            .color(color)
+                    )
+                } else {
+                    val points = mPolyline?.points
+                    points?.add(location)
+                    mPolyline?.points = points
+                    mLineStyles.add(StyleSpan(StrokeStyle.gradientBuilder(lastColor, color).build()))
+                    mPolyline?.setSpans(mLineStyles)
+                }
             }
 
             if (!drawOnlyLine) {
@@ -399,6 +414,8 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
                     )
                 }
             }
+
+            lastColor = color
 
             for ((marker, wp) in wpMarkers.entries) {
                 val distance = Converter.distToString(wp.getDriftToWP(trackLocation).toDouble())
@@ -793,6 +810,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
             mMap.clear()
             wpMarkers.clear()
             lastRabbitLocations.clear()
+            rabbitColors.clear()
+            rabbitLines.clear()
+            mLineStyles.clear()
+            mPolyline = null
             maxSpeed = 0.0
             minSpeed = 0.0
             lastUpdateTime = 0L
@@ -879,9 +900,14 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
         //intent.putExtra(C.TRACK_SYNC_REQUEST_TIME, 0L)
         lastUpdateTime = 0L
         lastLocation = null
+        rabbitLines.forEach { l -> l.value.remove() }
         mMap.clear()
+        mPolyline = null
+        mLineStyles.clear()
         wpMarkers.clear()
         lastRabbitLocations.clear()
+        rabbitColors.clear()
+        rabbitLines.clear()
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
@@ -961,43 +987,49 @@ class MapsActivity : AppCompatActivity(), SensorEventListener, OnMapReadyCallbac
 
                 val endTime =
                     if (isTracking) (rabbitTracks[rabbit.value]?.startTimeElapsed ?: 0L) + elapsedRunningTime else Long.MAX_VALUE
+                if (!rabbitColors.containsKey(rabbit.value)) {
+                    rabbitColors[rabbit.value] = 0xFFFFFF
+                }
 
                 ReadDatabaseTask<TrackLocation> { pointsToAdd ->
                     var lastRabbitLoc = lastRabbitLocations[rabbit.key]
-                    var lastLoc: LatLng? = null
-
-                    if (lastRabbitLoc != null) {
-                        lastLoc = LatLng(lastRabbitLoc.latitude, lastRabbitLoc.longitude)
-                    }
-
+                    val points = rabbitLines[rabbit.value]?.points ?: arrayListOf()
                     pointsToAdd.forEach { p ->
                         val location = LatLng(p.latitude, p.longitude)
-                        if (lastLoc != null) {
-                            val relSpeed = min(
-                                1.0,
-                                TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
-                                        ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp
-                                            ?: p.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6) /
-                                        (trackTypeMaxSpeeds[TrackType.fromInt(rabbitTracks[rabbit.value]!!.type)] ?: 1.0)
-                            )
 
-                            Log.d(TAG, "Relspeed $relSpeed")
-                            val color = argbEvaluator.evaluate(
-                                relSpeed.toFloat().pow(0.5f),
-                                ReplaySpinnerItems.COLORS_MIN_SPEED[rabbit.key]!!.toInt(),
-                                ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()
-                            ) as Int
+                        val relSpeed = min(
+                            1.0,
+                            TrackLocation.calcDistanceBetween(lastRabbitLoc ?: p, p) /
+                                    ((p.elapsedTimestamp - (lastRabbitLoc?.elapsedTimestamp
+                                        ?: p.elapsedTimestamp) + 1) / 1_000_000_000.0 / 3.6) /
+                                    (trackTypeMaxSpeeds[TrackType.fromInt(rabbitTracks[rabbit.value]!!.type)] ?: 1.0)
+                        )
 
-                            mMap.addPolyline(
+                        Log.d(TAG, "Relspeed $relSpeed")
+                        val color = argbEvaluator.evaluate(
+                            relSpeed.toFloat().pow(0.5f),
+                            ReplaySpinnerItems.COLORS_MIN_SPEED[rabbit.key]!!.toInt(),
+                            ReplaySpinnerItems.COLORS_MAX_SPEED[rabbit.key]!!.toInt()
+                        ) as Int
+
+                        if (!rabbitLines.containsKey(rabbit.value)) {
+                            rabbitLines[rabbit.value] = mMap.addPolyline(
                                 PolylineOptions()
-                                    .add(lastLoc, location)
                                     .width(5f)
                                     .color(color)
                             )
+                            rabbitStyleSpans[rabbit.value] = mutableListOf()
+                        } else {
+                            points.add(location)
+                            rabbitStyleSpans[rabbit.value]?.add(
+                                StyleSpan(StrokeStyle.gradientBuilder(rabbitColors[rabbit.value]!!, color).build())
+                            )
                         }
+                        rabbitColors[rabbit.value] = color
                         lastRabbitLoc = p
-                        lastLoc = location
                     }
+                    rabbitLines[rabbit.value]?.points = points
+                    rabbitLines[rabbit.value]?.setSpans(rabbitStyleSpans[rabbit.value])
                     if (pointsToAdd.isNotEmpty()) {
                         lastRabbitLocations[rabbit.key] = pointsToAdd.last()
                     }

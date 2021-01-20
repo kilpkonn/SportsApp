@@ -1,7 +1,7 @@
 package ee.taltech.kilpkonn.sportsapp.provider
 
 import android.location.Location
-import com.google.android.gms.maps.LocationSource
+import com.google.android.libraries.maps.LocationSource
 import ee.taltech.kilpkonn.sportsapp.track.pracelable.loaction.TrackLocation
 
 class FakeLocationProvider: LocationSource {

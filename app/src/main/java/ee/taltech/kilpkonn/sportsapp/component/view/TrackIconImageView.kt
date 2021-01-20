@@ -28,10 +28,10 @@ class TrackIconImageView(context: Context,attrs: AttributeSet) : AppCompatImageV
 
         if (track == null || track?.size == 0) return
 
-        val minLat = track?.minBy { location -> location.latitude }?.latitude ?: 0.0
-        val maxLat = track?.maxBy { location -> location.latitude }?.latitude ?: 0.0
-        val minLng = track?.minBy { location -> location.longitude }?.longitude ?: 0.0
-        val maxLng = track?.maxBy { location -> location.longitude }?.longitude ?: 0.0
+        val minLat = track?.minByOrNull { location -> location.latitude }?.latitude ?: 0.0
+        val maxLat = track?.maxByOrNull { location -> location.latitude }?.latitude ?: 0.0
+        val minLng = track?.minByOrNull { location -> location.longitude }?.longitude ?: 0.0
+        val maxLng = track?.maxByOrNull { location -> location.longitude }?.longitude ?: 0.0
 
         val latDelta = maxLat - minLat
         val lngMultiplier = cos((minLat + latDelta / 2) / 180f * PI)
